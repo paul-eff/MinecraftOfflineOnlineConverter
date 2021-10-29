@@ -2,7 +2,7 @@
   <artifact type="jar" name="JavaOfflineOnlineConverter:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/JavaOfflineOnlineConverter_jar</output-path>
     <root id="archive" name="JavaOfflineOnlineConverter.jar">
-      <element id="module-output" name="JavaOfflineOnlineConverter" />
+      <element id="module-output" name="MinecraftOfflineOnlineConverter" />
     </root>
   </artifact>
 </component>
