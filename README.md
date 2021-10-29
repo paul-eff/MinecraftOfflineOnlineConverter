@@ -1,4 +1,4 @@
-# MinecraftUUIDConverter v1.0.0
+# MinecraftOfflineOnlineConverter v1.0.0
 
 Ever started playing on one of your Miencraft servers and a few hours later that one friend that didn't buy the game wants to join?
 Well it happened to me way to often, and now I automated it.
