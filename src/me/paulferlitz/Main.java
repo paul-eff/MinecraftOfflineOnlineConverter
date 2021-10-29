@@ -46,56 +46,67 @@ public class Main
                 if (!pathToWorld.endsWith("/")) pathToWorld = pathToWorld + "/";
                 System.out.println("Working path set to \"" + pathToWorld + "\"");
             }
-            switch (mode)
+            try
             {
-                case "-offline":
-                    Map<UUID, OfflinePlayer> uuidMap = new HashMap<>();
-                    for (String workingDir : workingDirs)
-                    {
-                        String pathToWorkingDir = pathToWorld + workingDir + "/";
-                        FileHandler fh = new FileHandler();
-                        for (File file : fh.listAllFiles(pathToWorkingDir))
+                switch (mode)
+                {
+                    case "-offline":
+                        Map<UUID, OfflinePlayer> uuidMap = new HashMap<>();
+                        for (String workingDir : workingDirs)
                         {
-                            if (file.isFile() && !file.getName().endsWith("old"))
+                            String pathToWorkingDir = pathToWorld + workingDir + "/";
+                            FileHandler fh = new FileHandler();
+                            File fileList[] = fh.listAllFiles(pathToWorkingDir);
+                            if (fileList.length > 0)
                             {
-                                String currentFile = file.getName();
-                                String currentFileName;
-                                if (workingDir.equals("playerdata"))
+                                for (File file : fileList)
                                 {
-                                    currentFileName = currentFile.substring(0, currentFile.length() - 4);
-                                    if (!uuidMap.containsKey(UUID.fromString(currentFileName)))
+                                    if (file.isFile() && !file.getName().endsWith("old"))
                                     {
-                                        uuidMap.put(
-                                                UUID.fromString(currentFileName),
-                                                new OfflinePlayer(
-                                                        uuidHandler.onlineUUIDToName(currentFileName),
-                                                        UUID.fromString(uuidHandler.onlineUUIDToOffline(currentFileName))));
+                                        String currentFile = file.getName();
+                                        String currentFileName;
+                                        if (workingDir.equals("playerdata"))
+                                        {
+                                            currentFileName = currentFile.substring(0, currentFile.length() - 4);
+                                            if (!uuidMap.containsKey(UUID.fromString(currentFileName)))
+                                            {
+                                                uuidMap.put(
+                                                        UUID.fromString(currentFileName),
+                                                        new OfflinePlayer(
+                                                                uuidHandler.onlineUUIDToName(currentFileName),
+                                                                UUID.fromString(uuidHandler.onlineUUIDToOffline(currentFileName))));
+                                            }
+                                            fh.renameFile(pathToWorkingDir, currentFile, uuidMap.get(UUID.fromString(currentFileName)).getUuid() + ".dat");
+                                        } else
+                                        {
+                                            currentFileName = currentFile.substring(0, currentFile.length() - 5);
+                                            if (!uuidMap.containsKey(UUID.fromString(currentFileName)))
+                                            {
+                                                uuidMap.put(
+                                                        UUID.fromString(currentFileName),
+                                                        new OfflinePlayer(
+                                                                uuidHandler.onlineUUIDToName(currentFileName),
+                                                                UUID.fromString(uuidHandler.onlineUUIDToOffline(currentFileName))));
+                                            }
+                                            fh.renameFile(pathToWorkingDir, currentFile, uuidMap.get(UUID.fromString(currentFileName)).getUuid() + ".json");
+                                        }
+                                        System.out.println("Player " + uuidMap.get(UUID.fromString(currentFileName)).getName() + " --> " +
+                                                currentFileName + " to " + uuidMap.get(UUID.fromString(currentFileName)).getUuid());
                                     }
-                                    fh.renameFile(pathToWorkingDir, currentFile, uuidMap.get(UUID.fromString(currentFileName)).getUuid() + ".dat");
-                                } else
-                                {
-                                    currentFileName = currentFile.substring(0, currentFile.length() - 5);
-                                    if (!uuidMap.containsKey(UUID.fromString(currentFileName)))
-                                    {
-                                        uuidMap.put(
-                                                UUID.fromString(currentFileName),
-                                                new OfflinePlayer(
-                                                        uuidHandler.onlineUUIDToName(currentFileName),
-                                                        UUID.fromString(uuidHandler.onlineUUIDToOffline(currentFileName))));
-                                    }
-                                    fh.renameFile(pathToWorkingDir, currentFile, uuidMap.get(UUID.fromString(currentFileName)).getUuid() + ".json");
                                 }
-                                System.out.println("Player " + uuidMap.get(UUID.fromString(currentFileName)).getName() + " --> " +
-                                        currentFileName + " to " + uuidMap.get(UUID.fromString(currentFileName)).getUuid());
                             }
                         }
-                    }
-                    break;
-                case "-online":
-                    System.out.println("Converting from offline to online is currently WIP!");
-                    break;
-                default:
-                    System.out.println("There was a fatal error!");
+                        break;
+                    case "-online":
+                        System.out.println("Converting from offline to online is currently WIP!");
+                        break;
+                    default:
+                        System.out.println("There was a fatal error!");
+                }
+            } catch (NullPointerException e)
+            {
+                e.printStackTrace();
+                System.out.println("There was a problem whilst converting a UUID. It may be an offline only UUID and can't be resolved!");
             }
         }
         long endTime = System.nanoTime();
