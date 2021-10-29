@@ -1,4 +1,4 @@
-package me.gigawartrex;
+package me.paulferlitz;
 
 import java.io.File;
 import java.io.IOException;

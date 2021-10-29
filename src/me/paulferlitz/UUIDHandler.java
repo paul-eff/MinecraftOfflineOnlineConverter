@@ -1,4 +1,4 @@
-package me.gigawartrex;
+package me.paulferlitz;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

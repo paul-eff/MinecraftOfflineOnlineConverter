@@ -1,4 +1,4 @@
-package me.gigawartrex;
+package me.paulferlitz;
 
 import java.io.File;
 import java.io.IOException;
@@ -100,6 +100,12 @@ public class Main
         }
         long endTime = System.nanoTime();
         long timeElapsed = endTime - startTime;
-        System.out.println("Job finished in " + (timeElapsed / 1000000) + " milliseconds.");
+        if (args.length > 0)
+        {
+            System.out.println("Job finished in " + (timeElapsed / 1000000) + " milliseconds.");
+        } else
+        {
+            System.out.println("Error occured wrong argument. Use -online or -offline and if neede -p with path/to/world/folder!");
+        }
     }
 }
