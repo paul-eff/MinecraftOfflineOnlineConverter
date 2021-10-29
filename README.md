@@ -23,3 +23,4 @@ java -jar MinecraftOfflineOnlineConverter.jar <arguments>
 
 - A bit more error handling
 - Make the conversion from offline to online possible
+- Make version with GUI
