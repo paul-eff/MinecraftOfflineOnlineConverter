@@ -1,6 +1,6 @@
 
-# Created by https://www.toptal.com/developers/gitignore/api/java,intellij,macos,windows,linux
-# Edit at https://www.toptal.com/developers/gitignore?templates=java,intellij,macos,windows,linux
+# Created by https://www.toptal.com/developers/gitignore/api/intellij,java,macos,windows,linux,maven
+# Edit at https://www.toptal.com/developers/gitignore?templates=intellij,java,macos,windows,linux,maven
 
 ### Intellij ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
@@ -177,6 +177,26 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+### Maven ###
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+# https://github.com/takari/maven-wrapper#usage-without-binary-jar
+.mvn/wrapper/maven-wrapper.jar
+
+### Maven Patch ###
+# Eclipse m2e generated files
+# Eclipse Core
+.project
+# JDT-specific (Eclipse Java Development Tools)
+.classpath
+
 ### Windows ###
 # Windows thumbnail cache files
 Thumbs.db
@@ -203,4 +223,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/java,intellij,macos,windows,linux
+# End of https://www.toptal.com/developers/gitignore/api/intellij,java,macos,windows,linux,maven

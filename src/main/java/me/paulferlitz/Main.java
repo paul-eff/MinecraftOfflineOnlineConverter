@@ -31,7 +31,7 @@ public class Main
                     break;
                 default:
                     if (!hasPath)
-                        System.out.println("Error occured wrong argument. Use -online or -offline and if neede -p with path/to/world/folder!");
+                        System.out.println("Error occured, wrong argument. Use -online or -offline and if neede -p with path/to/world/folder!");
             }
         }
         if (!mode.equals("N/A"))

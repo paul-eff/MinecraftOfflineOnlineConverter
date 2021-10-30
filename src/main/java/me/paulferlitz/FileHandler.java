@@ -28,4 +28,9 @@ public class FileHandler
         File folder = new File(worldFolderpath);
         return folder.listFiles();
     }
+
+    public void loadJSONFromFile(String pathToJSON)
+    {
+        
+    }
 }
