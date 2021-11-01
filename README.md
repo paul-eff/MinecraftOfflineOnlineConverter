@@ -12,7 +12,7 @@ NOTE: Atm, when given no path, the app will only convert the `world` folder. You
 - Place it on your server's main folder
 - Execute the jar through your terminal with the following command:
 ```java
-java -jar MinecraftOfflineOnlineConverter.jar <arguments>
+java -jar MinecraftOfflineOnlineConverter_1_0_0.jar <arguments>
 ```
 - You will also have to pass one of these arguments
   - `-offline` to convert your server to offline files
