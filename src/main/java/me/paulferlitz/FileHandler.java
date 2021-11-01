@@ -1,26 +1,22 @@
 package me.paulferlitz;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class FileHandler
 {
-    public static boolean renameFile(String baseWorldFolder, String oldFilePath, String newFilePath)
+    public static void renameFile(String baseWorldFolder, String oldFilePath, String newFilePath) throws IOException
     {
         Path source = Paths.get(baseWorldFolder + oldFilePath);
         Path target = Paths.get(baseWorldFolder + newFilePath);
-        try
-        {
-            Files.move(source, target);
-            return true;
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-            return false;
-        }
+        Files.move(source, target);
     }
 
     public static File[] listAllFiles(String worldFolderpath)
@@ -29,8 +25,16 @@ public class FileHandler
         return folder.listFiles();
     }
 
-    public void loadJSONFromFile(String pathToJSON)
+    public static JSONArray loadArrayFromUsercache(String pathToUsercache)
     {
-        
+        String jsonString = "[]";
+        try
+        {
+            jsonString = Files.readString(Path.of(pathToUsercache), StandardCharsets.UTF_8);
+        } catch (IOException e)
+        {
+            System.out.println("Could not find usercache.json with given path " + pathToUsercache + "!");
+        }
+        return new JSONArray(jsonString);
     }
 }
