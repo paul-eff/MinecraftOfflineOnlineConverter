@@ -2,12 +2,12 @@ package me.paulferlitz;
 
 import java.util.UUID;
 
-public class OfflinePlayer
+public class Player
 {
     private final String name;
     private final UUID uuid;
 
-    public OfflinePlayer(String name, UUID uuid)
+    public Player(String name, UUID uuid)
     {
         this.name = name;
         this.uuid = uuid;
