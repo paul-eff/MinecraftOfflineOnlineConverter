@@ -1,43 +1,39 @@
 package me.paulferlitz;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 public class UUIDHandler
 {
-    HTTPHandler http;
+    private static HTTPHandler http = new HTTPHandler();
 
-    public UUIDHandler()
-    {
-        this.http = new HTTPHandler();
-    }
-
-    public UUID offlineNameToUUID(String offlineName)
+    public static UUID offlineNameToUUID(String offlineName)
     {
         return UUID.nameUUIDFromBytes(("OfflinePlayer:" + offlineName).getBytes(StandardCharsets.UTF_8));
     }
 
-    public UUID onlineNameToUUID(String onlineName) throws IOException
+    public static UUID onlineNameToUUID(String onlineName) throws IOException
     {
         http.setUrl("https://api.mojang.com/users/profiles/minecraft/" + onlineName);
-        String content = http.httpDoGet();
-        String rawUUID = content.substring(content.indexOf("\"id\":") + 6, content.length() - 2);
-        String uuid = rawUUID.replaceAll(
+        JSONObject json = new JSONObject(http.httpDoGet());
+        String uuid = json.getString("id").replaceAll(
                 "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})",
                 "$1-$2-$3-$4-$5");
         return UUID.fromString(uuid);
     }
 
-    public String onlineUUIDToName(String onlineUUID) throws IOException
+    public static String onlineUUIDToName(UUID onlineUUID) throws IOException
     {
-        http.setUrl("https://api.mojang.com/user/profile/" + onlineUUID);
-        String content = http.httpDoGet();
-        return content.substring(content.indexOf("\"name\":") + 8, content.length() - 2);
+        http.setUrl("https://api.mojang.com/user/profile/" + onlineUUID.toString());
+        JSONObject json = new JSONObject(http.httpDoGet());
+        return json.getString("name");
     }
 
-    public String onlineUUIDToOffline(String onlineUUID) throws IOException
+    public static UUID onlineUUIDToOffline(UUID onlineUUID) throws IOException
     {
-        return offlineNameToUUID(onlineUUIDToName(onlineUUID)).toString();
+        return offlineNameToUUID(onlineUUIDToName(onlineUUID));
     }
 }

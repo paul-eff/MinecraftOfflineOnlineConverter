@@ -1,10 +1,8 @@
 package me.paulferlitz;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,8 +31,38 @@ public class FileHandler
             jsonString = Files.readString(Path.of(pathToUsercache), StandardCharsets.UTF_8);
         } catch (IOException e)
         {
-            System.out.println("Could not find usercache.json with given path " + pathToUsercache + "!");
+            System.out.println("Could not find usercache.json with given path \"" + pathToUsercache + "\"." +
+                    "\nContinuing without prefetching userdata.");
         }
         return new JSONArray(jsonString);
+    }
+
+    public static String readWorldNameFromProperties(String pathToProperties)
+    {
+        boolean foundInProperties = false;
+        String worldName = "world";
+
+        try (BufferedReader br = new BufferedReader(new FileReader(pathToProperties))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.startsWith("level-name="))
+                {
+                    worldName = line.replace("level-name=", "");
+                    System.out.println("Found world name \"" + worldName + "\" in server.properties. Trying to target this world folder.");
+                    foundInProperties = true;
+                }
+            }
+        } catch (IOException e)
+        {
+            System.out.println("Could not find server.properties with given path \"" + pathToProperties + "\"." +
+                    "\nContinuing without prefetching world name.");
+        }
+
+        if(!foundInProperties)
+        {
+            System.out.println("No world name found. Using default (\"" + worldName + "\").");
+        }
+
+        return worldName;
     }
 }
