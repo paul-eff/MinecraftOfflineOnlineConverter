@@ -1,7 +1,6 @@
 package me.paulferlitz;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +32,8 @@ public class FileHandler
             jsonString = Files.readString(Path.of(pathToUsercache), StandardCharsets.UTF_8);
         } catch (IOException e)
         {
-            System.out.println("Could not find usercache.json with given path " + pathToUsercache + "!");
+            System.out.println("Could not find usercache.json with given path \"" + pathToUsercache + "\"." +
+                    "\nContinuing without prefetching userdata.");
         }
         return new JSONArray(jsonString);
     }

@@ -1,1 +1,0 @@
-Main-Class: me.paulferlitz.Main
