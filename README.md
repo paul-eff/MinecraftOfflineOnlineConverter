@@ -29,7 +29,7 @@ Whilst it was thoroughly tested on my own servers, there is always the chance th
 
 # TODO
 
-- Add support for older Minecraft versions where dimensions were separate folders (world_the_end ...)
+- Add support for Bukkit (and others) Minecraft versions where dimensions are separate folders (world_the_end ...)
 - JavaDoc the whole project
 - Make version with GUI
 
