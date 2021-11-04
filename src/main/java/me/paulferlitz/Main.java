@@ -3,7 +3,6 @@ package me.paulferlitz;
 import me.paulferlitz.exceptions.InvalidArgumentException;
 import me.paulferlitz.exceptions.PathNotValidException;
 
-import java.io.IOException;
 import java.util.Locale;
 
 public class Main
@@ -14,7 +13,7 @@ public class Main
     private static boolean hasPath = false;
     private static Converter converter;
 
-    public static void main(String[] args) throws PathNotValidException, InvalidArgumentException, IOException
+    public static void main(String[] args) throws PathNotValidException, InvalidArgumentException
     {
         long startTime = System.nanoTime();
         System.out.println("\nStarting MinecraftOfflineOnlineConverter Version " + version + "...\n");
