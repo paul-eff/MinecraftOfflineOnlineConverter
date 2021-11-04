@@ -2,7 +2,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/version-2.1.0-blue">
   <img src="https://img.shields.io/badge/minecraft-1.17.1-green">
-  <img src="https://img.shields.io/badge/java-16.0.1-redw">
+  <img src="https://img.shields.io/badge/java-16.0.1-red">
 </p>
 
 Ever started playing on one of your Minecraft servers and a few hours later that one friend that didn't buy the game wants to join?
