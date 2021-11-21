@@ -17,14 +17,14 @@ This little Java applicatin will convert all player related files in your world 
 ```java
 java -jar MinecraftOfflineOnlineConverter_2_2_0.jar <arguments>
 ```
-- You will also have to pass one of these arguments
+- You will have to pass one of these arguments
   - `-offline` to convert your server to offline files
   - `-online` to convert your server to online files
 - And if necessary `-p "path/to/server/folder/"` (if the jar is not in the server's main folder)
 
 # Disclaimer
 
-Please do always make a backup of your game files before using this tool.
+Please always make a backup of your game files before using this tool.
 Whilst it was thoroughly tested on my own servers, there is always the chance that a bug might occur!
 
 If you need this application for a lower Minecraft and/or Java version, please leave me a message or issue :)!
