@@ -27,6 +27,8 @@ java -jar MinecraftOfflineOnlineConverter_2_2_0.jar <arguments>
 Please do always make a backup of your game files before using this tool.
 Whilst it was thoroughly tested on my own servers, there is always the chance that a bug might occur!
 
+If you need this application for a lower Minecraft and/or Java version, please leave me a message or issue :)!
+
 # TODO
 
 - JavaDoc the whole project
