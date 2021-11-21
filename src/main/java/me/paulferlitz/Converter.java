@@ -20,6 +20,7 @@ public class Converter
 {
     private final String[] workingDirs = new String[]{"playerdata", "advancements", "stats"};
     private final String worldFolderPath;
+    private final boolean isBukkit;
 
     private UUIDHandler uuidHandler = new UUIDHandler();
     private Map<UUID, Player> uuidMap = new HashMap<>();
@@ -31,6 +32,7 @@ public class Converter
         {
             throw new PathNotValidException(this.worldFolderPath);
         }
+        this.isBukkit = Files.exists(Path.of(this.worldFolderPath.substring(0, this.worldFolderPath.length()-1) + "_nether"));
     }
 
     public Converter(String serverFolderPath) throws PathNotValidException
@@ -44,6 +46,7 @@ public class Converter
         {
             throw new PathNotValidException(this.worldFolderPath);
         }
+        this.isBukkit = Files.exists(Path.of(this.worldFolderPath.substring(0, this.worldFolderPath.length()-1) + "_nether"));
     }
 
     private void fetchUsercache(String mode) throws InvalidArgumentException
@@ -83,24 +86,25 @@ public class Converter
 
     public boolean convert(String mode) throws InvalidArgumentException
     {
+        if(isBukkit) System.out.println("Detected Bukkit/Spigot/Paper server.");
         if (mode.equals("-offline"))
         {
-            System.out.println("CONVERSION: ONLINE --> OFFLINE");
+            System.out.println("\nCONVERSION: ONLINE --> OFFLINE");
             fetchUsercache("offline");
         } else
         {
-            System.out.println("CONVERSION: OFFLINE --> ONLINE");
+            System.out.println("\nCONVERSION: OFFLINE --> ONLINE");
             fetchUsercache("online");
             if (uuidMap.size() <= 0)
             {
-                System.out.println("Could not find any offline profiles that were covertable to online profiles. Aborting...");
+                System.out.println("\nCould not find any offline profiles that were covertable to online profiles. Aborting...");
                 return false;
             }
         }
 
         for (String workingDir : this.workingDirs)
         {
-            System.out.println("Working on " + workingDir + "...");
+            System.out.println("\nWorking on " + workingDir + "...");
 
             String pathToWorkingDir = this.worldFolderPath + workingDir + "/";
             File fileList[] = FileHandler.listAllFiles(pathToWorkingDir);

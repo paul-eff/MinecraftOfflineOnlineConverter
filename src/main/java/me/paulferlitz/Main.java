@@ -8,6 +8,8 @@ import java.util.Locale;
 
 public class Main
 {
+    private static final String version = "2.2.0";
+
     private static String mode = "N/A";
     private static boolean hasPath = false;
     private static Converter converter;
@@ -15,6 +17,7 @@ public class Main
     public static void main(String[] args) throws PathNotValidException, InvalidArgumentException, IOException
     {
         long startTime = System.nanoTime();
+        System.out.println("\nStarting MinecraftOfflineOnlineConverter Version " + version + "...\n");
 
         for (int i = 0; i < args.length; i++)
         {

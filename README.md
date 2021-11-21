@@ -1,6 +1,6 @@
-# MinecraftOfflineOnlineConverter v2.1.0
+# MinecraftOfflineOnlineConverter v2.2.0
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.1.0-blue">
+  <img src="https://img.shields.io/badge/version-2.2.0-blue">
   <img src="https://img.shields.io/badge/minecraft-1.17.1-green">
   <img src="https://img.shields.io/badge/java-16.0.1-red">
 </p>
@@ -15,7 +15,7 @@ This little Java applicatin will convert all player related files in your world 
 - Place it in your server's main folder (not mandatory, just makes things easier)
 - Execute the jar through your terminal with the following command:
 ```java
-java -jar MinecraftOfflineOnlineConverter_2_1_0.jar <arguments>
+java -jar MinecraftOfflineOnlineConverter_2_2_0.jar <arguments>
 ```
 - You will also have to pass one of these arguments
   - `-offline` to convert your server to offline files
@@ -29,7 +29,6 @@ Whilst it was thoroughly tested on my own servers, there is always the chance th
 
 # TODO
 
-- Add support for Bukkit (and others) Minecraft versions where dimensions are separate folders (world_the_end ...)
 - JavaDoc the whole project
 - Make version with GUI
 
