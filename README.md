@@ -2,12 +2,14 @@
 <p align="center">
   <img src="https://img.shields.io/badge/version-2.2.0-blue">
   <img src="https://img.shields.io/badge/minecraft-1.17.1-green">
-  <img src="https://img.shields.io/badge/java-16.0.1-red">
+  <img src="shttps://img.shields.io/badge/java-16.0.1-red">
 </p>
 
 Ever started playing on one of your Minecraft servers and a few hours later that one friend that didn't buy the game wants to join?
-Well it happened to me way to often, and now I automated it.
-This little Java applicatin will convert all player related files in your world folder to be offline or online compatible.
+Now you have to start a lengthy process of turning your server to offline mode and making sure everyone has their inventory and achievements after the switch... 
+
+This happened to me way to often, and now I automated the whole process.
+The Java applicatin will convert all player related files to be offline or online compatible.
 
 # Usage
 
