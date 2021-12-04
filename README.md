@@ -1,6 +1,6 @@
-# MinecraftOfflineOnlineConverter v2.2.0
+# MinecraftOfflineOnlineConverter v2.2.1
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.2.0-blue">
+  <img src="https://img.shields.io/badge/version-2.2.1-blue">
   <img src="https://img.shields.io/badge/minecraft-1.17.1-green">
   <img src="shttps://img.shields.io/badge/java-16.0.1-red">
 </p>
