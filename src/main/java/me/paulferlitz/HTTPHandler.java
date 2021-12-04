@@ -6,31 +6,53 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ * Class for handling the API connections to the Mojang API.
+ */
 public class HTTPHandler
 {
+    // Class variables
     private String url;
 
+    /**
+     * Main constructor.
+     */
     public HTTPHandler()
     {
         this.url = "";
     }
 
+    /**
+     * Method to set the target URL.
+     *
+     * @param newUrl The new URL to target.
+     */
     public void setUrl(String newUrl)
     {
         this.url = newUrl;
     }
 
+    /**
+     * Method for handling GET requests to target URL.
+     *
+     * @return Returns the response content.
+     * @throws IOException When there are problems with connection etc.
+     */
     public String httpDoGet() throws IOException
     {
+        // Create URL and connect
         URL url = new URL(this.url);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        // Set method and parameters
         con.setRequestMethod("GET");
         con.setConnectTimeout(5000);
         con.setReadTimeout(5000);
         con.setInstanceFollowRedirects(false);
+        // Check response
         int status = con.getResponseCode();
         if (status == 200)
         {
+            // Read response
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String inputLine;
             StringBuffer content = new StringBuffer();
@@ -38,6 +60,7 @@ public class HTTPHandler
             {
                 content.append(inputLine);
             }
+            // Close and return results
             in.close();
             con.disconnect();
             return content.toString();

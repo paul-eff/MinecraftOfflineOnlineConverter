@@ -8,8 +8,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Class for handling file operations.
+ */
 public class FileHandler
 {
+    /**
+     * Method to rename a file.
+     *
+     * @param baseWorldFolder Base working directory.
+     * @param oldFilePath Old path / name for file in question.
+     * @param newFilePath New path / name for file in question.
+     * @throws IOException If renaming wasn't possible.
+     */
     public static void renameFile(String baseWorldFolder, String oldFilePath, String newFilePath) throws IOException
     {
         Path source = Paths.get(baseWorldFolder + oldFilePath);
@@ -17,12 +28,24 @@ public class FileHandler
         Files.move(source, target);
     }
 
+    /**
+     * Basic method to list all files in a given directory.
+     *
+     * @param worldFolderpath Path to folder.
+     * @return A list of Files.
+     */
     public static File[] listAllFiles(String worldFolderpath)
     {
         File folder = new File(worldFolderpath);
         return folder.listFiles();
     }
 
+    /**
+     * Method to load the array of players in the usercache.json file.
+     *
+     * @param pathToUsercache Path to usercache.json file.
+     * @return The usercache.json content as a JSON Array.
+     */
     public static JSONArray loadArrayFromUsercache(String pathToUsercache)
     {
         String jsonString = "[]";
@@ -37,11 +60,18 @@ public class FileHandler
         return new JSONArray(jsonString);
     }
 
+    /**
+     * Method to fetch the world name from the server.properties files.
+     *
+     * @param pathToProperties Path to server.properties file.
+     * @return The world name.
+     */
     public static String readWorldNameFromProperties(String pathToProperties)
     {
         boolean foundInProperties = false;
+        // Default value
         String worldName = "world";
-
+        // Iterate over file until 'level-name' tag was found
         try (BufferedReader br = new BufferedReader(new FileReader(pathToProperties))) {
             String line;
             while ((line = br.readLine()) != null) {

@@ -1,5 +1,8 @@
 package me.paulferlitz.exceptions;
 
+/**
+ * Exception thrown when wrong or invalid arguments were passed.
+ */
 public class InvalidArgumentException extends Exception
 {
     public InvalidArgumentException(String argument)

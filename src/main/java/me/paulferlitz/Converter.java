@@ -16,8 +16,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Class for handling the file conversion.
+ */
 public class Converter
 {
+    // Class variables
     private final String[] workingDirs = new String[]{"playerdata", "advancements", "stats"};
     private final String worldFolderPath;
     private final boolean isBukkit;
@@ -25,19 +29,34 @@ public class Converter
     private UUIDHandler uuidHandler = new UUIDHandler();
     private Map<UUID, Player> uuidMap = new HashMap<>();
 
+    /**
+     * Main constructor.
+     *
+     * @throws PathNotValidException if the path derived from server.properties or default could not be resolved.
+     */
     public Converter() throws PathNotValidException
     {
+        // Get path to world folder
         this.worldFolderPath = "./" + FileHandler.readWorldNameFromProperties("./server.properties") + "/";
         if (!Files.exists(Path.of(this.worldFolderPath)))
         {
             throw new PathNotValidException(this.worldFolderPath);
         }
-        this.isBukkit = Files.exists(Path.of(this.worldFolderPath.substring(0, this.worldFolderPath.length()-1) + "_nether"));
+        // Check if it's a non vanilla server
+        this.isBukkit = Files.exists(Path.of(this.worldFolderPath.substring(0, this.worldFolderPath.length() - 1) + "_nether"));
     }
 
+    /**
+     * Secondary constructor if the server folder path must be specified.
+     *
+     * @param serverFolderPath The path to the server's main folder.
+     * @throws PathNotValidException if the path derived from server.properties or default could not be resolved.
+     */
     public Converter(String serverFolderPath) throws PathNotValidException
     {
+        // Cleanup and set server folder path
         serverFolderPath = serverFolderPath.endsWith("/") ? serverFolderPath : (serverFolderPath + "/");
+        // Get path to world folder
         this.worldFolderPath = serverFolderPath + FileHandler.readWorldNameFromProperties(serverFolderPath + "server.properties") + "/";
         if (Files.exists(Path.of(this.worldFolderPath)))
         {
@@ -46,19 +65,28 @@ public class Converter
         {
             throw new PathNotValidException(this.worldFolderPath);
         }
-        this.isBukkit = Files.exists(Path.of(this.worldFolderPath.substring(0, this.worldFolderPath.length()-1) + "_nether"));
+        // Check if it's a non vanilla server
+        this.isBukkit = Files.exists(Path.of(this.worldFolderPath.substring(0, this.worldFolderPath.length() - 1) + "_nether"));
     }
 
+    /**
+     * Method that fetches all known players from the usercache.json file.
+     *
+     * @param mode If the server should be converted to offline or online mode.
+     * @throws InvalidArgumentException if an illegal argument was detected.
+     */
     private void fetchUsercache(String mode) throws InvalidArgumentException
     {
+        // Get all players from usercache.json
         JSONArray knownPlayers = FileHandler.loadArrayFromUsercache(this.worldFolderPath + "../usercache.json");
         uuidMap.clear();
-
+        // Iterate over all players
         for (Object obj : knownPlayers)
         {
             JSONObject knownPlayer = (JSONObject) obj;
             try
             {
+                // Try converting knownPlayer to a Player object by fetching or generating his UUID etc.
                 Player player;
                 switch (mode)
                 {
@@ -73,6 +101,7 @@ public class Converter
                     default:
                         throw new InvalidArgumentException(mode);
                 }
+                // Save to the Hashmap for later
                 uuidMap.put(UUID.fromString(knownPlayer.getString("uuid")), player);
 
                 System.out.println("Was able to prefetch player " + knownPlayer.getString("name") + " from usercache.json");
@@ -84,9 +113,16 @@ public class Converter
         }
     }
 
+    /**
+     * Main class method for converting all player bound files.
+     *
+     * @param mode If the server should be converted to offline or online mode.
+     * @return True if conversion was successfull.
+     * @throws InvalidArgumentException if an illegal argument was detected.
+     */
     public boolean convert(String mode) throws InvalidArgumentException
     {
-        if(isBukkit) System.out.println("Detected Bukkit/Spigot/Paper server.");
+        if (isBukkit) System.out.println("Detected Bukkit/Spigot/Paper server.");
         if (mode.equals("-offline"))
         {
             System.out.println("\nCONVERSION: ONLINE --> OFFLINE");
@@ -95,13 +131,14 @@ public class Converter
         {
             System.out.println("\nCONVERSION: OFFLINE --> ONLINE");
             fetchUsercache("online");
+            // Abort process if all found players are offline only profiles (nothing to do here).
             if (uuidMap.size() <= 0)
             {
                 System.out.println("\nCould not find any offline profiles that were covertable to online profiles. Aborting...");
                 return false;
             }
         }
-
+        // Iterate over every know directory with player files and convert it's content.
         for (String workingDir : this.workingDirs)
         {
             System.out.println("\nWorking on " + workingDir + "...");
@@ -112,6 +149,7 @@ public class Converter
             if (fileList == null) continue;
             for (File file : fileList)
             {
+                // Make sure to only convert current files (exclude _old etc.)
                 if (file.isFile() && (file.getName().endsWith(".dat") || file.getName().endsWith(".json")))
                 {
                     String currentFile = file.getName();
@@ -122,6 +160,7 @@ public class Converter
 
                     try
                     {
+                        // If player not yet fetched from usercache.json, try to save him for later
                         if (!uuidMap.containsKey(currentUUID) && mode.equals("-offline"))
                         {
                             //TODO: onlineUUIDToOffline utilises onlineUUIDToName -> make better to save on API requests
@@ -129,8 +168,9 @@ public class Converter
                                     new Player(UUIDHandler.onlineUUIDToName(UUID.fromString(currentFileName)),
                                             UUIDHandler.onlineUUIDToOffline(UUID.fromString(currentFileName))));
                         }
+                        // Rename current file
                         FileHandler.renameFile(pathToWorkingDir, currentFile, uuidMap.get(currentUUID).getUuid() + fileEnding);
-
+                        // Replace old entry in usercache.json to prevent clutter
                         Path path = Paths.get(this.worldFolderPath + "../usercache.json");
                         String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
                         content = content.replaceAll(currentFileName, uuidMap.get(UUID.fromString(currentFileName)).getUuid().toString());
@@ -146,6 +186,7 @@ public class Converter
                                     pathToWorkingDir + currentFile + ". Probably offline!");
                         } else if (e instanceof FileAlreadyExistsException)
                         {
+                            // This error should only happen if you intentionally tinker whilst the application is running, but I still am handling it.
                             System.out.println("\n!!! FILE CONFLICT !!!");
                             System.out.println("Source file: " + pathToWorkingDir + currentFile);
                             System.out.println("Output file: " + ((FileAlreadyExistsException) e).getFile());
