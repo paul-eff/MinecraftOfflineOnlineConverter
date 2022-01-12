@@ -123,7 +123,7 @@ public class Converter
     public boolean convert(String mode) throws InvalidArgumentException
     {
         if (isBukkit) System.out.println("Detected Bukkit/Spigot/Paper server.");
-        if (mode.equals("-offline"))
+        if (!mode.equals("-online"))
         {
             System.out.println("\nCONVERSION: ONLINE --> OFFLINE");
             fetchUsercache("offline");

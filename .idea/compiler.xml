@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="MinecraftOfflineOnlineConverter" target="11" />
+      <module name="MinecraftOfflineOnlineConverter" target="17" />
     </bytecodeTargetLevel>
   </component>
 </project>
