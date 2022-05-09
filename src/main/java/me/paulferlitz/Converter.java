@@ -23,6 +23,7 @@ public class Converter
 {
     // Class variables
     private final String[] workingDirs = new String[]{"playerdata", "advancements", "stats"};
+    private final String[] workingFiles = new String[]{"whitelist.json", "ops.json", "usercache.json", "banned-players.json", "banned-ips.json"};
     private final String worldFolderPath;
     private final boolean isBukkit;
 
@@ -171,10 +172,13 @@ public class Converter
                         // Rename current file
                         FileHandler.renameFile(pathToWorkingDir, currentFile, uuidMap.get(currentUUID).getUuid() + fileEnding);
                         // Replace old entry in usercache.json to prevent clutter
-                        Path path = Paths.get(this.worldFolderPath + "../usercache.json");
-                        String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
-                        content = content.replaceAll(currentFileName, uuidMap.get(UUID.fromString(currentFileName)).getUuid().toString());
-                        Files.write(path, content.getBytes(StandardCharsets.UTF_8));
+                        for (String workingFile : this.workingFiles)
+                        {
+                            Path path = Paths.get(this.worldFolderPath + "../" + workingFile);
+                            String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+                            content = content.replaceAll(currentFileName, uuidMap.get(UUID.fromString(currentFileName)).getUuid().toString());
+                            Files.write(path, content.getBytes(StandardCharsets.UTF_8));
+                        }
 
                         System.out.println("Player " + uuidMap.get(UUID.fromString(currentFileName)).getName() + " --> " +
                                 currentFileName + " to " + uuidMap.get(UUID.fromString(currentFileName)).getUuid());
