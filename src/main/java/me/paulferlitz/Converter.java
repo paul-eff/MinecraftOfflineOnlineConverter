@@ -171,7 +171,7 @@ public class Converter
                         }
                         // Rename current file
                         FileHandler.renameFile(pathToWorkingDir, currentFile, uuidMap.get(currentUUID).getUuid() + fileEnding);
-                        // Replace old entry in usercache.json to prevent clutter
+                        // Replace old entry in files holding old UUIDs to prevent clutter
                         for (String workingFile : this.workingFiles)
                         {
                             Path path = Paths.get(this.worldFolderPath + "../" + workingFile);
