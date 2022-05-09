@@ -11,7 +11,7 @@ import java.util.Locale;
 public class Main
 {
     // Class variables
-    private static final String version = "2.3.0";
+    private static final String version = "2.3.1";
 
     private static String mode = "N/A";
     private static boolean hasPath = false;
