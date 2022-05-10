@@ -8,6 +8,8 @@ import java.net.URL;
 
 /**
  * Class for handling the API connections to the Mojang API.
+ *
+ * @author Paul Ferlitz
  */
 public class HTTPHandler
 {
@@ -49,13 +51,12 @@ public class HTTPHandler
         con.setReadTimeout(5000);
         con.setInstanceFollowRedirects(false);
         // Check response
-        int status = con.getResponseCode();
-        if (status == 200)
+        if (con.getResponseCode() == 200)
         {
             // Read response
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String inputLine;
-            StringBuffer content = new StringBuffer();
+            StringBuilder content = new StringBuilder();
             while ((inputLine = in.readLine()) != null)
             {
                 content.append(inputLine);

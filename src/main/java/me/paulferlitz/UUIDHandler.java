@@ -8,6 +8,8 @@ import java.util.UUID;
 
 /**
  * Class to handle UUID related actions.
+ *
+ * @author Paul Ferlitz
  */
 public class UUIDHandler
 {
@@ -18,7 +20,7 @@ public class UUIDHandler
      * Method for converting a player name to an offline UUID.
      *
      * @param offlineName Player's name.
-     * @return The resulting UUID.
+     * @return The resulting {@link UUID}.
      */
     public static UUID offlineNameToUUID(String offlineName)
     {
@@ -29,7 +31,7 @@ public class UUIDHandler
      * Method for converting a player name to an online UUID.
      *
      * @param onlineName Player's name.
-     * @return The resulting UUID.
+     * @return The resulting {@link UUID}.
      * @throws IOException If there were connection issues.
      */
     public static UUID onlineNameToUUID(String onlineName) throws IOException
@@ -45,9 +47,9 @@ public class UUIDHandler
     }
 
     /**
-     * Method to get a player's name from an online UUID.
+     * Method to get a player's name from an online {@link UUID}.
      *
-     * @param onlineUUID The player's UUID.
+     * @param onlineUUID The player's {@link UUID}.
      * @return The resulting name.
      * @throws IOException If there were connection issues.
      */
@@ -62,8 +64,9 @@ public class UUIDHandler
 
     /**
      * Method that bundles the other methods to one online to offline method call.
-     * @param onlineUUID The player's online UUID.
-     * @return The player's offline UUID.
+     *
+     * @param onlineUUID The player's online {@link UUID}.
+     * @return The player's offline {@link UUID}.
      * @throws IOException If there were connection issues.
      */
     public static UUID onlineUUIDToOffline(UUID onlineUUID) throws IOException

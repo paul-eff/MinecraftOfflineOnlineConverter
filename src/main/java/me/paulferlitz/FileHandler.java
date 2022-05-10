@@ -7,9 +7,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 /**
  * Class for handling file operations.
+ *
+ * @author Paul Ferlitz
  */
 public class FileHandler
 {
@@ -29,10 +32,10 @@ public class FileHandler
     }
 
     /**
-     * Basic method to list all files in a given directory.
+     * Method to list all files in a given directory.
      *
      * @param worldFolderpath Path to folder.
-     * @return A list of Files.
+     * @return An array of {@link File}s.
      */
     public static File[] listAllFiles(String worldFolderpath)
     {
@@ -44,7 +47,7 @@ public class FileHandler
      * Method to load the array of players in the usercache.json file.
      *
      * @param pathToUsercache Path to usercache.json file.
-     * @return The usercache.json content as a JSON Array.
+     * @return The usercache.json content as a {@link JSONArray}.
      */
     public static JSONArray loadArrayFromUsercache(String pathToUsercache)
     {

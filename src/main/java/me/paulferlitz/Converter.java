@@ -18,6 +18,8 @@ import java.util.UUID;
 
 /**
  * Class for handling the file conversion.
+ *
+ * @author Paul Ferlitz
  */
 public class Converter
 {
@@ -72,6 +74,7 @@ public class Converter
 
     /**
      * Method that fetches all known players from the usercache.json file.
+     * No return value, as it's stores in {@link #uuidMap}.
      *
      * @param mode If the server should be converted to offline or online mode.
      * @throws InvalidArgumentException if an illegal argument was detected.
@@ -145,7 +148,7 @@ public class Converter
             System.out.println("\nWorking on " + workingDir + "...");
 
             String pathToWorkingDir = this.worldFolderPath + workingDir + "/";
-            File fileList[] = FileHandler.listAllFiles(pathToWorkingDir);
+            File[] fileList = FileHandler.listAllFiles(pathToWorkingDir);
 
             if (fileList == null) continue;
             for (File file : fileList)
@@ -175,9 +178,9 @@ public class Converter
                         for (String workingFile : this.workingFiles)
                         {
                             Path path = Paths.get(this.worldFolderPath + "../" + workingFile);
-                            String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+                            String content = Files.readString(path);
                             content = content.replaceAll(currentFileName, uuidMap.get(UUID.fromString(currentFileName)).getUuid().toString());
-                            Files.write(path, content.getBytes(StandardCharsets.UTF_8));
+                            Files.writeString(path, content);
                         }
 
                         System.out.println("Player " + uuidMap.get(UUID.fromString(currentFileName)).getName() + " --> " +

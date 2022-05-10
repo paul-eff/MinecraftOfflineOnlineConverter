@@ -4,6 +4,8 @@ import java.util.UUID;
 
 /**
  * Class to represent a player.
+ *
+ * @author Paul Ferlitz
  */
 public class Player
 {
@@ -36,7 +38,7 @@ public class Player
     /**
      * Method to get player's UUID.
      *
-     * @return The player UUUID.
+     * @return The player {@link UUID}.
      */
     public UUID getUuid()
     {

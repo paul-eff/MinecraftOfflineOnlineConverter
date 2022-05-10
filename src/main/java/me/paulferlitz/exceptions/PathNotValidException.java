@@ -2,6 +2,8 @@ package me.paulferlitz.exceptions;
 
 /**
  * Exception when a given file path could not be resolved.
+ *
+ * @author Paul Ferlitz
  */
 public class PathNotValidException extends Exception
 {

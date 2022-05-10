@@ -2,6 +2,8 @@ package me.paulferlitz.exceptions;
 
 /**
  * Exception thrown when wrong or invalid arguments were passed.
+ *
+ * @author Paul Ferlitz
  */
 public class InvalidArgumentException extends Exception
 {

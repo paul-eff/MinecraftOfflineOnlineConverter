@@ -7,6 +7,8 @@ import java.util.Locale;
 
 /**
  * Main Class.
+ *
+ * @author Paul Ferlitz
  */
 public class Main
 {
@@ -51,7 +53,7 @@ public class Main
         }
         // Instantiate Converter with default values
         if (!hasPath) converter = new Converter();
-        /**
+        /*
          * Held my promise made in commit 375fc63 on Nov 2, 2021.
          */
         // Start conversion
