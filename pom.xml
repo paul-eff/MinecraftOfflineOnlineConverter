@@ -6,7 +6,7 @@
 
     <groupId>me.paulferlitz</groupId>
     <artifactId>MinecraftOfflineOnlineConverter</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>2.3.2-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
