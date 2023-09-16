@@ -1,8 +1,8 @@
-# MinecraftOfflineOnlineConverter v2.3.2
+# MinecraftOfflineOnlineConverter v2.3.3
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.3.2-blue">
-  <img src="https://img.shields.io/badge/minecraft-1.19-green">
-  <img src="https://img.shields.io/badge/java-17-red">
+  <img src="https://img.shields.io/badge/version-2.3.3-blue">
+  <img src="https://img.shields.io/badge/minecraft-1.20.1-green">
+  <img src="https://img.shields.io/badge/java-20-red">
 </p>
 
 Ever started playing on one of your Minecraft servers and a few hours later that one friend that didn't buy the game wants to join?
@@ -23,6 +23,14 @@ java -jar MinecraftOfflineOnlineConverter_2_3_2.jar <arguments>
   - `-offline` to convert your server to offline files
   - `-online` to convert your server to online files
 - And if necessary `-p "path/to/server/folder/"` (if the jar is not in the server's main folder)
+
+# Building
+
+Execute the command 
+```zsh
+mvn clean compile assembly:single
+```
+to build a JAR file of the project with all dependencies.
 
 # Disclaimer
 
