@@ -17,7 +17,7 @@ The Java applicatin will convert all player related files to be offline or onlin
 - Place it in your server's main folder (not mandatory, just makes things easier)
 - Execute the jar through your terminal with the following command:
 ```java
-java -jar MinecraftOfflineOnlineConverter_2_3_2.jar <arguments>
+java -jar MinecraftOfflineOnlineConverter_2_3_3.jar <arguments>
 ```
 - You will have to pass one of these arguments
   - `-offline` to convert your server to offline files
