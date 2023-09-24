@@ -11,6 +11,8 @@ Now you have to start a lengthy process of turning your server to offline mode a
 This happened to me way to often, and now I automated the whole process.
 The Java applicatin will convert all player related files to be offline or online compatible.
 
+This application does **not support Sponge** servers at the moment! Feel free to contribute to this project if you want to see it happen.
+
 # Usage
 
 - Obviously download the jar
