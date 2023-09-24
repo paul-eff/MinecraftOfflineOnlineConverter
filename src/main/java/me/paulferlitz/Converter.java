@@ -27,8 +27,6 @@ public class Converter
     private final String[] workingDirs = new String[]{"playerdata", "advancements", "stats"};
     private final String[] workingFiles = new String[]{"whitelist.json", "ops.json", "usercache.json", "banned-players.json", "banned-ips.json"};
     private final String worldFolderPath;
-    private final boolean isBukkit;
-
     private UUIDHandler uuidHandler = new UUIDHandler();
     private Map<UUID, Player> uuidMap = new HashMap<>();
 
@@ -45,8 +43,6 @@ public class Converter
         {
             throw new PathNotValidException(this.worldFolderPath);
         }
-        // Check if it's a non vanilla server
-        this.isBukkit = Files.exists(Path.of(this.worldFolderPath.substring(0, this.worldFolderPath.length() - 1) + "_nether"));
     }
 
     /**
@@ -68,8 +64,6 @@ public class Converter
         {
             throw new PathNotValidException(this.worldFolderPath);
         }
-        // Check if it's a non vanilla server
-        this.isBukkit = Files.exists(Path.of(this.worldFolderPath.substring(0, this.worldFolderPath.length() - 1) + "_nether"));
     }
 
     /**
@@ -126,7 +120,6 @@ public class Converter
      */
     public boolean convert(String mode) throws InvalidArgumentException
     {
-        if (isBukkit) System.out.println("Detected Bukkit/Spigot/Paper server.");
         if (!mode.equals("-online"))
         {
             System.out.println("\nCONVERSION: ONLINE --> OFFLINE");
