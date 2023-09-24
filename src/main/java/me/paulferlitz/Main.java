@@ -1,5 +1,7 @@
 package me.paulferlitz;
 
+import me.paulferlitz.MinecraftFlavours.MinecraftFlavourDetection;
+import me.paulferlitz.MinecraftFlavours.MinecraftFlavour;
 import me.paulferlitz.exceptions.InvalidArgumentException;
 import me.paulferlitz.exceptions.PathNotValidException;
 
@@ -18,6 +20,7 @@ public class Main
     private static String mode = "N/A";
     private static boolean hasPath = false;
     private static Converter converter;
+    private static MinecraftFlavourDetection mfd;
 
     /**
      * Main method and entry point of jar.
@@ -40,6 +43,7 @@ public class Main
                     hasPath = true;
                     // Instantiate Converter with individual path
                     converter = new Converter(args[i + 1]);
+                    mfd = new MinecraftFlavourDetection(args[i + 1]);
                     break;
                 // On -offline / -online set mode
                 case "-offline":
@@ -52,10 +56,18 @@ public class Main
             }
         }
         // Instantiate Converter with default values
-        if (!hasPath) converter = new Converter();
+        if (!hasPath)
+        {
+            converter = new Converter();
+            mfd = new MinecraftFlavourDetection();
+        }
         /*
          * Held my promise made in commit 375fc63 on Nov 2, 2021.
          */
+
+        MinecraftFlavour mcFlavour = mfd.detectMinecraftFlavour();
+        System.out.println("This is a " + mcFlavour.toString() + " Minecraft Server!");
+
         // Start conversion
         converter.convert(mode);
 
