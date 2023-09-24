@@ -1,4 +1,4 @@
-package me.paulferlitz.MinecraftFlavours;
+package me.paulferlitz.minecraftflavours;
 
 import me.paulferlitz.exceptions.PathNotValidException;
 
