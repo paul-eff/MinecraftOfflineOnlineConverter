@@ -1,7 +1,6 @@
 package me.paulferlitz;
 
 import me.paulferlitz.handlers.FileHandler;
-import me.paulferlitz.handlers.HTTPHandler;
 import me.paulferlitz.handlers.UUIDHandler;
 import me.paulferlitz.minecraftflavours.MinecraftFlavour;
 import me.paulferlitz.exceptions.InvalidArgumentException;
@@ -13,8 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Class for handling the file conversion.
@@ -24,10 +21,8 @@ import java.util.stream.Stream;
 public class ConverterV2
 {
     // Class variables
-    private final String[] workingFiles = new String[]{"whitelist.json", "ops.json", "usercache.json", "banned-players.json", "banned-ips.json"};
     private final Path serverFolder;
     private final Path worldFolder;
-    private final UUIDHandler uuidHandler = new UUIDHandler();
     private final Map<UUID, Player> uuidMap = new HashMap<>();
     private final String[] ignoredFileExtensions = new String[]
             {

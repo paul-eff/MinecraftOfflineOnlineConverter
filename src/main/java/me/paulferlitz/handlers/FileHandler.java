@@ -113,14 +113,12 @@ public class FileHandler
     {
         File file = path.toFile();
 
-        if (file == null || !file.isFile())
+        if (!file.isFile())
             throw new IllegalArgumentException(
                     "Must not be null & must be a file.");
-        RandomAccessFile raf = null;
 
-        try
+        try (RandomAccessFile raf = new RandomAccessFile(file, "r"))
         {
-            raf = new RandomAccessFile(file, "r");
             int numberOfNonTextChars = 0;
             while (raf.getFilePointer() < raf.length())
             {
@@ -143,9 +141,6 @@ public class FileHandler
             return numberOfNonTextChars <= 2
                     && (raf.length() - (double) numberOfNonTextChars / raf.length()) >= 0.99;
 
-        } finally
-        {
-            if (raf != null) raf.close();
         }
     }
 }

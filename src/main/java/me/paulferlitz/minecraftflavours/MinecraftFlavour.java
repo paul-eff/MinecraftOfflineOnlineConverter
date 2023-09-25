@@ -1,7 +1,6 @@
 package me.paulferlitz.minecraftflavours;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public enum MinecraftFlavour
 {
@@ -11,7 +10,7 @@ public enum MinecraftFlavour
 
     private final String description;
 
-    private MinecraftFlavour(String description)
+    MinecraftFlavour(String description)
     {
         this.description = description;
     }
@@ -24,7 +23,7 @@ public enum MinecraftFlavour
 
     public String[] getDirectories(String worldName)
     {
-        ArrayList<String> defaultDirectories = new ArrayList<String>();
+        ArrayList<String> defaultDirectories = new ArrayList<>();
         defaultDirectories.add("./");
         defaultDirectories.add("./" + worldName + "/playerdata");
         defaultDirectories.add("./" + worldName + "/advancements");
