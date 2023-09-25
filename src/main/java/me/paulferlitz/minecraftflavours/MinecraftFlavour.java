@@ -1,5 +1,8 @@
 package me.paulferlitz.minecraftflavours;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public enum MinecraftFlavour
 {
     VANILLA("Vanilla"),
@@ -19,24 +22,26 @@ public enum MinecraftFlavour
         return description;
     }
 
-    public String[] getDirectories(MinecraftFlavour flavour, String worldName) throws Exception
+    public String[] getDirectories(String worldName)
     {
-        String[] defaultDirectories = new String[]{
-                "./",
-                "./" + worldName + "/playerdata",
-                "./" + worldName + "/advancements",
-                "./" + worldName + "/stats"
-        };
-        switch(flavour)
+        ArrayList<String> defaultDirectories = new ArrayList<String>();
+        defaultDirectories.add("./");
+        defaultDirectories.add("./" + worldName + "/playerdata");
+        defaultDirectories.add("./" + worldName + "/advancements");
+        defaultDirectories.add("./" + worldName + "/stats");
+        switch(this)
         {
+            // TODO: Find flavour specific directories
             case VANILLA:
-                return defaultDirectories;
+                // defaultDirectories.add("some/vanillaspecific/path");
+                break;
             case LIGHT_MODDED:
-                return defaultDirectories;
+                // defaultDirectories.add("some/lightmoddedspecific/path");
+                break;
             case MODDED:
-                return defaultDirectories;
-            default:
-                throw new Exception("MinecraftFlavours type \""+flavour+"\" not valid!");
+                // defaultDirectories.add("some/moddedspecific/path");
+                break;
         }
+        return defaultDirectories.toArray(new String[0]);
     }
 }
