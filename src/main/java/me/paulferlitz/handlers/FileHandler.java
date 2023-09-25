@@ -7,6 +7,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class for handling file operations.
@@ -98,6 +100,37 @@ public class FileHandler
         }
 
         return worldName;
+    }
+
+    public static void writeToProperties(Path pathToProperties, String key, String value)
+    {
+        try
+        {
+            // Read the file into a list of lines
+            List<String> lines = Files.readAllLines(pathToProperties);
+            List<String> modifiedLines = new ArrayList<>();
+
+            // Iterate over each line and check if it starts with the target value
+            for (String line : lines)
+            {
+                if (line.startsWith(key))
+                {
+                    // Replace the line if it starts with the target value
+                    modifiedLines.add(key + "=" + value);
+                } else
+                {
+                    // Keep the original line if it doesn't start with the target value
+                    modifiedLines.add(line);
+                }
+            }
+
+            // Write the modified lines back to the file
+            Files.write(pathToProperties, modifiedLines);
+        } catch (IOException e)
+        {
+            System.out.println("Could not find server.properties with given path \"" + pathToProperties + "\"." +
+                    "\nContinuing without changing  \"" + key + "\" to  \"" + value + "\".");
+        }
     }
 
     /**

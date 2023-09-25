@@ -135,6 +135,9 @@ public class ConverterV2
     {
         preCheck(mode);
 
+        String onlineMode = mode.equals("-offline") ? "false" : "true";
+        FileHandler.writeToProperties(this.serverFolder.resolve("server.properties"), "online-mode", onlineMode);
+
         ArrayList<Path> fileList = new ArrayList<>();
         // Iterate over every flavour specific directory
         for (String workingDir : flavour.getDirectories(this.worldFolder.getFileName().toString()))
