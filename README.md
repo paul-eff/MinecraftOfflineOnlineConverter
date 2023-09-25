@@ -41,6 +41,10 @@ Whilst it was thoroughly tested on my own servers, there is always the chance th
 
 If you need this application for a lower Minecraft and/or Java version, please leave me a message or issue :)!
 
+# TODOs
+- Replace older File API with more modern Path API
+- Ensure anything to do with files and directories is not done via Strings
+
 # Remark
 
 Minecraft is a registered trademark of Mojang AB.
