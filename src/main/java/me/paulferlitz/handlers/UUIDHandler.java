@@ -1,4 +1,4 @@
-package me.paulferlitz;
+package me.paulferlitz.handlers;
 
 import org.json.JSONObject;
 
@@ -14,7 +14,7 @@ import java.util.UUID;
 public class UUIDHandler
 {
     // Class variables
-    private static HTTPHandler http = new HTTPHandler();
+    private static final HTTPHandler http = new HTTPHandler();
 
     /**
      * Method for converting a player name to an offline UUID.
