@@ -1,7 +1,7 @@
 package me.paulferlitz;
 
-import me.paulferlitz.MinecraftFlavours.MinecraftFlavourDetection;
-import me.paulferlitz.MinecraftFlavours.MinecraftFlavour;
+import me.paulferlitz.minecraftflavours.MinecraftFlavourDetection;
+import me.paulferlitz.minecraftflavours.MinecraftFlavour;
 import me.paulferlitz.exceptions.InvalidArgumentException;
 import me.paulferlitz.exceptions.PathNotValidException;
 
@@ -19,7 +19,7 @@ public class Main
 
     private static String mode = "N/A";
     private static boolean hasPath = false;
-    private static Converter converter;
+    private static ConverterV2 converter;
     private static MinecraftFlavourDetection mfd;
 
     /**
@@ -29,7 +29,7 @@ public class Main
      * @throws PathNotValidException If the given path was not resolvable.
      * @throws InvalidArgumentException If a given argument was not valid.
      */
-    public static void main(String[] args) throws PathNotValidException, InvalidArgumentException
+    public static void main(String[] args) throws Exception
     {
         long startTime = System.nanoTime();
         System.out.println("\nStarting MinecraftOfflineOnlineConverter Version " + version + "...\n");
@@ -42,7 +42,7 @@ public class Main
                 case "-p":
                     hasPath = true;
                     // Instantiate Converter with individual path
-                    converter = new Converter(args[i + 1]);
+                    converter = new ConverterV2(args[i + 1]);
                     mfd = new MinecraftFlavourDetection(args[i + 1]);
                     break;
                 // On -offline / -online set mode
@@ -58,18 +58,19 @@ public class Main
         // Instantiate Converter with default values
         if (!hasPath)
         {
-            converter = new Converter();
+            converter = new ConverterV2();
             mfd = new MinecraftFlavourDetection();
         }
         /*
          * Held my promise made in commit 375fc63 on Nov 2, 2021.
          */
 
+        // Determine Minecraft Server flavour (e.g. Vanilla,Paper,Forge,...)
         MinecraftFlavour mcFlavour = mfd.detectMinecraftFlavour();
         System.out.println("This is a " + mcFlavour.toString() + " Minecraft Server!");
 
         // Start conversion
-        converter.convert(mode);
+        converter.convert(mode, mcFlavour);
 
         System.out.println("\nJob finished in " + ((System.nanoTime() - startTime) / 1000000) + " milliseconds.");
     }

@@ -2,12 +2,13 @@ package me.paulferlitz;
 
 import me.paulferlitz.exceptions.InvalidArgumentException;
 import me.paulferlitz.exceptions.PathNotValidException;
+import me.paulferlitz.handlers.FileHandler;
+import me.paulferlitz.handlers.UUIDHandler;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
