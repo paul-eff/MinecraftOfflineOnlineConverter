@@ -1,5 +1,6 @@
 package me.paulferlitz;
 
+import me.paulferlitz.handlers.CustomPathParser;
 import me.paulferlitz.minecraftflavours.MinecraftFlavourDetection;
 import me.paulferlitz.minecraftflavours.MinecraftFlavour;
 import me.paulferlitz.exceptions.InvalidArgumentException;
@@ -68,6 +69,9 @@ public class Main
         // Determine Minecraft Server flavour (e.g. Vanilla,Paper,Forge,...)
         MinecraftFlavour mcFlavour = mfd.detectMinecraftFlavour();
         System.out.println("This is a " + mcFlavour.toString() + " Minecraft Server!");
+
+        CustomPathParser cpp = new CustomPathParser();
+        System.exit(0);
 
         // Start conversion
         converter.convert(mode, mcFlavour);
