@@ -1,5 +1,8 @@
 package me.paulferlitz.minecraftflavours;
 
+import me.paulferlitz.handlers.CustomPathParser;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public enum MinecraftFlavour
@@ -28,6 +31,11 @@ public enum MinecraftFlavour
         defaultDirectories.add("./" + worldName + "/playerdata");
         defaultDirectories.add("./" + worldName + "/advancements");
         defaultDirectories.add("./" + worldName + "/stats");
+
+        CustomPathParser cpp = new CustomPathParser();
+        ArrayList<String> pathList = cpp.getPaths();
+        if(!pathList.isEmpty()) defaultDirectories.addAll(pathList);
+
         switch(this)
         {
             // TODO: Find flavour specific directories

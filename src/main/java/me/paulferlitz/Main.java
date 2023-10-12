@@ -70,9 +70,6 @@ public class Main
         MinecraftFlavour mcFlavour = mfd.detectMinecraftFlavour();
         System.out.println("This is a " + mcFlavour.toString() + " Minecraft Server!");
 
-        CustomPathParser cpp = new CustomPathParser();
-        System.exit(0);
-
         // Start conversion
         converter.convert(mode, mcFlavour);
 

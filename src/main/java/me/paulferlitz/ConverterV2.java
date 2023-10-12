@@ -159,6 +159,18 @@ public class ConverterV2
                         if (!exclude) fileList.add(file.toPath());
                     }
                 }
+            }else
+            {
+                File file = this.serverFolder.resolve(workingDir).toFile();
+                boolean exclude = false;
+
+                for (String ext : ignoredFileExtensions) {
+                    if (file.getName().endsWith("." + ext)) {
+                        exclude = true;
+                        break;
+                    }
+                }
+                if(!exclude) fileList.add(file.toPath());
             }
 
             if (fileList.isEmpty())
@@ -167,7 +179,9 @@ public class ConverterV2
                 continue;
             }
 
-            for (Path file : fileList)
+            System.out.println(fileList);
+
+            /*for (Path file : fileList)
             {
                 String fullFileName = file.getFileName().toString();
                 int dotIndex = fullFileName.lastIndexOf('.');
@@ -230,7 +244,7 @@ public class ConverterV2
                     System.out.println("Output file: " + ((FileAlreadyExistsException) e).getFile());
                     System.out.println("Please resolve on your own!\n");
                 }
-            }
+            }*/
         }
     }
 

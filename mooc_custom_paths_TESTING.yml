@@ -3,15 +3,5 @@ config:
   version: 1.0.0
 paths:
   - type: path
-    path: /path/to/directory
+    path: ./config
     recursive: true
-
-  - type: file
-    path: /path/to/file.txt
-
-  - type: path
-    path: /another/directory
-    recursive: false
-
-  - type: file
-    path: /another/file.txt
