@@ -3,5 +3,7 @@ config:
   version: 1.0.0
 paths:
   - type: path
-    path: ./config
+    path: ./versions
     recursive: true
+  - type: file
+    path: ./ops.json

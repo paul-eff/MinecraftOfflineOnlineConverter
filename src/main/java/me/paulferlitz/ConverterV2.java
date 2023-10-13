@@ -27,7 +27,8 @@ public class ConverterV2
     private final String[] ignoredFileExtensions = new String[]
             {
                     "mca", "jar", "gz", "lock", "sh", "bat", "log", "mcmeta",
-                    "md", "snbt", "nbt", "nbt", "zip", "cache", "png", "jpeg", "js"
+                    "md", "snbt", "nbt", "nbt", "zip", "cache", "png", "jpeg", "js",
+                    "DS_Store"
             };
 
     /**
@@ -131,7 +132,7 @@ public class ConverterV2
      * @param mode If the server should be converted to offline or online mode.
      * @throws InvalidArgumentException if an illegal argument was detected.
      */
-    public void convert(String mode, MinecraftFlavour flavour) throws InvalidArgumentException, IOException
+    public void convert(String mode, MinecraftFlavour flavour) throws InvalidArgumentException
     {
         preCheck(mode);
 
@@ -140,7 +141,7 @@ public class ConverterV2
 
         ArrayList<Path> fileList = new ArrayList<>();
         // Iterate over every flavour specific directory
-        for (String workingDir : flavour.getDirectories(this.worldFolder.getFileName().toString()))
+        for (String workingDir : flavour.getDirectories(this.serverFolder.toString(), this.worldFolder.getFileName().toString()))
         {
             System.out.println("\nWorking on \"" + workingDir + "\"...");
             fileList.clear();

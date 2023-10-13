@@ -2,7 +2,6 @@ package me.paulferlitz.minecraftflavours;
 
 import me.paulferlitz.handlers.CustomPathParser;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public enum MinecraftFlavour
@@ -24,7 +23,7 @@ public enum MinecraftFlavour
         return description;
     }
 
-    public String[] getDirectories(String worldName)
+    public String[] getDirectories(String baseDirectory, String worldName)
     {
         ArrayList<String> defaultDirectories = new ArrayList<>();
         defaultDirectories.add("./");
@@ -32,7 +31,7 @@ public enum MinecraftFlavour
         defaultDirectories.add("./" + worldName + "/advancements");
         defaultDirectories.add("./" + worldName + "/stats");
 
-        CustomPathParser cpp = new CustomPathParser();
+        CustomPathParser cpp = new CustomPathParser(baseDirectory);
         ArrayList<String> pathList = cpp.getPaths();
         if(!pathList.isEmpty()) defaultDirectories.addAll(pathList);
 
