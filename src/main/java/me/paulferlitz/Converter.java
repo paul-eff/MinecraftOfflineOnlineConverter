@@ -154,10 +154,10 @@ public class Converter
                     String fileEnding = file.getName().endsWith(".dat") ? ".dat" : ".json";
                     String currentFileName = currentFile.substring(0, currentFile.length() - fileEnding.length());
 
-                    UUID currentUUID = UUID.fromString(currentFileName);
-
                     try
                     {
+                        UUID currentUUID = UUID.fromString(currentFileName);
+
                         // If player not yet fetched from usercache.json, try to save him for later
                         if (!uuidMap.containsKey(currentUUID) && mode.equals("-offline"))
                         {
@@ -179,7 +179,7 @@ public class Converter
 
                         System.out.println("Player " + uuidMap.get(UUID.fromString(currentFileName)).getName() + " --> " +
                                 currentFileName + " to " + uuidMap.get(UUID.fromString(currentFileName)).getUuid());
-                    } catch (IOException | NullPointerException e)
+                    } catch (IOException | NullPointerException | IllegalArgumentException e)
                     {
                         if (e instanceof NullPointerException)
                         {
@@ -192,6 +192,13 @@ public class Converter
                             System.out.println("Source file: " + pathToWorkingDir + currentFile);
                             System.out.println("Output file: " + ((FileAlreadyExistsException) e).getFile());
                             System.out.println("Please resolve on your own!\n");
+                        } else if (e instanceof IllegalArgumentException)
+                        {
+                            System.out.println("\n!!! UUID PROBLEM !!!");
+                            System.out.println("Source file: " + pathToWorkingDir + currentFile);
+                            System.out.println("Please report to the repository maintainer that there was a problem!\n");
+                            System.out.println("Stacktrace:");
+                            e.printStackTrace();
                         } else
                         {
                             e.printStackTrace();
