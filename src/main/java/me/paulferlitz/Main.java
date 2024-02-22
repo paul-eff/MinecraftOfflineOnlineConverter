@@ -5,6 +5,8 @@ import me.paulferlitz.exceptions.PathNotValidException;
 
 import java.util.Locale;
 
+import org.apache.commons.cli.*;
+
 /**
  * Main Class.
  *
@@ -30,27 +32,48 @@ public class Main
     {
         long startTime = System.nanoTime();
         System.out.println("\nStarting MinecraftOfflineOnlineConverter Version " + version + "...\n");
-        // Iterate over arguments and try to parse them
-        for (int i = 0; i < args.length; i++)
-        {
-            switch (args[i].toLowerCase(Locale.ROOT))
-            {
-                // On -p parse path
-                case "-p":
-                    hasPath = true;
-                    // Instantiate Converter with individual path
-                    converter = new Converter(args[i + 1]);
-                    break;
-                // On -offline / -online set mode
-                case "-offline":
-                case "-online":
-                    mode = args[i];
-                    break;
-                // In any other occasion check if argument is given path or throw exception
-                default:
-                    if (!args[(i - 1) < 0 ? 0 : (i - 1)].equals("-p")) throw new InvalidArgumentException(args[i]);
+        // Argument parsing
+        Options options = new Options();
+
+        Option input = new Option("p", "path", true, "Path to the server folder");
+        options.addOption(input);
+
+        Option offline = new Option("offline", false, "Convert server files to offline mode");
+        options.addOption(offline);
+        Option online = new Option("online", false, "Convert server files to online mode");
+        options.addOption(online);
+
+        CommandLineParser parser = new DefaultParser();
+        HelpFormatter formatter = new HelpFormatter();
+        CommandLine cmd;
+
+        try {
+            cmd = parser.parse(options, args);
+            if (cmd.hasOption("h")) {
+                formatter.printHelp("MinecraftOfflineOnlineConverter", options);
             }
+
+            if (cmd.hasOption("offline"))
+            {
+                mode = "-offline";
+            }else if (cmd.hasOption("online"))
+            {
+                mode = "-online";
+            } else {
+                throw new ParseException("Neither -offline or -online argument was found. Please specify which mode you want!");
+            }
+
+            if (cmd.hasOption("p")) {
+                hasPath = true;
+                // Instantiate Converter with individual path
+                converter = new Converter(cmd.getOptionValue("p"));
+            }
+        } catch (ParseException e) {
+            System.out.println(e.getMessage());
+            formatter.printHelp("MinecraftOfflineOnlineConverter", options);
+            System.exit(1);
         }
+
         // Instantiate Converter with default values
         if (!hasPath) converter = new Converter();
         /*
