@@ -1,9 +1,11 @@
 package me.paulferlitz.handlers;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.sql.PreparedStatement;
 import java.util.UUID;
 
 /**
@@ -39,7 +41,9 @@ public class UUIDHandler
         // Set target URL to Mojang API
         http.setUrl("https://api.mojang.com/users/profiles/minecraft/" + onlineName);
         // Parse UUID from response
-        JSONObject json = new JSONObject(http.httpDoGet());
+        String response = http.httpDoGet();
+        String result = response == null ? "{}" : response;
+        JSONObject json = new JSONObject(result);
         String uuid = json.getString("id").replaceAll(
                 "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})",
                 "$1-$2-$3-$4-$5");
@@ -53,12 +57,14 @@ public class UUIDHandler
      * @return The resulting name.
      * @throws IOException If there were connection issues.
      */
-    public static String onlineUUIDToName(UUID onlineUUID) throws IOException
+    public static String onlineUUIDToName(UUID onlineUUID) throws IOException, JSONException
     {
         // Set target URL to Mojang API
         http.setUrl("https://api.mojang.com/user/profile/" + onlineUUID.toString());
         // Parse name from response
-        JSONObject json = new JSONObject(http.httpDoGet());
+        String response = http.httpDoGet();
+        String result = response == null ? "{}" : response;
+        JSONObject json = new JSONObject(result);
         return json.getString("name");
     }
 

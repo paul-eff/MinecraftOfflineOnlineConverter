@@ -1,12 +1,9 @@
 package me.paulferlitz;
 
-import me.paulferlitz.handlers.CustomPathParser;
 import me.paulferlitz.minecraftflavours.MinecraftFlavourDetection;
 import me.paulferlitz.minecraftflavours.MinecraftFlavour;
 import me.paulferlitz.exceptions.InvalidArgumentException;
 import me.paulferlitz.exceptions.PathNotValidException;
-
-import java.util.Locale;
 
 import org.apache.commons.cli.*;
 
@@ -18,7 +15,7 @@ import org.apache.commons.cli.*;
 public class Main
 {
     // Class variables
-    private static final String version = "2.3.4";
+    private static final String version = "BETA 3";
 
     private static String mode = "N/A";
     private static boolean hasPath = false;

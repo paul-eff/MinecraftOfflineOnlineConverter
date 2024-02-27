@@ -23,31 +23,44 @@ public enum MinecraftFlavour
         return description;
     }
 
-    public String[] getDirectories(String baseDirectory, String worldName)
+    public String[] getFiles(String baseDirectory, String worldName)
     {
+        CustomPathParser cpp = new CustomPathParser(baseDirectory);
+        ArrayList<String> filesAndFolders = new ArrayList<>();
+
         ArrayList<String> defaultDirectories = new ArrayList<>();
         defaultDirectories.add("./");
         defaultDirectories.add("./" + worldName + "/playerdata");
         defaultDirectories.add("./" + worldName + "/advancements");
         defaultDirectories.add("./" + worldName + "/stats");
 
-        CustomPathParser cpp = new CustomPathParser(baseDirectory);
-        ArrayList<String> pathList = cpp.getPaths();
-        if(!pathList.isEmpty()) defaultDirectories.addAll(pathList);
+        for(String path : defaultDirectories)
+        {
+            filesAndFolders.addAll(cpp.getFolderContent(path));
+        }
+
+        if (cpp.isFileSet())
+        {
+            ArrayList<String> pathList = cpp.getPaths();
+            if(!pathList.isEmpty()) filesAndFolders.addAll(pathList);
+        }
 
         switch(this)
         {
             // TODO: Find flavour specific directories
             case VANILLA:
                 // defaultDirectories.add("some/vanillaspecific/path");
+                // Check for no plugins and no mods folder
                 break;
             case LIGHT_MODDED:
                 // defaultDirectories.add("some/lightmoddedspecific/path");
+                // Check for plugins and no mod folder
                 break;
             case MODDED:
                 // defaultDirectories.add("some/moddedspecific/path");
+                // Check for mod folder
                 break;
         }
-        return defaultDirectories.toArray(new String[0]);
+        return filesAndFolders.toArray(new String[0]);
     }
 }

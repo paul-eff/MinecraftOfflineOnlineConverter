@@ -2,24 +2,43 @@ package me.paulferlitz.handlers;
 
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/*
+This class sucks, I know, future me will fix it sometime in the future
+ */
 public class CustomPathParser
 {
     private final String baseDirectory;
-    private final Path pathFile = Path.of("mooc_custom_paths_TESTING.yml");
+    private final Path pathFile;
 
     public CustomPathParser(String baseDirectory)
     {
+
         this.baseDirectory = baseDirectory;
+        Path temp;
+        try{
+            temp = Path.of("custom_paths.yml");
+            // This is also shit, I know, didn't feel like throwing 2 separate exceptions...
+            if (!temp.toFile().exists()) throw new InvalidPathException("custom_paths.yml", "Custom Paths file was not found");
+        }catch (InvalidPathException e)
+        {
+            temp = null;
+            System.out.println("Custom Paths file (custom_paths.yml) not found, continuing without!");
+        }
+        this.pathFile = temp;
+    }
+
+    public boolean isFileSet()
+    {
+        return (this.pathFile != null);
     }
 
     public ArrayList<String> getPaths()
@@ -36,7 +55,7 @@ public class CustomPathParser
                 if (topLevelEntry.getKey().equals("config"))
                 {
                     Map<String, Object> temp = (Map<String, Object>) topLevelEntry.getValue();
-                    System.out.println("Version: " + temp.get("version"));
+                    System.out.println("Config version: " + temp.get("version"));
                 } else if (topLevelEntry.getKey().equals("paths"))
                 {
                     if (topLevelEntry.getValue() instanceof List<?>)
@@ -44,10 +63,16 @@ public class CustomPathParser
                         List<Map<String, Object>> pathsMap = (List<Map<String, Object>>) topLevelEntry.getValue();
                         for (Map<String, Object> path : pathsMap)
                         {
-                            if (path.containsKey("recursive"))
+                            if (path.get("type").equals("folder"))
                             {
-                                pathList.addAll(getPathsRecursively((String) path.get("path")));
-                            } else
+                                if ((boolean)path.getOrDefault("recursive", false))
+                                {
+                                    pathList.addAll(getPathsRecursively((String) path.get("path")));
+                                } else
+                                {
+                                    pathList.addAll(getFolderContent((String) path.get("path")));
+                                }
+                            }else
                             {
                                 pathList.add((String) path.get("path"));
                             }
@@ -65,9 +90,11 @@ public class CustomPathParser
         return pathList;
     }
 
-    private ArrayList<String> getPathsRecursively(String baseFolder)
+    // LEFT OFF HERE - THIS JUST RETURN FOLDER. MAKE IT RETURN FILES AS THIS IS THE NEW WAY
+
+    public ArrayList<String> getPathsRecursively(String baseFolder)
     {
-        ArrayList<String> folderList = new ArrayList<>();
+        ArrayList<String> fileList = new ArrayList<>();
 
         try
         {
@@ -75,12 +102,12 @@ public class CustomPathParser
                     .resolve(baseFolder)
                     .resolve("./");
             List<Path> list = Files.walk(path)
-                    .filter(Files::isDirectory)
+                    .filter(Files::isRegularFile)
                     .collect(Collectors.toList());
 
             for (Path folder : list)
             {
-                folderList.add(folder.toString());
+                fileList.add(folder.toString());
             }
         } catch (IOException e)
         {
@@ -88,6 +115,23 @@ public class CustomPathParser
             //folderList.clear();
         }
 
-        return folderList;
+        return fileList;
+    }
+
+    public ArrayList<String> getFolderContent(String baseFolder)
+    {
+        ArrayList<String> fileList = new ArrayList<>();
+
+        Path path = Path.of(this.baseDirectory)
+                .resolve(baseFolder)
+                .resolve("./");
+        File[] files = path.toFile().listFiles();
+        if (files != null) {
+            for (File file : files) {
+                fileList.add(file.toPath().toString());
+            }
+        }
+
+        return fileList;
     }
 }

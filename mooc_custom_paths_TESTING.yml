@@ -1,9 +1,0 @@
-name: test
-config:
-  version: 1.0.0
-paths:
-  - type: path
-    path: ./versions
-    recursive: true
-  - type: file
-    path: ./ops.json
