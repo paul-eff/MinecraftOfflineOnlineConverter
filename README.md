@@ -23,7 +23,7 @@ This is a pre-release, make backups! See [here](#disclaimer)
 
 - Execute the jar through your terminal with the following command:
 ```java
-java -jar MinecraftOfflineOnlineConverter.jar <arguments>
+java -jar MinecraftOfflineOnlineConverter_3-BETA_1.jar <arguments>
 ```
 - You will have to pass one of these arguments
   - `-offline` to convert your server to offline files
