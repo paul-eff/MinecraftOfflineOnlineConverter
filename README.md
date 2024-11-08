@@ -1,7 +1,7 @@
 # MinecraftOfflineOnlineConverter v2.3.4
 <p align="center">
   <img src="https://img.shields.io/badge/version-2.3.4-blue">
-  <img src="https://img.shields.io/badge/minecraft-1.21-green">
+  <img src="https://img.shields.io/badge/minecraft-1.21.3-green">
   <img src="https://img.shields.io/badge/java-20-red">
 </p>
 
@@ -16,6 +16,8 @@ The Java applicatin will convert all player related files to be offline or onlin
 Currently I tested and can confirm support for Vanilla, Bukkit, Paper, Purpur, Spigot and Forge servers.
 
 Every Minecraft version since and including 1.17.1 is confirmed to work. Earlier versions I can't guarantee.
+
+NOTE: Not tested yet, but Minecraft versions 1.21.1 - 1.21.3 should also be fully supported!
 
 # Usage
 
