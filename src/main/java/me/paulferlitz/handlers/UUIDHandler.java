@@ -1,5 +1,6 @@
 package me.paulferlitz.handlers;
 
+import me.paulferlitz.Main;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -47,6 +48,7 @@ public class UUIDHandler
         String uuid = json.getString("id").replaceAll(
                 "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})",
                 "$1-$2-$3-$4-$5");
+        if(Main.getArgs().hasOption("v")) System.out.println("UUIDHandler: from " + onlineName + " to " + uuid);
         return UUID.fromString(uuid);
     }
 
@@ -65,6 +67,7 @@ public class UUIDHandler
         String response = http.httpDoGet();
         String result = response == null ? "{}" : response;
         JSONObject json = new JSONObject(result);
+        if(Main.getArgs().hasOption("v")) System.out.println("UUIDHandler: from " + onlineUUID + " to " + json);
         return json.getString("name");
     }
 

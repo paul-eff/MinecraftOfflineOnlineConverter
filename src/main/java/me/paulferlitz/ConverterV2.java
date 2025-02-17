@@ -85,6 +85,7 @@ public class ConverterV2
         // Get all players from usercache.json
         Path usercache = this.serverFolder.resolve("usercache.json");
         JSONArray knownPlayers = FileHandler.loadArrayFromUsercache(usercache.toString());
+        if(Main.getArgs().hasOption("v")) System.out.println(knownPlayers);
         String playerName = "N/A";
         uuidMap.clear();
         // Iterate over all players
@@ -103,11 +104,13 @@ public class ConverterV2
                         onlineUUID = UUID.fromString(knownPlayer.getString("uuid"));
                         playerName = knownPlayer.getString("name");
                         UUID offlineUUID = UUIDHandler.onlineUUIDToOffline(onlineUUID);
+                        if(Main.getArgs().hasOption("v")) System.out.println(onlineUUID + " -> " + playerName + " -> " + offlineUUID);
                         player = new Player(playerName, offlineUUID);
                         break;
                     case "online":
                         playerName = knownPlayer.getString("name");
                         onlineUUID = UUIDHandler.onlineNameToUUID(playerName);
+                        if(Main.getArgs().hasOption("v")) System.out.println(playerName + " -> " + onlineUUID);
                         player = new Player(playerName, onlineUUID);
                         break;
                     default:
@@ -157,7 +160,9 @@ public class ConverterV2
     {
         if (!preCheck(mode)) return;
 
-        String onlineMode = mode.equals("-offline") ? "false" : "true";
+        if(Main.getArgs().hasOption("v")) System.out.println("Current state of prefeteched UUIDs: " + uuidMap);
+
+        String onlineMode = Boolean.toString(!mode.equals("-offline"));
         FileHandler.writeToProperties(this.serverFolder.resolve("server.properties"), "online-mode", onlineMode);
 
         // Iterate over every flavour specific directory
@@ -206,6 +211,7 @@ public class ConverterV2
                 //System.out.println(file);
                 //System.out.println(newFileName);
                 Files.move(currentPath, newFileName, StandardCopyOption.REPLACE_EXISTING);
+                if(Main.getArgs().hasOption("v")) System.out.println("Renamed " + currentPath + " to " + newFileName);
                 //continue;
             } catch (IllegalArgumentException | IOException | JSONException e)
             {
@@ -229,6 +235,7 @@ public class ConverterV2
                     content = content.replaceAll(entry.getKey().toString(), entry.getValue().getUuid().toString());
                 }
                 Files.writeString(currentPath, content);
+                if(Main.getArgs().hasOption("v")) System.out.println("Replaced UUIDs in " + currentPath);
             } catch (IOException e)
             {
                 // This error should only happen if you intentionally tinker whilst the application is running, but I still am handling it.

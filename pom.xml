@@ -7,7 +7,7 @@
     <!-- Project coordinates -->
     <groupId>me.paulferlitz</groupId>
     <artifactId>MinecraftOfflineOnlineConverter</artifactId>
-    <version>BETA-3-SNAPSHOT</version>
+    <version>BETA-4-SNAPSHOT</version>
 
     <!-- Project's packaging type -->
     <packaging>jar</packaging>
@@ -18,8 +18,8 @@
 
     <!-- Java version to be used for compilation -->
     <properties>
-        <maven.compiler.source>20</maven.compiler.source>
-        <maven.compiler.target>20</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>

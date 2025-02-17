@@ -1,5 +1,6 @@
 package me.paulferlitz.handlers;
 
+import me.paulferlitz.Main;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
@@ -68,13 +69,16 @@ public class CustomPathParser
                                 if ((boolean)path.getOrDefault("recursive", false))
                                 {
                                     pathList.addAll(getPathsRecursively((String) path.get("path")));
+                                    if(Main.getArgs().hasOption("v")) System.out.println("Recursively added folder: " + path.get("path"));
                                 } else
                                 {
                                     pathList.addAll(getFolderContent((String) path.get("path")));
+                                    if(Main.getArgs().hasOption("v")) System.out.println("Added folder: " + path.get("path"));
                                 }
                             }else
                             {
                                 pathList.add((String) path.get("path"));
+                                if(Main.getArgs().hasOption("v")) System.out.println("Added file: " + path.get("path"));
                             }
                             //System.out.println("Type: " + path.get("type"));
                             //System.out.println("Path: " + path.get("path"));

@@ -1,5 +1,7 @@
 package me.paulferlitz.handlers;
 
+import me.paulferlitz.Main;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -64,8 +66,10 @@ public class HTTPHandler
             // Close and return results
             in.close();
             con.disconnect();
+            if(Main.getArgs().hasOption("v")) System.out.println("HttpHandler: " + con.getResponseCode() + " " + con.getResponseMessage() + " " + content);
             return content.toString();
         }
+        if(Main.getArgs().hasOption("v")) System.out.println("HttpHandler: " + con.getResponseCode() + " " + con.getResponseMessage());
         return null;
     }
 }

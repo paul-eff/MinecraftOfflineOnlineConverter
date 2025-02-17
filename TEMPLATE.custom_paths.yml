@@ -10,6 +10,6 @@ paths:
   # Convert all files in a folder, excluding subfolders
   - type: folder
     path: ./path/to/folderB
-  # Convert one specific file to convert
+  # Convert one specific file
   - type: file
     path: ./path/to/fileA.json

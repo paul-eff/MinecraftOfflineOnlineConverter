@@ -1,9 +1,9 @@
-# MinecraftOfflineOnlineConverter Beta v3
+# MinecraftOfflineOnlineConverter Beta v4
 <p align="center">
   <img src="https://img.shields.io/badge/release-Beta-blue">
-  <img src="https://img.shields.io/badge/version-3-blue">
-  <img src="https://img.shields.io/badge/minecraft-1.20.4-green">
-  <img src="https://img.shields.io/badge/java-20-red">
+  <img src="https://img.shields.io/badge/version-4-blue">
+  <img src="https://img.shields.io/badge/minecraft-1.21.4-green">
+  <img src="https://img.shields.io/badge/java-21-red">
 </p>
 
 Ever started playing on one of your Minecraft servers and a few hours later that one friend that didn't buy the game wants to join?
@@ -23,12 +23,13 @@ This is a pre-release, make backups! See [here](#disclaimer)
 
 - Execute the jar through your terminal with the following command:
 ```java
-java -jar MinecraftOfflineOnlineConverter_3-BETA_1.jar <arguments>
+java -jar MinecraftOfflineOnlineConverter_BETA_4.jar <arguments>
 ```
 - You will have to pass one of these arguments
   - `-offline` to convert your server to offline files
   - `-online` to convert your server to online files
-- And if necessary `-p "path/to/server/folder/"` (if the jar is not in the server's main folder)
+- If necessary `-p "path/to/server/folder/"` (if the jar is not in the server's main folder)
+- `-v` for verbose output
 
 ## Known Issues
 

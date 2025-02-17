@@ -15,12 +15,13 @@ import org.apache.commons.cli.*;
 public class Main
 {
     // Class variables
-    private static final String version = "BETA 3";
+    private static final String version = "BETA 4";
 
     private static String mode = "N/A";
     private static boolean hasPath = false;
     private static ConverterV2 converter;
     private static MinecraftFlavourDetection mfd;
+    private static CommandLine cmd;
 
     /**
      * Main method and entry point of jar.
@@ -34,19 +35,10 @@ public class Main
         long startTime = System.nanoTime();
         System.out.println("\nStarting MinecraftOfflineOnlineConverter Version " + version + "...\n");
         // Argument parsing
-        Options options = new Options();
-
-        Option input = new Option("p", "path", true, "Path to the server folder");
-        options.addOption(input);
-
-        Option offline = new Option("offline", false, "Convert server files to offline mode");
-        options.addOption(offline);
-        Option online = new Option("online", false, "Convert server files to online mode");
-        options.addOption(online);
+        Options options = getOptions();
 
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
-        CommandLine cmd;
 
         try {
             cmd = parser.parse(options, args);
@@ -57,9 +49,15 @@ public class Main
             if (cmd.hasOption("offline"))
             {
                 mode = "-offline";
+                if (cmd.hasOption("v")) {
+                    System.out.println("Mode set to offline");
+                }
             }else if (cmd.hasOption("online"))
             {
                 mode = "-online";
+                if (cmd.hasOption("v")) {
+                    System.out.println("Mode set to online");
+                }
             } else {
                 throw new ParseException("Neither -offline or -online argument was found. Please specify which mode you want!");
             }
@@ -94,5 +92,27 @@ public class Main
         converter.convert(mode, mcFlavour);
 
         System.out.println("\nJob finished in " + ((System.nanoTime() - startTime) / 1000000) + " milliseconds.");
+    }
+
+    private static Options getOptions()
+    {
+        Options options = new Options();
+
+        Option path = new Option("p", "path", true, "Path to the server folder");
+        options.addOption(path);
+        Option verbose = new Option("v", "verbose", false, "Enable verbose output");
+        options.addOption(verbose);
+        Option help = new Option("h", "help", false, "Get some help");
+        options.addOption(help);
+
+        Option offline = new Option("offline", false, "Convert server files to offline mode");
+        options.addOption(offline);
+        Option online = new Option("online", false, "Convert server files to online mode");
+        options.addOption(online);
+        return options;
+    }
+
+    public static CommandLine getArgs() {
+        return cmd;
     }
 }
