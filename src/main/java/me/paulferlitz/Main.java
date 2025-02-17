@@ -15,7 +15,7 @@ import org.apache.commons.cli.*;
 public class Main
 {
     // Class variables
-    private static final String version = "BETA 4";
+    private static final String version = "3 BETA 2";
 
     private static String mode = "N/A";
     private static boolean hasPath = false;
