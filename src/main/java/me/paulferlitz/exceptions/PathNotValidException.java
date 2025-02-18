@@ -1,14 +1,18 @@
 package me.paulferlitz.exceptions;
 
 /**
- * Exception when a given file path could not be resolved.
+ * Exception thrown when a given file path is invalid or does not exist.
+ * Logs the invalid path for better debugging.
  *
  * @author Paul Ferlitz
  */
-public class PathNotValidException extends Exception
-{
-    public PathNotValidException(String path)
-    {
-        super("The given path does not exists!\nPath in question: " + path);
+public class PathNotValidException extends Exception {
+    /**
+     * Constructs a PathNotValidException with a detailed message.
+     *
+     * @param path The invalid path that caused the exception.
+     */
+    public PathNotValidException(String path) {
+        super(String.format("The given path does not exist! Path in question: %s", path));
     }
 }

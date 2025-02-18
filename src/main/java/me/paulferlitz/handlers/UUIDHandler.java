@@ -1,85 +1,106 @@
 package me.paulferlitz.handlers;
 
-import me.paulferlitz.Main;
-import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.sql.PreparedStatement;
 import java.util.UUID;
 
 /**
- * Class to handle UUID related actions.
+ * Handles UUID-related actions, including conversions between online and offline UUIDs.
+ *
+ * Uses Mojang's API for retrieving UUIDs and names from online services.
  *
  * @author Paul Ferlitz
  */
-public class UUIDHandler
-{
-    // Class variables
+public class UUIDHandler {
+    private static final Logger logger = LoggerFactory.getLogger(UUIDHandler.class);
     private static final HTTPHandler http = new HTTPHandler();
 
     /**
-     * Method for converting a player name to an offline UUID.
+     * Converts a player name to an offline UUID.
      *
-     * @param offlineName Player's name.
+     * @param offlineName The player's name.
      * @return The resulting {@link UUID}.
      */
-    public static UUID offlineNameToUUID(String offlineName)
-    {
-        return UUID.nameUUIDFromBytes(("OfflinePlayer:" + offlineName).getBytes(StandardCharsets.UTF_8));
+    public static UUID offlineNameToUUID(String offlineName) {
+        UUID uuid = UUID.nameUUIDFromBytes(("OfflinePlayer:" + offlineName).getBytes(StandardCharsets.UTF_8));
+        logger.info("Generated offline UUID for player '{}': {}", offlineName, uuid);
+        return uuid;
     }
 
     /**
-     * Method for converting a player name to an online UUID.
+     * Converts a player name to an online UUID by querying Mojang's API.
      *
-     * @param onlineName Player's name.
+     * @param onlineName The player's name.
      * @return The resulting {@link UUID}.
-     * @throws IOException If there were connection issues.
+     * @throws IOException If a connection issue occurs.
      */
-    public static UUID onlineNameToUUID(String onlineName) throws IOException
-    {
-        // Set target URL to Mojang API
+    public static UUID onlineNameToUUID(String onlineName) throws IOException {
         http.setUrl("https://api.mojang.com/users/profiles/minecraft/" + onlineName);
-        // Parse UUID from response
         String response = http.httpDoGet();
-        String result = response == null ? "{}" : response;
-        JSONObject json = new JSONObject(result);
-        String uuid = json.getString("id").replaceAll(
-                "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})",
-                "$1-$2-$3-$4-$5");
-        if(Main.getArgs().hasOption("v")) System.out.println("UUIDHandler: from " + onlineName + " to " + uuid);
+
+        if (response == null || response.isEmpty()) {
+            logger.warn("No UUID found for online player '{}'.", onlineName);
+            return null;
+        }
+
+        JSONObject json = new JSONObject(response);
+        String uuid = json.optString("id", "").replaceAll(
+                "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5");
+
+        if (uuid.isEmpty()) {
+            logger.warn("Invalid UUID retrieved for '{}'.", onlineName);
+            return null;
+        }
+
+        logger.info("Retrieved online UUID for player '{}': {}", onlineName, uuid);
         return UUID.fromString(uuid);
     }
 
     /**
-     * Method to get a player's name from an online {@link UUID}.
+     * Retrieves a player's name from their online {@link UUID} using Mojang's API.
      *
      * @param onlineUUID The player's {@link UUID}.
-     * @return The resulting name.
-     * @throws IOException If there were connection issues.
+     * @return The player's name, or null if not found.
+     * @throws IOException If a connection issue occurs.
      */
-    public static String onlineUUIDToName(UUID onlineUUID) throws IOException, JSONException
-    {
-        // Set target URL to Mojang API
+    public static String onlineUUIDToName(UUID onlineUUID) throws IOException {
         http.setUrl("https://api.mojang.com/user/profile/" + onlineUUID.toString());
-        // Parse name from response
         String response = http.httpDoGet();
-        String result = response == null ? "{}" : response;
-        JSONObject json = new JSONObject(result);
-        if(Main.getArgs().hasOption("v")) System.out.println("UUIDHandler: from " + onlineUUID + " to " + json);
-        return json.getString("name");
+
+        if (response == null || response.isEmpty()) {
+            logger.warn("No name found for UUID '{}'.", onlineUUID);
+            return null;
+        }
+
+        JSONObject json = new JSONObject(response);
+        String name = json.optString("name", "");
+
+        if (name.isEmpty()) {
+            logger.warn("Invalid name retrieved for UUID '{}'.", onlineUUID);
+            return null;
+        }
+
+        logger.info("Retrieved player name for UUID '{}': {}", onlineUUID, name);
+        return name;
     }
 
     /**
-     * Method that bundles the other methods to one online to offline method call.
+     * Converts an online UUID to an offline UUID by first retrieving the player's name.
      *
      * @param onlineUUID The player's online {@link UUID}.
-     * @return The player's offline {@link UUID}.
-     * @throws IOException If there were connection issues.
+     * @return The player's offline {@link UUID}, or null if conversion fails.
+     * @throws IOException If a connection issue occurs.
      */
-    public static UUID onlineUUIDToOffline(UUID onlineUUID) throws IOException
-    {
-        return offlineNameToUUID(onlineUUIDToName(onlineUUID));
+    public static UUID onlineUUIDToOffline(UUID onlineUUID) throws IOException {
+        String playerName = onlineUUIDToName(onlineUUID);
+        if (playerName == null) {
+            logger.error("Failed to convert online UUID '{}' to an offline UUID due to missing name.", onlineUUID);
+            return null;
+        }
+        return offlineNameToUUID(playerName);
     }
 }

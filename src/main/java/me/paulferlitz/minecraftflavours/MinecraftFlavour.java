@@ -3,6 +3,7 @@ package me.paulferlitz.minecraftflavours;
 import me.paulferlitz.handlers.CustomPathParser;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public enum MinecraftFlavour
 {
@@ -41,7 +42,7 @@ public enum MinecraftFlavour
 
         if (cpp.isFileSet())
         {
-            ArrayList<String> pathList = cpp.getPaths();
+            List<String> pathList = cpp.getPaths();
             if(!pathList.isEmpty()) filesAndFolders.addAll(pathList);
         }
 

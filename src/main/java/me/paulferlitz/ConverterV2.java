@@ -3,11 +3,12 @@ package me.paulferlitz;
 import me.paulferlitz.handlers.FileHandler;
 import me.paulferlitz.handlers.UUIDHandler;
 import me.paulferlitz.minecraftflavours.MinecraftFlavour;
-import me.paulferlitz.exceptions.InvalidArgumentException;
 import me.paulferlitz.exceptions.PathNotValidException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,233 +16,143 @@ import java.nio.file.*;
 import java.util.*;
 
 /**
- * Class for handling the file conversion.
+ * Handles the conversion of Minecraft server player data between online and offline modes.
+ * This includes renaming files and replacing UUIDs in various server files.
  *
  * @author Paul Ferlitz
  */
-public class ConverterV2
-{
-    // Class variables
+public class ConverterV2 {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConverterV2.class);
+
     private final Path serverFolder;
     private final Path worldFolder;
     private final Map<UUID, Player> uuidMap = new HashMap<>();
-    private final String[] ignoredFileExtensions = new String[]
-            {
-                    "mca", "jar", "gz", "lock", "sh", "bat", "log", "mcmeta",
-                    "md", "snbt", "nbt", "nbt", "zip", "cache", "png", "jpeg", "js",
-                    "DS_Store"
-            };
+    private static final Set<String> IGNORED_FILE_EXTENSIONS = Set.of(
+            "mca", "jar", "gz", "lock", "sh", "bat", "log", "mcmeta",
+            "md", "snbt", "nbt", "zip", "cache", "png", "jpeg", "js", "DS_Store"
+    );
 
     /**
-     * Main constructor.
+     * Default constructor using the current directory as the server folder.
      *
-     * @throws PathNotValidException if the path derived from server.properties or default could not be resolved.
+     * @throws PathNotValidException if the world folder cannot be resolved.
      */
-    public ConverterV2() throws PathNotValidException
-    {
-        this.serverFolder = Path.of("./");
-        // Get path to world folder
-        // TODO: Change method from using String to using Path - Needs exception for this case
-        String worldName = FileHandler.readWorldNameFromProperties("./server.properties");
-        this.worldFolder = this.serverFolder.resolve(worldName);
-        if (!Files.exists(this.worldFolder))
-        {
-            throw new PathNotValidException(this.worldFolder.toAbsolutePath().toString());
-        }
+    public ConverterV2() throws PathNotValidException {
+        this(Path.of("./"));
     }
 
     /**
-     * Secondary constructor if the server folder path must be specified.
+     * Constructor allowing a custom server folder path.
      *
-     * @param serverFolderPath The path to the server's main folder.
-     * @throws PathNotValidException if the path derived from server.properties or default could not be resolved.
+     * @param serverFolderPath The path to the Minecraft server directory.
+     * @throws PathNotValidException if the world folder cannot be resolved.
      */
-    public ConverterV2(String serverFolderPath) throws PathNotValidException
-    {
-        this.serverFolder = Path.of(serverFolderPath);
-        // Get path to world folder
+    public ConverterV2(Path serverFolderPath) throws PathNotValidException {
+        this.serverFolder = serverFolderPath;
         Path serverProperties = this.serverFolder.resolve("server.properties");
-        // TODO: Change method from using String to using Path
-        String worldName = FileHandler.readWorldNameFromProperties(serverProperties.toString());
+
+        String worldName = FileHandler.readWorldNameFromProperties(String.valueOf(serverProperties));
         this.worldFolder = this.serverFolder.resolve(worldName);
-        if (Files.exists(this.worldFolder))
-        {
-            System.out.println("Working path set to \"" + this.serverFolder.toAbsolutePath() + "\"");
-        } else
-        {
+
+        if (!Files.exists(this.worldFolder)) {
             throw new PathNotValidException(this.worldFolder.toAbsolutePath().toString());
+        }
+
+        LOGGER.info("Server folder set to: {}", this.serverFolder.toAbsolutePath());
+    }
+
+    /**
+     * Fetches all known players from usercache.json and stores them in a map.
+     *
+     * @param mode Specifies if the server should be converted to offline or online mode.
+     */
+    private void fetchUsercache(String mode) {
+        Path usercache = this.serverFolder.resolve("usercache.json");
+        JSONArray knownPlayers = FileHandler.loadArrayFromUsercache(String.valueOf(usercache));
+
+        uuidMap.clear();
+
+        for (Object obj : knownPlayers) {
+            JSONObject knownPlayer = (JSONObject) obj;
+            try {
+                String playerName = knownPlayer.getString("name");
+                UUID onlineUUID = UUID.fromString(knownPlayer.getString("uuid"));
+                UUID convertedUUID = ("offline".equals(mode)) ? UUIDHandler.onlineUUIDToOffline(onlineUUID) : UUIDHandler.onlineNameToUUID(playerName);
+
+                uuidMap.put(onlineUUID, new Player(playerName, convertedUUID));
+                LOGGER.info("Prefetched player: {} ({})", playerName, convertedUUID);
+            } catch (IOException | JSONException e) {
+                LOGGER.warn("Could not prefetch player from usercache.json", e);
+            }
         }
     }
 
     /**
-     * Method that fetches all known players from the usercache.json file.
-     * No return value, as it's stores in {@link #uuidMap}.
+     * Performs a pre-check before conversion to ensure valid player data is available.
      *
-     * @param mode If the server should be converted to offline or online mode.
-     * @throws InvalidArgumentException if an illegal argument was detected.
+     * @param mode Conversion mode ("-online" or "-offline").
+     * @return True if conversion can proceed, false otherwise.
      */
-    private void fetchUsercache(String mode) throws InvalidArgumentException
-    {
-        // Get all players from usercache.json
-        Path usercache = this.serverFolder.resolve("usercache.json");
-        JSONArray knownPlayers = FileHandler.loadArrayFromUsercache(usercache.toString());
-        if(Main.getArgs().hasOption("v")) System.out.println(knownPlayers);
-        String playerName = "N/A";
-        uuidMap.clear();
-        // Iterate over all players
-        for (Object obj : knownPlayers)
-        {
-            JSONObject knownPlayer = (JSONObject) obj;
-            try
-            {
-                // Try converting knownPlayer to a Player object by fetching or generating his UUID etc.
-                Player player;
-                UUID onlineUUID;
-                switch (mode)
-                {
-                    case "offline":
-                        // TODO: Make shorter by allowing direct String UUID input
-                        onlineUUID = UUID.fromString(knownPlayer.getString("uuid"));
-                        playerName = knownPlayer.getString("name");
-                        UUID offlineUUID = UUIDHandler.onlineUUIDToOffline(onlineUUID);
-                        if(Main.getArgs().hasOption("v")) System.out.println(onlineUUID + " -> " + playerName + " -> " + offlineUUID);
-                        player = new Player(playerName, offlineUUID);
-                        break;
-                    case "online":
-                        playerName = knownPlayer.getString("name");
-                        onlineUUID = UUIDHandler.onlineNameToUUID(playerName);
-                        if(Main.getArgs().hasOption("v")) System.out.println(playerName + " -> " + onlineUUID);
-                        player = new Player(playerName, onlineUUID);
-                        break;
-                    default:
-                        throw new InvalidArgumentException(mode);
-                }
-                // Save to the Hashmap for later
-                uuidMap.put(UUID.fromString(knownPlayer.getString("uuid")), player);
+    private boolean preCheck(String mode) {
+        boolean isOnline = "-online".equals(mode);
+        fetchUsercache(isOnline ? "online" : "offline");
 
-                System.out.println("Was able to prefetch player " + playerName + " from usercache.json");
-            } catch (IOException | JSONException e)
-            {
-                System.out.println("Wasn't able to prefetch player " + playerName +
-                        " (" + knownPlayer.getString("uuid") + ") from usercache.json -> Probably an offline account!");
-            }
-        }
-    }
-
-    private boolean preCheck(String mode) throws InvalidArgumentException
-    {
-        if (!mode.equals("-online"))
-        {
-            System.out.println("\nCONVERSION: ONLINE --> OFFLINE");
-            fetchUsercache("offline");
-        } else
-        {
-            System.out.println("\nCONVERSION: OFFLINE --> ONLINE");
-            fetchUsercache("online");
-            // Abort process if all found players are offline only profiles (nothing to do here).
-            if (uuidMap.isEmpty())
-            {
-                System.out.println("\nCould not find any offline profiles that were convertable to online profiles. Aborting...");
-                return false;
-            }
+        if (isOnline && uuidMap.isEmpty()) {
+            LOGGER.error("No offline profiles found to convert to online profiles. Aborting...");
+            return false;
         }
         return true;
     }
 
     /**
-     * Main class method for converting all player bound files.
-     * This method fetches a list of default directories, changing with the flavour of Minecraft server.
-     * Then gets all files from those directories and converts them.
+     * Converts all player-related files and UUIDs to match the selected mode.
      *
-     * @param mode If the server should be converted to offline or online mode.
-     * @throws InvalidArgumentException if an illegal argument was detected.
+     * @param mode    Conversion mode ("-online" or "-offline").
+     * @param flavour The Minecraft server type, defining file locations.
+     * @throws IOException if file operations fail.
      */
-    public void convert(String mode, MinecraftFlavour flavour) throws InvalidArgumentException, IOException
-    {
+    public void convert(String mode, MinecraftFlavour flavour) throws IOException {
         if (!preCheck(mode)) return;
 
-        if(Main.getArgs().hasOption("v")) System.out.println("Current state of prefeteched UUIDs: " + uuidMap);
+        Files.writeString(
+                this.serverFolder.resolve("server.properties"),
+                "online-mode=" + !"-offline".equals(mode)
+        );
 
-        String onlineMode = Boolean.toString(!mode.equals("-offline"));
-        FileHandler.writeToProperties(this.serverFolder.resolve("server.properties"), "online-mode", onlineMode);
+        for (String relativePath : flavour.getFiles(this.serverFolder.toString(), this.worldFolder.getFileName().toString())) {
+            Path currentPath = this.serverFolder.resolve(relativePath);
+            File currentFile = currentPath.toFile();
 
-        // Iterate over every flavour specific directory
-        for (String str : flavour.getFiles(this.serverFolder.toString(), this.worldFolder.getFileName().toString()))
-        {
-            File currentFile = this.serverFolder.resolve(str).toFile();
-            if (currentFile.isDirectory()) continue;
-
-            boolean exclude = false;
-            for (String ext : ignoredFileExtensions) {
-                if (currentFile.getName().endsWith("." + ext)) {
-                    exclude = true;
-                    break;
-                }
+            if (!currentFile.isFile() || IGNORED_FILE_EXTENSIONS.stream().anyMatch(currentFile.getName()::endsWith)) {
+                continue;
             }
 
-            if (exclude) continue;
+            LOGGER.info("Processing file: {}", currentPath);
 
-            System.out.println("\nWorking on \"" + str + "\"...");
+            try {
+                String fileName = currentPath.getFileName().toString();
+                UUID fileUUID = UUID.fromString(fileName.substring(0, fileName.lastIndexOf('.')));
 
-            Path currentPath = currentFile.toPath();
-
-            String fullFileName = currentPath.getFileName().toString();
-            int dotIndex = fullFileName.lastIndexOf('.');
-            String fileName, fileExtension;
-            if (dotIndex != -1)
-            {
-                fileName = fullFileName.substring(0, dotIndex);
-                fileExtension = fullFileName.substring(dotIndex);
-            } else
-            {
-                fileName = fullFileName;
-                fileExtension = "";
-            }
-
-            try
-            {
-                UUID currentUUID = UUID.fromString(fileName);
-                if (!uuidMap.containsKey(currentUUID) && mode.equals("-offline"))
-                {
-                    //TODO: onlineUUIDToOffline utilises onlineUUIDToName -> make better to save on API requests
-                    uuidMap.put(currentUUID, new Player(UUIDHandler.onlineUUIDToName(currentUUID),  UUIDHandler.onlineUUIDToOffline(currentUUID)));
+                if (!uuidMap.containsKey(fileUUID) && "-offline".equals(mode)) {
+                    uuidMap.put(fileUUID, new Player(UUIDHandler.onlineUUIDToName(fileUUID), UUIDHandler.onlineUUIDToOffline(fileUUID)));
                 }
-                Path temp = Paths.get(uuidMap.get(currentUUID).getUuid().toString() + fileExtension);
-                Path newFileName = this.serverFolder.resolve(str).getParent().resolve(temp);
-                //System.out.println(file);
-                //System.out.println(newFileName);
+
+                Path newFileName = currentPath.resolveSibling(uuidMap.get(fileUUID).getUuid() + fileName.substring(fileName.lastIndexOf('.')));
                 Files.move(currentPath, newFileName, StandardCopyOption.REPLACE_EXISTING);
-                if(Main.getArgs().hasOption("v")) System.out.println("Renamed " + currentPath + " to " + newFileName);
-                //continue;
-            } catch (IllegalArgumentException | IOException | JSONException e)
-            {
-                if (e instanceof IOException)
-                {
-                    // This error should only happen if you intentionally tinker whilst the application is running, but I still am handling it.
-                    System.out.println("\n!!! FILE CONFLICT !!!");
-                    System.out.println("Source file: " + currentPath.toAbsolutePath());
-                    System.out.println("Please resolve on your own!");
-                }
+                LOGGER.info("Renamed {} to {}", currentPath, newFileName);
+
+            } catch (IllegalArgumentException | IOException e) {
+                LOGGER.warn("Skipping file {} due to an error: {}", currentPath, e.getMessage());
             }
 
-            if(!Files.isRegularFile(currentPath)) continue;
-            if (!FileHandler.isText(currentPath)) continue;
-
-            try
-            {
+            if (Files.isRegularFile(currentPath) && FileHandler.isText(currentPath)) {
                 String content = Files.readString(currentPath);
-                for (Map.Entry<UUID, Player> entry : uuidMap.entrySet())
-                {
-                    content = content.replaceAll(entry.getKey().toString(), entry.getValue().getUuid().toString());
+                for (Map.Entry<UUID, Player> entry : uuidMap.entrySet()) {
+                    content = content.replace(entry.getKey().toString(), entry.getValue().getUuid().toString());
                 }
                 Files.writeString(currentPath, content);
-                if(Main.getArgs().hasOption("v")) System.out.println("Replaced UUIDs in " + currentPath);
-            } catch (IOException e)
-            {
-                // This error should only happen if you intentionally tinker whilst the application is running, but I still am handling it.
-                System.out.println("\n!!! FILE CONFLICT !!!");
-                System.out.println("Source file: " + currentPath.toAbsolutePath());
-                System.out.println("Please resolve on your own!");
+                LOGGER.info("Updated UUIDs in file: {}", currentPath);
             }
         }
     }
