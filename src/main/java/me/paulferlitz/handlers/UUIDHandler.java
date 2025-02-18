@@ -10,7 +10,6 @@ import java.util.UUID;
 
 /**
  * Handles UUID-related actions, including conversions between online and offline UUIDs.
- *
  * Uses Mojang's API for retrieving UUIDs and names from online services.
  *
  * @author Paul Ferlitz

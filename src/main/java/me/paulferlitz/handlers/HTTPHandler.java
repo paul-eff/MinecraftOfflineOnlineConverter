@@ -11,7 +11,6 @@ import java.net.URL;
 
 /**
  * Handles API connections to external services, such as the Mojang API.
- *
  * Provides a simple way to make GET requests and retrieve response data.
  *
  * @author Paul Ferlitz
