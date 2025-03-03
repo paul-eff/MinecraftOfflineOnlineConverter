@@ -115,10 +115,8 @@ public class ConverterV2 {
     public void convert(String mode, MinecraftFlavour flavour) throws IOException {
         if (!preCheck(mode)) return;
 
-        Files.writeString(
-                this.serverFolder.resolve("server.properties"),
-                "online-mode=" + !"-offline".equals(mode)
-        );
+        String onlineMode = Boolean.toString(!mode.equals("-offline"));
+        FileHandler.writeToProperties(this.serverFolder.resolve("server.properties"), "online-mode", onlineMode);
 
         for (String relativePath : flavour.getFiles(this.serverFolder.toString(), this.worldFolder.getFileName().toString())) {
             Path currentPath = this.serverFolder.resolve(relativePath);

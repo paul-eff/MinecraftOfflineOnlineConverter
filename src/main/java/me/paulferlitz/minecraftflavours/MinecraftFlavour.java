@@ -2,8 +2,12 @@ package me.paulferlitz.minecraftflavours;
 
 import me.paulferlitz.handlers.CustomPathParser;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public enum MinecraftFlavour
 {
@@ -35,7 +39,7 @@ public enum MinecraftFlavour
         defaultDirectories.add("./" + worldName + "/advancements");
         defaultDirectories.add("./" + worldName + "/stats");
 
-        for(String path : defaultDirectories)
+        for (String path : defaultDirectories)
         {
             filesAndFolders.addAll(cpp.getFolderContent(path));
         }
@@ -43,15 +47,16 @@ public enum MinecraftFlavour
         if (cpp.isFileSet())
         {
             List<String> pathList = cpp.getPaths();
-            if(!pathList.isEmpty()) filesAndFolders.addAll(pathList);
+            if (!pathList.isEmpty()) filesAndFolders.addAll(pathList);
         }
 
-        switch(this)
+        switch (this)
         {
             // TODO: Find flavour specific directories
             case VANILLA:
                 // defaultDirectories.add("some/vanillaspecific/path");
                 // Check for no plugins and no mods folder
+                filesAndFolders.addAll(cpp.getPathsRecursively("./" + worldName));
                 break;
             case LIGHT_MODDED:
                 // defaultDirectories.add("some/lightmoddedspecific/path");

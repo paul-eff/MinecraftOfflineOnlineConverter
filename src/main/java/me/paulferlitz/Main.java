@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 
+import static java.lang.System.exit;
+
 /**
  * Entry point for MinecraftOfflineOnlineConverter.
  * Handles argument parsing, initializes components, and starts the conversion process.
@@ -77,7 +79,7 @@ public class Main {
             cmd = parser.parse(options, args);
             if (cmd.hasOption("h")) {
                 formatter.printHelp("MinecraftOfflineOnlineConverter", options);
-                System.exit(0);
+                exit(0);
             }
 
             if (cmd.hasOption("offline")) {
@@ -92,7 +94,7 @@ public class Main {
         } catch (ParseException e) {
             logger.error("Error: {}", e.getMessage());
             formatter.printHelp("MinecraftOfflineOnlineConverter", options);
-            System.exit(1);
+            exit(1);
         }
     }
 
