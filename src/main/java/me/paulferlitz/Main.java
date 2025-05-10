@@ -19,7 +19,7 @@ import static java.lang.System.exit;
  */
 public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
-    private static final String VERSION = "3 BETA 2";
+    private static final String VERSION = "3";
     private static String mode = "N/A";
     private static boolean hasPath = false;
     private static ConverterV2 converter;
