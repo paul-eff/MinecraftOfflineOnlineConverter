@@ -1,6 +1,8 @@
 package me.pauleff.handlers;
 
-import ch.qos.logback.classic.*;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
@@ -12,16 +14,20 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * LoggerConfigurator is responsible for configuring the logging system using Logback.
+ *
+ * @author Paul Ferlitz
  */
-public class LoggerConfigurator {
+public class LoggerConfigurator
+{
 
     /**
      * Configures the logging system.
-     * Sets up console and file appenders with specified patterns and encoders.
+     * Sets up console and file appenders with specific patterns.
      *
      * @param verbose If true, sets the logging level to DEBUG; otherwise, sets it to INFO.
      */
-    public static void configure(boolean verbose) {
+    public static void configure(boolean verbose)
+    {
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
         context.reset();
 
