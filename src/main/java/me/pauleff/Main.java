@@ -1,8 +1,8 @@
-package me.paulferlitz;
+package me.pauleff;
 
-import me.paulferlitz.minecraftflavours.MinecraftFlavourDetection;
-import me.paulferlitz.minecraftflavours.MinecraftFlavour;
-import me.paulferlitz.exceptions.PathNotValidException;
+import me.pauleff.minecraftflavours.MinecraftFlavourDetection;
+import me.pauleff.minecraftflavours.MinecraftFlavour;
+import me.pauleff.exceptions.PathNotValidException;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

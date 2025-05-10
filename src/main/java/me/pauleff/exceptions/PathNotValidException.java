@@ -1,4 +1,4 @@
-package me.paulferlitz.exceptions;
+package me.pauleff.exceptions;
 
 /**
  * Exception thrown when a given file path is invalid or does not exist.

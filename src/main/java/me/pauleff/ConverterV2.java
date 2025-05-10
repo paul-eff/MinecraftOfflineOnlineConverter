@@ -1,9 +1,9 @@
-package me.paulferlitz;
+package me.pauleff;
 
-import me.paulferlitz.handlers.FileHandler;
-import me.paulferlitz.handlers.UUIDHandler;
-import me.paulferlitz.minecraftflavours.MinecraftFlavour;
-import me.paulferlitz.exceptions.PathNotValidException;
+import me.pauleff.handlers.FileHandler;
+import me.pauleff.handlers.UUIDHandler;
+import me.pauleff.minecraftflavours.MinecraftFlavour;
+import me.pauleff.exceptions.PathNotValidException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

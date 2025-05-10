@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <!-- Project coordinates -->
-    <groupId>me.paulferlitz</groupId>
+    <groupId>me.pauleff</groupId>
     <artifactId>MinecraftOfflineOnlineConverter</artifactId>
     <version>3</version>
 
@@ -66,7 +66,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>me.paulferlitz.Main</mainClass>
+                            <mainClass>me.pauleff.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

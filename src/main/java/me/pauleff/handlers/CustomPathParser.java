@@ -1,6 +1,6 @@
-package me.paulferlitz.handlers;
+package me.pauleff.handlers;
 
-import me.paulferlitz.Main;
+import me.pauleff.Main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;

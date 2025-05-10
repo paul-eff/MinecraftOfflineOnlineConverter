@@ -1,6 +1,6 @@
-package me.paulferlitz.minecraftflavours;
+package me.pauleff.minecraftflavours;
 
-import me.paulferlitz.exceptions.PathNotValidException;
+import me.pauleff.exceptions.PathNotValidException;
 
 import java.io.File;
 import java.nio.file.Path;

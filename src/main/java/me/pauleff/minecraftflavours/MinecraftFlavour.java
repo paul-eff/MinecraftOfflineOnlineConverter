@@ -1,6 +1,6 @@
-package me.paulferlitz.minecraftflavours;
+package me.pauleff.minecraftflavours;
 
-import me.paulferlitz.handlers.CustomPathParser;
+import me.pauleff.handlers.CustomPathParser;
 
 import java.util.ArrayList;
 import java.util.List;

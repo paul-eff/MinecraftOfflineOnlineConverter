@@ -1,4 +1,4 @@
-package me.paulferlitz.handlers;
+package me.pauleff.handlers;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
