@@ -1,11 +1,11 @@
-package me.pauleff.minecraftflavours;
+package me.pauleff.minecraftflavors;
 
 import me.pauleff.handlers.CustomPathParser;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public enum MinecraftFlavour
+public enum MinecraftFlavor
 {
     VANILLA("Vanilla"),
     LIGHT_MODDED("Lightly Modded (Bukkit,Paper,...)"),
@@ -13,7 +13,7 @@ public enum MinecraftFlavour
 
     private final String description;
 
-    MinecraftFlavour(String description)
+    MinecraftFlavor(String description)
     {
         this.description = description;
     }
@@ -48,7 +48,7 @@ public enum MinecraftFlavour
 
         switch (this)
         {
-            // TODO: Find flavour specific directories
+            // TODO: Find flavor specific directories
             case VANILLA:
                 // defaultDirectories.add("some/vanillaspecific/path");
                 // Check for no plugins and no mods folder

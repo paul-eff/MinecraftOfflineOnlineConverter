@@ -1,15 +1,16 @@
-package me.pauleff.minecraftflavours;
+package me.pauleff.minecraftflavors;
 
 import me.pauleff.exceptions.PathNotValidException;
 
 import java.io.File;
 import java.nio.file.Path;
 
-public class MinecraftFlavourDetection {
+public class MinecraftFlavorDetection
+{
 
     private final File baseDirectory;
 
-    public MinecraftFlavourDetection(String baseDirectory) throws PathNotValidException {
+    public MinecraftFlavorDetection(String baseDirectory) throws PathNotValidException {
         File temp = new File(baseDirectory);
         if (temp.isDirectory())
         {
@@ -20,7 +21,7 @@ public class MinecraftFlavourDetection {
         }
     }
 
-    public MinecraftFlavourDetection() throws PathNotValidException {
+    public MinecraftFlavorDetection() throws PathNotValidException {
         File temp = new File("./");
         if (temp.isDirectory())
         {
@@ -31,17 +32,17 @@ public class MinecraftFlavourDetection {
         }
     }
 
-    public MinecraftFlavour detectMinecraftFlavour()
+    public MinecraftFlavor detectMinecraftFlavor()
     {
         if(isVanilla())
         {
-            return MinecraftFlavour.VANILLA;
+            return MinecraftFlavor.VANILLA;
         }else if (isLightlyModded())
         {
-            return MinecraftFlavour.LIGHT_MODDED;
+            return MinecraftFlavor.LIGHT_MODDED;
         }else
         {
-            return MinecraftFlavour.MODDED;
+            return MinecraftFlavor.MODDED;
         }
     }
 
@@ -63,7 +64,7 @@ public class MinecraftFlavourDetection {
         return (!isModded && hasPlugins && hasBukkitYml);
     }
 
-    private boolean isBukkitFlavoured()
+    private boolean isBukkitFlavored()
     {
         if (isLightlyModded())
         {

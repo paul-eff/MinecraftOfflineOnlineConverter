@@ -2,7 +2,7 @@ package me.pauleff;
 
 import me.pauleff.handlers.FileHandler;
 import me.pauleff.handlers.UUIDHandler;
-import me.pauleff.minecraftflavours.MinecraftFlavour;
+import me.pauleff.minecraftflavors.MinecraftFlavor;
 import me.pauleff.exceptions.PathNotValidException;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -116,16 +116,16 @@ public class ConverterV2 {
      * Converts all player-related files and UUIDs to match the selected mode.
      *
      * @param mode    Conversion mode ("-online" or "-offline").
-     * @param flavour The Minecraft server type, defining file locations.
+     * @param flavor The Minecraft server type, defining file locations.
      * @throws IOException if file operations fail.
      */
-    public void convert(String mode, MinecraftFlavour flavour) throws IOException {
+    public void convert(String mode, MinecraftFlavor flavor) throws IOException {
         if (!preCheck(mode)) return;
 
         String onlineMode = Boolean.toString(!mode.equals("-offline"));
         FileHandler.writeToProperties(this.serverFolder.resolve("server.properties"), "online-mode", onlineMode);
 
-        for (String relativePath : flavour.getFiles(this.serverFolder.toString(), this.worldFolder.getFileName().toString())) {
+        for (String relativePath : flavor.getFiles(this.serverFolder.toString(), this.worldFolder.getFileName().toString())) {
             Path currentPath = this.serverFolder.resolve(relativePath);
             File currentFile = currentPath.toFile();
 
