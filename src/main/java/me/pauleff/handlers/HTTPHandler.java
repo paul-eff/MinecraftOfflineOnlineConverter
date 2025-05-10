@@ -1,8 +1,8 @@
 package me.pauleff.handlers;
 
-import me.pauleff.Main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,19 +10,20 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Handles API connections to external services, such as the Mojang API.
- * Provides a simple way to make GET requests and retrieve response data.
+ * Handles HTTP requests to external services, such as the Mojang API.
  *
  * @author Paul Ferlitz
  */
-public class HTTPHandler {
+public class HTTPHandler
+{
     private static final Logger LOGGER = LoggerFactory.getLogger(HTTPHandler.class);
     private String url;
 
     /**
      * Constructs an HTTPHandler with an empty target URL.
      */
-    public HTTPHandler() {
+    public HTTPHandler()
+    {
         this.url = "";
     }
 
@@ -31,9 +32,10 @@ public class HTTPHandler {
      *
      * @param newUrl The new URL to target.
      */
-    public void setUrl(String newUrl) {
+    public void set(String newUrl)
+    {
         this.url = newUrl;
-        if (Main.getArgs().hasOption("v")) LOGGER.info("Target URL set to: {}", newUrl);
+        LOGGER.debug("URL set to: {}", newUrl);
     }
 
     /**
@@ -42,44 +44,57 @@ public class HTTPHandler {
      * @return The response content, or null if the request fails.
      * @throws IOException If a connection issue occurs.
      */
-    public String httpDoGet() throws IOException {
-        if (this.url == null || this.url.isEmpty()) {
+    public String get() throws IOException
+    {
+        if (this.url == null || this.url.isEmpty())
+        {
             LOGGER.error("No URL set for HTTP request.");
             return null;
         }
-
+        // Setup
         HttpURLConnection con = null;
         StringBuilder content = new StringBuilder();
-
-        try {
+        try
+        {
+            // Define request body
             URL urlObj = new URL(this.url);
             con = (HttpURLConnection) urlObj.openConnection();
             con.setRequestMethod("GET");
             con.setConnectTimeout(5000);
             con.setReadTimeout(5000);
             con.setInstanceFollowRedirects(false);
-
+            // Parse response
             int responseCode = con.getResponseCode();
             String responseMessage = con.getResponseMessage();
-
-            if (responseCode == 200) {
-                try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+            // Extract content if response is OK (200)
+            if (responseCode == 200)
+            {
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream())))
+                {
                     String inputLine;
-                    while ((inputLine = in.readLine()) != null) {
+                    while ((inputLine = in.readLine()) != null)
+                    {
                         content.append(inputLine);
                     }
                 }
-                if (Main.getArgs().hasOption("v")) LOGGER.info("HTTP GET successful: {} {}", responseCode, responseMessage);
+                LOGGER.debug("HTTP GET successful ({}): {}", responseCode, responseMessage);
                 return content.toString();
-            } else {
-                if (Main.getArgs().hasOption("v")) LOGGER.warn("HTTP GET request failed: {} {}", responseCode, responseMessage);
+            } else
+            {
+                // Handle non-200 responses - e.g. redirects, 404, etc.
+                LOGGER.debug("HTTP GET failed ({}): {}", responseCode, responseMessage);
                 return null;
             }
-        } catch (IOException e) {
-            LOGGER.error("HTTP request failed: {}", e.getMessage());
+        } catch (IOException e)
+        {
+            // Handle connection issues
+            LOGGER.error("HTTP connection failed: {}", e.getMessage());
             throw e;
-        } finally {
-            if (con != null) {
+        } finally
+        {
+            // Close connection if still open
+            if (con != null)
+            {
                 con.disconnect();
             }
         }

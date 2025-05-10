@@ -43,8 +43,8 @@ public class UUIDHandler
      */
     public static UUID onlineNameToUUID(String name) throws IOException
     {
-        HTTP.setUrl(apiBasePath + "users/profiles/minecraft/" + name);
-        String response = HTTP.httpDoGet();
+        HTTP.set(apiBasePath + "users/profiles/minecraft/" + name);
+        String response = HTTP.get();
 
         if (response == null || response.isEmpty())
         {
@@ -75,8 +75,8 @@ public class UUIDHandler
      */
     public static String onlineUUIDToName(UUID uuid) throws IOException
     {
-        HTTP.setUrl(apiBasePath + "/user/profile" + uuid.toString());
-        String response = HTTP.httpDoGet();
+        HTTP.set(apiBasePath + "/user/profile" + uuid.toString());
+        String response = HTTP.get();
 
         if (response == null || response.isEmpty())
         {
