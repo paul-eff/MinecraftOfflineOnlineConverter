@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  */
 public class FileHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(FileHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileHandler.class);
 
     /**
      * Renames a file within the specified base directory.
@@ -32,7 +32,7 @@ public class FileHandler {
         Path source = Paths.get(baseWorldFolder, oldFilePath);
         Path target = Paths.get(baseWorldFolder, newFilePath);
         Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
-        if (Main.getArgs().hasOption("v")) logger.info("Renamed file from '{}' to '{}'", source, target);
+        if (Main.getArgs().hasOption("v")) LOGGER.info("Renamed file from '{}' to '{}'", source, target);
     }
 
     /**
@@ -44,7 +44,7 @@ public class FileHandler {
     public static File[] listAllFiles(String worldFolderPath) {
         File folder = new File(worldFolderPath);
         if (!folder.isDirectory()) {
-            logger.warn("Invalid directory path: {}. Trying to resolve to file.", worldFolderPath);
+            LOGGER.warn("Invalid directory path: {}. Trying to resolve to file.", worldFolderPath);
             return new File[0];
         }
         return folder.listFiles();
@@ -59,10 +59,10 @@ public class FileHandler {
     public static JSONArray loadArrayFromUsercache(String pathToUserCache) {
         try {
             String jsonString = Files.readString(Path.of(pathToUserCache), StandardCharsets.UTF_8);
-            logger.info("Loaded usercache from {}", pathToUserCache);
+            LOGGER.info("Loaded usercache from {}", pathToUserCache);
             return new JSONArray(jsonString);
         } catch (IOException e) {
-            logger.warn("Could not read usercache.json from path: {}. Continuing without prefetching userdata.", pathToUserCache);
+            LOGGER.warn("Could not read usercache.json from path: {}. Continuing without prefetching userdata.", pathToUserCache);
             return new JSONArray();
         }
     }
@@ -80,10 +80,10 @@ public class FileHandler {
                     .map(line -> line.substring("level-name=".length()))
                     .findFirst()
                     .orElse("world");
-            logger.info("Found world name: '{}'", worldName);
+            LOGGER.info("Found world name: '{}'", worldName);
             return worldName;
         } catch (IOException e) {
-            logger.warn("Could not read server.properties at path: {}. Assuming 'world' to be correct.", pathToProperties, e);
+            LOGGER.warn("Could not read server.properties at path: {}. Assuming 'world' to be correct.", pathToProperties, e);
             return "world";
         }
     }
@@ -102,9 +102,9 @@ public class FileHandler {
                     .map(line -> line.startsWith(key + "=") ? key + "=" + value : line)
                     .collect(Collectors.toList());
             Files.write(pathToProperties, modifiedLines, StandardCharsets.UTF_8);
-            if (Main.getArgs().hasOption("v")) logger.info("Updated property '{}' to value '{}' in {}", key, value, pathToProperties);
+            if (Main.getArgs().hasOption("v")) LOGGER.info("Updated property '{}' to value '{}' in {}", key, value, pathToProperties);
         } catch (IOException e) {
-            logger.error("Could not update property '{}' to value '{}' in server.properties at {}", key, value, pathToProperties, e);
+            LOGGER.error("Could not update property '{}' to value '{}' in server.properties at {}", key, value, pathToProperties, e);
         }
     }
 
@@ -144,7 +144,7 @@ public class FileHandler {
             }
             boolean isTextFile = numberOfNonTextChars <= 2 && (raf.length() - (double) numberOfNonTextChars / raf.length()) >= 0.99;
             if (Main.getArgs().hasOption("v")) {
-                if (Main.getArgs().hasOption("v")) logger.info("Detected a {} file at {}.{}", isTextFile ? "text" : "binary", path, isTextFile ? "" : " Skipping...");
+                if (Main.getArgs().hasOption("v")) LOGGER.info("Detected a {} file at {}.{}", isTextFile ? "text" : "binary", path, isTextFile ? "" : " Skipping...");
             }
             return isTextFile;
         }

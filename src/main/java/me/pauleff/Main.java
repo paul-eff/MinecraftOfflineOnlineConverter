@@ -32,7 +32,7 @@ public class Main
      * Main method - entry point of the application.
      * Parses arguments, initializes converter, and executes the conversion.
      *
-     * @param args       The command-line arguments.
+     * @param args The command-line arguments.
      * @throws Exception If any error occurs during execution.
      */
     public static void main(String[] args) throws Exception

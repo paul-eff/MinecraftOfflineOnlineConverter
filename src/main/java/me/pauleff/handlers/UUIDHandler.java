@@ -15,7 +15,7 @@ import java.util.UUID;
  * @author Paul Ferlitz
  */
 public class UUIDHandler {
-    private static final Logger logger = LoggerFactory.getLogger(UUIDHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UUIDHandler.class);
     private static final HTTPHandler http = new HTTPHandler();
 
     /**
@@ -26,7 +26,7 @@ public class UUIDHandler {
      */
     public static UUID offlineNameToUUID(String offlineName) {
         UUID uuid = UUID.nameUUIDFromBytes(("OfflinePlayer:" + offlineName).getBytes(StandardCharsets.UTF_8));
-        logger.info("Generated offline UUID for player '{}': {}", offlineName, uuid);
+        LOGGER.info("Generated offline UUID for player '{}': {}", offlineName, uuid);
         return uuid;
     }
 
@@ -42,7 +42,7 @@ public class UUIDHandler {
         String response = http.httpDoGet();
 
         if (response == null || response.isEmpty()) {
-            logger.warn("No UUID found for online player '{}'.", onlineName);
+            LOGGER.warn("No UUID found for online player '{}'.", onlineName);
             return null;
         }
 
@@ -51,11 +51,11 @@ public class UUIDHandler {
                 "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5");
 
         if (uuid.isEmpty()) {
-            logger.warn("Invalid UUID retrieved for '{}'.", onlineName);
+            LOGGER.warn("Invalid UUID retrieved for '{}'.", onlineName);
             return null;
         }
 
-        logger.info("Retrieved online UUID for player '{}': {}", onlineName, uuid);
+        LOGGER.info("Retrieved online UUID for player '{}': {}", onlineName, uuid);
         return UUID.fromString(uuid);
     }
 
@@ -71,7 +71,7 @@ public class UUIDHandler {
         String response = http.httpDoGet();
 
         if (response == null || response.isEmpty()) {
-            logger.warn("No name found for UUID '{}'.", onlineUUID);
+            LOGGER.warn("No name found for UUID '{}'.", onlineUUID);
             return null;
         }
 
@@ -79,11 +79,11 @@ public class UUIDHandler {
         String name = json.optString("name", "");
 
         if (name.isEmpty()) {
-            logger.warn("Invalid name retrieved for UUID '{}'.", onlineUUID);
+            LOGGER.warn("Invalid name retrieved for UUID '{}'.", onlineUUID);
             return null;
         }
 
-        logger.info("Retrieved player name for UUID '{}': {}", onlineUUID, name);
+        LOGGER.info("Retrieved player name for UUID '{}': {}", onlineUUID, name);
         return name;
     }
 
@@ -97,7 +97,7 @@ public class UUIDHandler {
     public static UUID onlineUUIDToOffline(UUID onlineUUID) throws IOException {
         String playerName = onlineUUIDToName(onlineUUID);
         if (playerName == null) {
-            logger.error("Failed to convert online UUID '{}' to an offline UUID due to missing name.", onlineUUID);
+            LOGGER.error("Failed to convert online UUID '{}' to an offline UUID due to missing name.", onlineUUID);
             return null;
         }
         return offlineNameToUUID(playerName);

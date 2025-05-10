@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * @author Paul Ferlitz
  */
 public class CustomPathParser {
-    private static final Logger logger = LoggerFactory.getLogger(CustomPathParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomPathParser.class);
 
     private final String baseDirectory;
     private final Path pathFile;
@@ -36,7 +36,7 @@ public class CustomPathParser {
             }
         } catch (InvalidPathException e) {
             temp = null;
-            logger.warn("Custom Paths file (custom_paths.yml) not found, continuing without!");
+            LOGGER.warn("Custom Paths file (custom_paths.yml) not found, continuing without!");
         }
         this.pathFile = temp;
     }
@@ -66,13 +66,13 @@ public class CustomPathParser {
             Map<String, Object> yamlData = yaml.load(reader);
 
             if (yamlData == null || !yamlData.containsKey("paths")) {
-                logger.warn("No valid paths found in YAML configuration.");
+                LOGGER.warn("No valid paths found in YAML configuration.");
                 return pathList;
             }
 
             if (yamlData.containsKey("config")) {
                 Map<String, Object> config = (Map<String, Object>) yamlData.get("config");
-                logger.info("Config version: {}", config.get("version"));
+                LOGGER.info("Config version: {}", config.get("version"));
             }
 
             List<Map<String, Object>> pathsMap = (List<Map<String, Object>>) yamlData.get("paths");
@@ -83,21 +83,21 @@ public class CustomPathParser {
                 if ("folder".equals(path.get("type"))) {
                     if (isRecursive) {
                         pathList.addAll(getPathsRecursively(filePath));
-                        if (Main.getArgs().hasOption("v")) logger.info("Recursively added folder: {}", filePath);
+                        if (Main.getArgs().hasOption("v")) LOGGER.info("Recursively added folder: {}", filePath);
                     } else {
                         pathList.addAll(getFolderContent(filePath));
-                        if (Main.getArgs().hasOption("v")) logger.info("Added folder: {}", filePath);
+                        if (Main.getArgs().hasOption("v")) LOGGER.info("Added folder: {}", filePath);
                     }
                 } else {
                     pathList.add(filePath);
-                    if (Main.getArgs().hasOption("v")) logger.info("Added file: {}", filePath);
+                    if (Main.getArgs().hasOption("v")) LOGGER.info("Added file: {}", filePath);
                 }
                 //System.out.println("Type: " + path.get("type"));
                 //System.out.println("Path: " + path.get("path"));
                 //if (path.containsKey("recursive")) System.out.println("Recursive: " + path.get("recursive"));
             }
         } catch (IOException e) {
-            logger.error("Failed to read custom_paths.yml", e);
+            LOGGER.error("Failed to read custom_paths.yml", e);
             throw new RuntimeException("Error reading custom_paths.yml", e);
         }
         return pathList;
@@ -117,7 +117,7 @@ public class CustomPathParser {
                     .map(Path::toString)
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            logger.error("Error while recursively fetching paths from: {}", baseFolder, e);
+            LOGGER.error("Error while recursively fetching paths from: {}", baseFolder, e);
             return Collections.emptyList();
         }
     }
@@ -133,7 +133,7 @@ public class CustomPathParser {
         File[] files = path.toFile().listFiles(File::isFile);
 
         if (files == null) {
-            logger.warn("Failed to list contents of folder: {}", baseFolder);
+            LOGGER.warn("Failed to list contents of folder: {}", baseFolder);
             return Collections.emptyList();
         }
 

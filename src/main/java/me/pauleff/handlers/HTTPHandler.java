@@ -16,7 +16,7 @@ import java.net.URL;
  * @author Paul Ferlitz
  */
 public class HTTPHandler {
-    private static final Logger logger = LoggerFactory.getLogger(HTTPHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HTTPHandler.class);
     private String url;
 
     /**
@@ -33,7 +33,7 @@ public class HTTPHandler {
      */
     public void setUrl(String newUrl) {
         this.url = newUrl;
-        if (Main.getArgs().hasOption("v")) logger.info("Target URL set to: {}", newUrl);
+        if (Main.getArgs().hasOption("v")) LOGGER.info("Target URL set to: {}", newUrl);
     }
 
     /**
@@ -44,7 +44,7 @@ public class HTTPHandler {
      */
     public String httpDoGet() throws IOException {
         if (this.url == null || this.url.isEmpty()) {
-            logger.error("No URL set for HTTP request.");
+            LOGGER.error("No URL set for HTTP request.");
             return null;
         }
 
@@ -69,14 +69,14 @@ public class HTTPHandler {
                         content.append(inputLine);
                     }
                 }
-                if (Main.getArgs().hasOption("v")) logger.info("HTTP GET successful: {} {}", responseCode, responseMessage);
+                if (Main.getArgs().hasOption("v")) LOGGER.info("HTTP GET successful: {} {}", responseCode, responseMessage);
                 return content.toString();
             } else {
-                if (Main.getArgs().hasOption("v")) logger.warn("HTTP GET request failed: {} {}", responseCode, responseMessage);
+                if (Main.getArgs().hasOption("v")) LOGGER.warn("HTTP GET request failed: {} {}", responseCode, responseMessage);
                 return null;
             }
         } catch (IOException e) {
-            logger.error("HTTP request failed: {}", e.getMessage());
+            LOGGER.error("HTTP request failed: {}", e.getMessage());
             throw e;
         } finally {
             if (con != null) {
