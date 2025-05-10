@@ -10,14 +10,10 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
-
-import static java.lang.System.exit;
 
 /**
  * Handles the conversion of Minecraft server player data between online and offline modes.
@@ -133,13 +129,10 @@ public class ConverterV2 {
             Path currentPath = this.serverFolder.resolve(relativePath);
             File currentFile = currentPath.toFile();
 
-            /**
+            /*
              * TODO: IMPORTANT REMOVE AGAIN LATER - STILL WORKING ON MCA SUPPORT!!!!
              */
             if (currentFile.toString().contains("/region/")){continue;}
-            /**
-             * TODO: IMPORTANT REMOVE AGAIN LATER - STILL WORKING ON MCA SUPPORT!!!!
-             */
 
             if (!currentFile.isFile() || IGNORED_FILE_EXTENSIONS.stream().anyMatch(currentFile.getName()::endsWith)) {
                 continue;
