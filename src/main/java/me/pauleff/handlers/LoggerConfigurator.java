@@ -31,10 +31,13 @@ public class LoggerConfigurator
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
         context.reset();
 
-        // Console encoder
+        // Console encoder with dynamic pattern
         PatternLayoutEncoder consoleEncoder = new PatternLayoutEncoder();
         consoleEncoder.setContext(context);
-        consoleEncoder.setPattern("[%d{HH:mm:ss}][%-5level] - %msg%n");
+        String consolePattern = verbose
+                ? "[%d{HH:mm:ss}][%-5level][%logger{0}] - %msg%n"
+                : "[%d{HH:mm:ss}][%-5level] - %msg%n";
+        consoleEncoder.setPattern(consolePattern);
         consoleEncoder.setCharset(StandardCharsets.UTF_8);
         consoleEncoder.start();
 
@@ -52,7 +55,6 @@ public class LoggerConfigurator
         fileEncoder.start();
 
         // File appender
-        // TODO: Think about tiering the logs, splitting them per day/week/month, deleting after x days, ...
         FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
         fileAppender.setContext(context);
         fileAppender.setEncoder(fileEncoder);
@@ -61,7 +63,7 @@ public class LoggerConfigurator
         fileAppender.start();
 
         // Root logger setup
-        ch.qos.logback.classic.Logger rootLogger = context.getLogger(Logger.ROOT_LOGGER_NAME);
+        Logger rootLogger = context.getLogger(Logger.ROOT_LOGGER_NAME);
         rootLogger.setLevel(verbose ? Level.DEBUG : Level.INFO);
         rootLogger.addAppender(consoleAppender);
         rootLogger.addAppender(fileAppender);
