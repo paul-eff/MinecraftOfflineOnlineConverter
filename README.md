@@ -1,8 +1,7 @@
-# MinecraftOfflineOnlineConverter Beta v3
+# MinecraftOfflineOnlineConverter v3
 <p align="center">
-  <img src="https://img.shields.io/badge/release-Beta-blue">
   <img src="https://img.shields.io/badge/version-3-blue">
-  <img src="https://img.shields.io/badge/minecraft-1.21.4-green">
+  <img src="https://img.shields.io/badge/minecraft-1.21.5-green">
   <img src="https://img.shields.io/badge/java-21-red">
 </p>
 
@@ -12,9 +11,17 @@ Now you have to start a lengthy process of turning your server to offline mode a
 This happened to me way to often, and now I automated the whole process.
 The Java applicatin will convert all player related files to be offline or online compatible.
 
+# Supporting
+
+Currently I tested and can confirm support for Vanilla, Bukkit, Paper and Purpur servers.
+Every Minecraft version since and including 1.17.1 is confirmed to work. Earlier versions I can't guarantee.
+
+Regarding Spigot and Forge servers, I haven't had enough time to fully confirm everything will work 100% of the time.
+But using the new `custom_paths.yml` file, you can specify custom directories to convert.
+
 # Usage
 
-This is a pre-release, make backups! See [here](#disclaimer)
+First look at [Disclaimer](#disclaimer) and make sure you understand the "risks" of using this tool.
 
 - Obviously download the jar
 - Place it in your server's main folder (not mandatory, just makes things easier)
@@ -23,19 +30,19 @@ This is a pre-release, make backups! See [here](#disclaimer)
 
 - Execute the jar through your terminal with the following command:
 ```java
-java -jar MinecraftOfflineOnlineConverter_3-BETA_2.jar <arguments>
+java -jar MinecraftOfflineOnlineConverter_3.jar <arguments>
 ```
 - You will have to pass one of these arguments
   - `-offline` to convert your server to offline files
   - `-online` to convert your server to online files
 - If necessary `-p "path/to/server/folder/"` (if the jar is not in the server's main folder)
 - `-v` for verbose output
+- `-h` for help
 
 ## Known Issues
 
-- On Paper servers, when converting to offline and forgetting to change the `server.properties` accordingly.
-  Paper creates new files (e.g. `<Online UUID>.dat.offline-read`). This can later on lead to inconsistencies.
-- No support for Sponge servers.
+- Paper servers (when converted to offline), sometimes create `<Online UUID>.dat.offline-read`) files.
+- No full support for Spigot, Sponge and Forge servers.
 
 ## TODOs
 
