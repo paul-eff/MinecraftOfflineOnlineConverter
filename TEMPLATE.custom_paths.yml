@@ -1,0 +1,15 @@
+name: MOOC-Config
+config:
+  version: 1.0.0
+paths:
+  # Convert all files in a folder and subfolders
+  # If "recursive: true" missing, "recursive: false" is assumed. See example below.
+  - type: folder
+    path: ./path/to/folderA
+    recursive: true
+  # Convert all files in a folder, excluding subfolders
+  - type: folder
+    path: ./path/to/folderB
+  # Convert one specific file
+  - type: file
+    path: ./path/to/fileA.json
