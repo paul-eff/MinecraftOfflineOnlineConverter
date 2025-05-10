@@ -10,10 +10,14 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
+
+import static java.lang.System.exit;
 
 /**
  * Handles the conversion of Minecraft server player data between online and offline modes.
@@ -29,7 +33,7 @@ public class ConverterV2 {
     private final Path worldFolder;
     private final Map<UUID, Player> uuidMap = new HashMap<>();
     private static final Set<String> IGNORED_FILE_EXTENSIONS = Set.of(
-            "mca", "jar", "gz", "lock", "sh", "bat", "log", "mcmeta",
+            "mcr", "mca", "jar", "gz", "lock", "sh", "bat", "log", "mcmeta",
             "md", "snbt", "nbt", "zip", "cache", "png", "jpeg", "js", "DS_Store"
     );
 
@@ -96,6 +100,13 @@ public class ConverterV2 {
      */
     private boolean preCheck(String mode) {
         boolean isOnline = "-online".equals(mode);
+        if (!isOnline)
+        {
+            System.out.println("\nCONVERSION: ONLINE --> OFFLINE");
+        } else
+        {
+            System.out.println("\nCONVERSION: OFFLINE --> ONLINE");
+        }
         fetchUsercache(isOnline ? "online" : "offline");
 
         if (isOnline && uuidMap.isEmpty()) {
@@ -122,6 +133,14 @@ public class ConverterV2 {
             Path currentPath = this.serverFolder.resolve(relativePath);
             File currentFile = currentPath.toFile();
 
+            /**
+             * TODO: IMPORTANT REMOVE AGAIN LATER - STILL WORKING ON MCA SUPPORT!!!!
+             */
+            if (currentFile.toString().contains("/region/")){continue;}
+            /**
+             * TODO: IMPORTANT REMOVE AGAIN LATER - STILL WORKING ON MCA SUPPORT!!!!
+             */
+
             if (!currentFile.isFile() || IGNORED_FILE_EXTENSIONS.stream().anyMatch(currentFile.getName()::endsWith)) {
                 continue;
             }
@@ -144,13 +163,19 @@ public class ConverterV2 {
                 LOGGER.warn("Skipping file {} due to an error: {}", currentPath, e.getMessage());
             }
 
-            if (Files.isRegularFile(currentPath) && FileHandler.isText(currentPath)) {
-                String content = Files.readString(currentPath);
-                for (Map.Entry<UUID, Player> entry : uuidMap.entrySet()) {
-                    content = content.replace(entry.getKey().toString(), entry.getValue().getUuid().toString());
+            if (Files.isRegularFile(currentPath)) {
+                if(FileHandler.isText(currentPath))
+                {
+                    String content = Files.readString(currentPath);
+                    for (Map.Entry<UUID, Player> entry : uuidMap.entrySet()) {
+                        content = content.replace(entry.getKey().toString(), entry.getValue().getUuid().toString());
+                    }
+                    Files.writeString(currentPath, content);
+                    LOGGER.info("Updated UUIDs in file: {}", currentPath);
+                }else if (currentPath.toString().contains("entities")){
+                    //Try reading as NBT or Anvil
+                    // TODO: Implement NBT/Anvil file handling
                 }
-                Files.writeString(currentPath, content);
-                LOGGER.info("Updated UUIDs in file: {}", currentPath);
             }
         }
     }
