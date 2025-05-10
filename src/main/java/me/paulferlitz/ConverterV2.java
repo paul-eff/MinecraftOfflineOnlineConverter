@@ -129,9 +129,7 @@ public class ConverterV2 {
             Path currentPath = this.serverFolder.resolve(relativePath);
             File currentFile = currentPath.toFile();
 
-            /*
-             * TODO: IMPORTANT REMOVE AGAIN LATER - STILL WORKING ON MCA SUPPORT!!!!
-             */
+            // TODO: IMPORTANT REMOVE AGAIN LATER - STILL WORKING ON MCA SUPPORT!!!!
             if (currentFile.toString().contains("/region/")){continue;}
 
             if (!currentFile.isFile() || IGNORED_FILE_EXTENSIONS.stream().anyMatch(currentFile.getName()::endsWith)) {
@@ -148,12 +146,22 @@ public class ConverterV2 {
                     uuidMap.put(fileUUID, new Player(UUIDHandler.onlineUUIDToName(fileUUID), UUIDHandler.onlineUUIDToOffline(fileUUID)));
                 }
 
+                // TODO: Currently a dirty fix. Should be handled correctly!
+                if (uuidMap.get(fileUUID) == null) {
+                    LOGGER.warn("Was not able to fetch information for file: {}", currentPath);
+                    LOGGER.warn("Please send this error to the developer, along with some information on what you were converting to!");
+                    LOGGER.warn("Skipping and continuing with rest of the files.");
+                    LOGGER.warn("This can just be a temporary error that won't have any consequences, but please report it anyway.");
+                    continue;
+                }
+
                 Path newFileName = currentPath.resolveSibling(uuidMap.get(fileUUID).getUuid() + fileName.substring(fileName.lastIndexOf('.')));
                 Files.move(currentPath, newFileName, StandardCopyOption.REPLACE_EXISTING);
                 LOGGER.info("Renamed {} to {}", currentPath, newFileName);
 
             } catch (IllegalArgumentException | IOException e) {
-                LOGGER.warn("Skipping file {} due to an error: {}", currentPath, e.getMessage());
+                // TODO: Message was not very helpful, maybe add more details/context later?
+                if (Main.getArgs().hasOption("v")) LOGGER.warn("Skipping file {} due to an error: {}", currentPath, e.getMessage());
             }
 
             if (Files.isRegularFile(currentPath)) {
