@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static java.lang.System.exit;
 
@@ -118,8 +119,8 @@ public class Main
         // Init converter with or without a path to the server folder and detect the Minecraft flavor
         if (hasPath)
         {
-            String path = cmd.getOptionValue("p");
-            converter = new ConverterV2(Path.of(path));
+            Path path = Paths.get(cmd.getOptionValue("path"));
+            converter = new ConverterV2(path);
             mfd = new MinecraftFlavorDetection(path);
         } else
         {

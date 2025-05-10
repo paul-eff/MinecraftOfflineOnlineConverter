@@ -129,6 +129,7 @@ public class CustomPathParser {
      * @return A list of file paths inside the folder.
      */
     public List<String> getFolderContent(String baseFolder) {
+        // TODO: Return an array of paths or files, not strings
         Path path = Path.of(this.baseDirectory, baseFolder);
         File[] files = path.toFile().listFiles(File::isFile);
 

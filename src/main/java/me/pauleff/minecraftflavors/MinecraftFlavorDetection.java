@@ -3,49 +3,77 @@ package me.pauleff.minecraftflavors;
 import me.pauleff.exceptions.PathNotValidException;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
+/**
+ * This class is responsible for detecting the flavor of a Minecraft server based on its directory structure and files.
+ * It checks for various indicators to determine if the server is vanilla, lightly modded (e.g., Bukkit), or heavily modded (e.g., Forge).
+ *
+ * @author Paul Ferlitz
+ */
 public class MinecraftFlavorDetection
 {
+    private final Path baseDirectory;
 
-    private final File baseDirectory;
-
-    public MinecraftFlavorDetection(String baseDirectory) throws PathNotValidException {
-        File temp = new File(baseDirectory);
-        if (temp.isDirectory())
+    /**
+     * Constructs a MinecraftFlavorDetection object with a specified base directory.
+     *
+     * @param baseDirectory The path to the base directory
+     * @throws PathNotValidException if the provided path is not a valid directory
+     */
+    public MinecraftFlavorDetection(Path baseDirectory) throws PathNotValidException
+    {
+        if (Files.isDirectory(baseDirectory))
         {
-            this.baseDirectory = temp;
-        }else
+            this.baseDirectory = baseDirectory;
+        } else
         {
-            throw new PathNotValidException(baseDirectory);
+            throw new PathNotValidException(baseDirectory.toString());
         }
     }
 
-    public MinecraftFlavorDetection() throws PathNotValidException {
-        File temp = new File("./");
-        if (temp.isDirectory())
+    /**
+     * Constructs a MinecraftFlavorDetection object with the current directory as the base directory.
+     *
+     * @throws PathNotValidException if the current directory is not valid
+     */
+    public MinecraftFlavorDetection() throws PathNotValidException
+    {
+        Path path = Path.of("./");
+        if (Files.isDirectory(path))
         {
-            this.baseDirectory = temp;
-        }else
+            this.baseDirectory = path;
+        } else
         {
-            throw new PathNotValidException("./");
+            throw new PathNotValidException(path.toString());
         }
     }
 
+    /**
+     * Detects the Minecraft flavor based on the directory structure and files.
+     *
+     * @return the detected Minecraft flavor
+     */
     public MinecraftFlavor detectMinecraftFlavor()
     {
-        if(isVanilla())
+        if (isVanilla())
         {
             return MinecraftFlavor.VANILLA;
-        }else if (isLightlyModded())
+        } else if (isLightlyModded())
         {
             return MinecraftFlavor.LIGHT_MODDED;
-        }else
+        } else
         {
             return MinecraftFlavor.MODDED;
         }
     }
 
+    /**
+     * Checks if the Minecraft server is a vanilla server.
+     *
+     * @return true if the server is vanilla, false otherwise
+     */
     private boolean isVanilla()
     {
         boolean isModded = isModded();
@@ -55,6 +83,11 @@ public class MinecraftFlavorDetection
         return (!(isModded || isBukkit) && vanillaStyleWorldFolder);
     }
 
+    /**
+     * Checks if the Minecraft server is lightly modded (e.g., Bukkit).
+     *
+     * @return true if the server is lightly modded, false otherwise
+     */
     private boolean isLightlyModded()
     {
         boolean isModded = isModded();
@@ -64,58 +97,61 @@ public class MinecraftFlavorDetection
         return (!isModded && hasPlugins && hasBukkitYml);
     }
 
-    private boolean isBukkitFlavored()
-    {
-        if (isLightlyModded())
-        {
-            boolean hasSpigotYml = hasFile("spigot.yml");
-
-            // TODO: more detection criteria here...
-
-            return hasSpigotYml;
-        }
-        return false;
-    }
-
+    /**
+     * Checks if the Minecraft server is modded.
+     *
+     * @return true if the server is modded, false otherwise
+     */
     private boolean isModded()
     {
-        boolean hasMods = hasFolder("mods");
-
-        // TODO: more detection criteria here...
-
-        return hasMods;
+        // TODO: More detection criteria here...
+        return hasFolder("mods");
     }
 
+    /**
+     * Checks if the world folder follows a vanilla style.
+     *
+     * @return true if the world folder is vanilla style, false otherwise
+     */
     private boolean vanillaWorld()
     {
-        boolean isVanillaWorld = true;
+        // Get all folders in the server's base directory
+        File[] subdirectories = baseDirectory.toFile().listFiles(File::isDirectory);
 
-        File[] subdirectories = this.baseDirectory.listFiles(File::isDirectory);
-        if (subdirectories != null) {
-            for (File subdirectory : subdirectories) {
-                if (subdirectory.getName().contains("_nether") || subdirectory.getName().contains("_the_end"))
-                {
-                    isVanillaWorld = false;
-                    break;
-                }
+        if (subdirectories == null) return true;
+        for (File dir : subdirectories)
+        {
+            String name = dir.getName();
+            if (name.contains("_nether") || name.contains("_the_end"))
+            {
+                // If any folder contains "_nether" or "_the_end", it's not a vanilla world
+                return false;
             }
         }
-        return isVanillaWorld;
+        return true;
     }
 
-    private boolean hasFolder(String pathToFolder)
+    /**
+     * Checks if a specific folder exists within the base directory.
+     *
+     * @param folderName the relative path to the folder
+     * @return true if the folder exists, false otherwise
+     */
+    private boolean hasFolder(String folderName)
     {
-        Path directoryPath = baseDirectory.toPath().resolve(pathToFolder);
-        File directory = new File(directoryPath.toString());
-
-        return directory.exists() && directory.isDirectory();
+        Path directoryPath = baseDirectory.resolve(folderName);
+        return Files.isDirectory(directoryPath);
     }
 
-    private boolean hasFile(String pathToFile)
+    /**
+     * Checks if a specific file exists within the base directory.
+     *
+     * @param fileName the relative path to the file
+     * @return true if the file exists, false otherwise
+     */
+    private boolean hasFile(String fileName)
     {
-        Path directoryPath = baseDirectory.toPath().resolve(pathToFile);
-        File directory = new File(directoryPath.toString());
-
-        return directory.exists() && directory.isFile();
+        Path filePath = baseDirectory.resolve(fileName);
+        return Files.isRegularFile(filePath);
     }
 }
