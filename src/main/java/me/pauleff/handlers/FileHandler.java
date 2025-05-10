@@ -1,12 +1,14 @@
 package me.pauleff.handlers;
 
-import me.pauleff.Main;
 import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,53 +18,42 @@ import java.util.stream.Collectors;
  *
  * @author Paul Ferlitz
  */
-public class FileHandler {
-
+public class FileHandler
+{
     private static final Logger LOGGER = LoggerFactory.getLogger(FileHandler.class);
 
     /**
      * Renames a file within the specified base directory.
      *
-     * @param baseWorldFolder Base directory.
-     * @param oldFilePath     Current file path relative to base.
-     * @param newFilePath     New file path relative to base.
+     * @param baseFolder Base directory.
+     * @param oldFile    Current file path relative to base.
+     * @param newFile    New file path relative to base.
      * @throws IOException If renaming is unsuccessful.
      */
-    public static void renameFile(String baseWorldFolder, String oldFilePath, String newFilePath) throws IOException {
-        Path source = Paths.get(baseWorldFolder, oldFilePath);
-        Path target = Paths.get(baseWorldFolder, newFilePath);
+    public static void renameFile(Path baseFolder, String oldFile, String newFile) throws IOException
+    {
+        Path source = baseFolder.resolve(oldFile);
+        Path target = baseFolder.resolve(newFile);
         Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
-        if (Main.getArgs().hasOption("v")) LOGGER.info("Renamed file from '{}' to '{}'", source, target);
-    }
-
-    /**
-     * Lists all files in the specified directory.
-     *
-     * @param worldFolderPath Path to the directory.
-     * @return Array of {@link File} objects representing the files in the directory.
-     */
-    public static File[] listAllFiles(String worldFolderPath) {
-        File folder = new File(worldFolderPath);
-        if (!folder.isDirectory()) {
-            LOGGER.warn("Invalid directory path: {}. Trying to resolve to file.", worldFolderPath);
-            return new File[0];
-        }
-        return folder.listFiles();
+        LOGGER.debug("Renamed file\n\tFROM: '{}'\n\tTO: '{}'", source, target);
     }
 
     /**
      * Loads an array of players from a usercache.json file.
      *
-     * @param pathToUserCache Path to usercache.json.
+     * @param pathToUsercache Path to usercache.json.
      * @return JSONArray containing the user cache data.
      */
-    public static JSONArray loadArrayFromUsercache(String pathToUserCache) {
-        try {
-            String jsonString = Files.readString(Path.of(pathToUserCache), StandardCharsets.UTF_8);
-            LOGGER.info("Loaded usercache from {}", pathToUserCache);
+    public static JSONArray loadArrayFromUsercache(Path pathToUsercache)
+    {
+        try
+        {
+            String jsonString = Files.readString(pathToUsercache, StandardCharsets.UTF_8);
+            LOGGER.info("Loaded usercache.json file successfully.");
             return new JSONArray(jsonString);
-        } catch (IOException e) {
-            LOGGER.warn("Could not read usercache.json from path: {}. Continuing without prefetching userdata.", pathToUserCache);
+        } catch (IOException e)
+        {
+            LOGGER.warn("Could not read usercache.json from path: {}. Continuing without prefetching userdata.", pathToUsercache);
             return new JSONArray();
         }
     }
@@ -73,8 +64,10 @@ public class FileHandler {
      * @param pathToProperties Path to server.properties.
      * @return Extracted world name or default "world" if not found.
      */
-    public static String readWorldNameFromProperties(String pathToProperties) {
-        try (BufferedReader br = new BufferedReader(new FileReader(pathToProperties))) {
+    public static String readWorldNameFromProperties(Path pathToProperties)
+    {
+        try (BufferedReader br = new BufferedReader(new FileReader(pathToProperties.toFile())))
+        {
             String worldName = br.lines()
                     .filter(line -> line.startsWith("level-name="))
                     .map(line -> line.substring("level-name=".length()))
@@ -82,7 +75,8 @@ public class FileHandler {
                     .orElse("world");
             LOGGER.info("Found world name: '{}'", worldName);
             return worldName;
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             LOGGER.warn("Could not read server.properties at path: {}. Assuming 'world' to be correct.", pathToProperties, e);
             return "world";
         }
@@ -95,30 +89,35 @@ public class FileHandler {
      * @param key              Property key.
      * @param value            Property value.
      */
-    public static void writeToProperties(Path pathToProperties, String key, String value) {
-        try {
+    public static void writeToProperties(Path pathToProperties, String key, String value)
+    {
+        try
+        {
             List<String> lines = Files.readAllLines(pathToProperties, StandardCharsets.UTF_8);
             List<String> modifiedLines = lines.stream()
                     .map(line -> line.startsWith(key + "=") ? key + "=" + value : line)
                     .collect(Collectors.toList());
             Files.write(pathToProperties, modifiedLines, StandardCharsets.UTF_8);
-            if (Main.getArgs().hasOption("v")) LOGGER.info("Updated property '{}' to value '{}' in {}", key, value, pathToProperties);
-        } catch (IOException e) {
-            LOGGER.error("Could not update property '{}' to value '{}' in server.properties at {}", key, value, pathToProperties, e);
+            LOGGER.debug("Updated property '{}' to value '{}'", key, value);
+        } catch (IOException e)
+        {
+            LOGGER.error("Could not update property '{}' to value '{}' in server.properties at path: {}", key, value, pathToProperties, e);
         }
     }
 
     /**
      * Determines if a file is a text file or a binary file.
      *
-     * @param path Path to the file.
+     * @param pathToFile Path to the file.
      * @return true if the file is a text file, false otherwise.
      * @throws IOException              If an I/O error occurs.
      * @throws IllegalArgumentException If the file is invalid.
      */
-    public static boolean isText(final Path path) throws IOException {
-        File file = path.toFile();
-        if (!file.isFile()) {
+    public static boolean isText(Path pathToFile) throws IOException
+    {
+        File file = pathToFile.toFile();
+        if (!file.isFile())
+        {
             throw new IllegalArgumentException("Path must be a valid file.");
         }
         try (RandomAccessFile raf = new RandomAccessFile(file, "r"))
@@ -143,9 +142,7 @@ public class FileHandler {
                 }
             }
             boolean isTextFile = numberOfNonTextChars <= 2 && (raf.length() - (double) numberOfNonTextChars / raf.length()) >= 0.99;
-            if (Main.getArgs().hasOption("v")) {
-                if (Main.getArgs().hasOption("v")) LOGGER.info("Detected a {} file at {}.{}", isTextFile ? "text" : "binary", path, isTextFile ? "" : " Skipping...");
-            }
+            LOGGER.info("Detected a {} file at {}.{}", isTextFile ? "text" : "binary", pathToFile, isTextFile ? "" : " Skipping...");
             return isTextFile;
         }
     }

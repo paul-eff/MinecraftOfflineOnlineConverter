@@ -52,7 +52,7 @@ public class ConverterV2 {
         this.serverFolder = serverFolderPath;
         Path serverProperties = this.serverFolder.resolve("server.properties");
 
-        String worldName = FileHandler.readWorldNameFromProperties(String.valueOf(serverProperties));
+        String worldName = FileHandler.readWorldNameFromProperties(serverProperties);
         this.worldFolder = this.serverFolder.resolve(worldName);
 
         if (!Files.exists(this.worldFolder)) {
@@ -69,7 +69,7 @@ public class ConverterV2 {
      */
     private void fetchUsercache(String mode) {
         Path usercache = this.serverFolder.resolve("usercache.json");
-        JSONArray knownPlayers = FileHandler.loadArrayFromUsercache(String.valueOf(usercache));
+        JSONArray knownPlayers = FileHandler.loadArrayFromUsercache(usercache);
 
         uuidMap.clear();
 
