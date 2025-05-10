@@ -1,8 +1,9 @@
 package me.pauleff;
 
-import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.UUID;
 
 /**
  * Represents a Minecraft player with a name and UUID.
@@ -10,8 +11,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Paul Ferlitz
  */
-public class Player {
-    private static final Logger logger = LoggerFactory.getLogger(Player.class);
+public class Player
+{
+    private static final Logger LOGGER = LoggerFactory.getLogger(Player.class);
 
     private final String name;
     private final UUID uuid;
@@ -22,16 +24,23 @@ public class Player {
      * @param name The player's name.
      * @param uuid The player's UUID (offline or online).
      */
-    public Player(String name, UUID uuid) {
-        if (name == null || name.isEmpty()) {
-            logger.error("Player name cannot be null or empty.");
-            throw new IllegalArgumentException("Player name cannot be null or empty.");
+    public Player(String name, UUID uuid)
+    {
+        // Log error and throw exception if name is null or empty
+        if (name == null || name.isEmpty())
+        {
+            String msg = "Player name cannot be null or empty.";
+            LOGGER.error(msg);
+            throw new IllegalArgumentException(msg);
         }
-        if (uuid == null) {
-            logger.error("Player UUID cannot be null.");
-            throw new IllegalArgumentException("Player UUID cannot be null.");
+        // Log error and throw exception if uuid is null
+        if (uuid == null)
+        {
+            String msg = "Player UUID cannot be null.";
+            LOGGER.error(msg);
+            throw new IllegalArgumentException(msg);
         }
-
+        // Otherwise create Player
         this.name = name;
         this.uuid = uuid;
     }
@@ -41,7 +50,8 @@ public class Player {
      *
      * @return The player's name.
      */
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
@@ -50,7 +60,8 @@ public class Player {
      *
      * @return The player's {@link UUID}.
      */
-    public UUID getUuid() {
+    public UUID getUuid()
+    {
         return uuid;
     }
 }
