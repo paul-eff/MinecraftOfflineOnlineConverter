@@ -75,7 +75,7 @@ public class UUIDHandler
      */
     public static String onlineUUIDToName(UUID uuid) throws IOException
     {
-        HTTP.set(apiBasePath + "/user/profile" + uuid.toString());
+        HTTP.set(apiBasePath + "user/profile/" + uuid.toString());
         String response = HTTP.get();
 
         if (response == null || response.isEmpty())
