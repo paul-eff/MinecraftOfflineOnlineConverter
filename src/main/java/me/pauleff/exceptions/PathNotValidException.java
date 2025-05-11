@@ -3,6 +3,8 @@ package me.pauleff.exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
+
 /**
  * Exception thrown when a given file path is invalid or does not exist.
  * Logs the invalid path for better debugging.
@@ -18,7 +20,7 @@ public class PathNotValidException extends Exception
      *
      * @param path The invalid path that caused the exception.
      */
-    public PathNotValidException(String path)
+    public PathNotValidException(Path path)
     {
         super(String.format("The given path does not exist: %s", path));
         LOGGER.error("The given path does not exist: {}", path);
