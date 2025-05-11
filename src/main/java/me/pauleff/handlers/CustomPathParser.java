@@ -1,11 +1,15 @@
 package me.pauleff.handlers;
 
-import me.pauleff.Main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
-import java.io.*;
-import java.nio.file.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -15,30 +19,31 @@ import java.util.stream.Collectors;
  *
  * @author Paul Ferlitz
  */
-public class CustomPathParser {
+public class CustomPathParser
+{
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomPathParser.class);
 
-    private final String baseDirectory;
+    private final Path baseDirectory;
     private final Path pathFile;
 
     /**
-     * Initializes the parser and verifies the custom_paths.yml file.
+     * Constructor for CustomPathParser.
+     * Initializes the base directory and checks for the existence of the custom_paths.yml file.
      *
-     * @param baseDirectory The base directory for path resolution.
+     * @throws InvalidPathException if the provided path is invalid.
      */
-    public CustomPathParser(String baseDirectory) {
+    public CustomPathParser(Path baseDirectory)
+    {
         this.baseDirectory = baseDirectory;
-        Path temp;
-        try {
-            temp = Path.of("custom_paths.yml");
-            if (!Files.exists(temp)) {
-                throw new InvalidPathException("custom_paths.yml", "Custom Paths file was not found");
-            }
-        } catch (InvalidPathException e) {
-            temp = null;
-            LOGGER.warn("Custom Paths file (custom_paths.yml) not found, continuing without!");
+        Path cp_path = Path.of("./custom_paths.yml");
+
+        if (!Files.exists(cp_path))
+        {
+            LOGGER.warn("Custom Paths file (custom_paths.yml) not found, did you place it next to the MOOC jar?\n\tContinuing without...");
+            cp_path = null;
         }
-        this.pathFile = temp;
+
+        this.pathFile = cp_path;
     }
 
     /**
@@ -46,7 +51,8 @@ public class CustomPathParser {
      *
      * @return True if the YAML file exists, otherwise false.
      */
-    public boolean isFileSet() {
+    public boolean isFileSet()
+    {
         return this.pathFile != null;
     }
 
@@ -55,48 +61,56 @@ public class CustomPathParser {
      *
      * @return A list of file paths extracted from YAML.
      */
-    public List<String> getPaths() {
+    public List<String> getPaths()
+    {
         List<String> pathList = new ArrayList<>();
-        if (this.pathFile == null) {
+        if (this.pathFile == null)
+        {
             return pathList;
         }
 
-        try (Reader reader = Files.newBufferedReader(this.pathFile)) {
+        try (Reader reader = Files.newBufferedReader(this.pathFile))
+        {
             Yaml yaml = new Yaml();
             Map<String, Object> yamlData = yaml.load(reader);
 
-            if (yamlData == null || !yamlData.containsKey("paths")) {
+            if (yamlData == null || !yamlData.containsKey("paths"))
+            {
                 LOGGER.warn("No valid paths found in YAML configuration.");
                 return pathList;
             }
 
-            if (yamlData.containsKey("config")) {
+            if (yamlData.containsKey("config"))
+            {
                 Map<String, Object> config = (Map<String, Object>) yamlData.get("config");
                 LOGGER.info("Config version: {}", config.get("version"));
             }
 
             List<Map<String, Object>> pathsMap = (List<Map<String, Object>>) yamlData.get("paths");
-            for (Map<String, Object> path : pathsMap) {
+            for (Map<String, Object> path : pathsMap)
+            {
                 String filePath = (String) path.get("path");
                 boolean isRecursive = (boolean) path.getOrDefault("recursive", false);
 
-                if ("folder".equals(path.get("type"))) {
-                    if (isRecursive) {
+                if ("folder".equals(path.get("type")))
+                {
+                    if (isRecursive)
+                    {
                         pathList.addAll(getPathsRecursively(filePath));
-                        if (Main.getArgs().hasOption("v")) LOGGER.info("Recursively added folder: {}", filePath);
-                    } else {
+                        LOGGER.debug("Recursively added folder: {}", filePath);
+                    } else
+                    {
                         pathList.addAll(getFolderContent(filePath));
-                        if (Main.getArgs().hasOption("v")) LOGGER.info("Added folder: {}", filePath);
+                        LOGGER.debug("Added folder: {}", filePath);
                     }
-                } else {
+                } else
+                {
                     pathList.add(filePath);
-                    if (Main.getArgs().hasOption("v")) LOGGER.info("Added file: {}", filePath);
+                    LOGGER.debug("Added file: {}", filePath);
                 }
-                //System.out.println("Type: " + path.get("type"));
-                //System.out.println("Path: " + path.get("path"));
-                //if (path.containsKey("recursive")) System.out.println("Recursive: " + path.get("recursive"));
             }
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             LOGGER.error("Failed to read custom_paths.yml", e);
             throw new RuntimeException("Error reading custom_paths.yml", e);
         }
@@ -109,15 +123,19 @@ public class CustomPathParser {
      * @param baseFolder The folder to scan.
      * @return A list of file paths within the folder and subfolders.
      */
-    public List<String> getPathsRecursively(String baseFolder) {
-        try {
-            Path path = Path.of(this.baseDirectory, baseFolder);
+    public List<String> getPathsRecursively(String baseFolder)
+    {
+        // TODO: Return an array of paths or files, not strings
+        Path path = this.baseDirectory.resolve(baseFolder);
+        try
+        {
             return Files.walk(path)
                     .filter(Files::isRegularFile)
                     .map(Path::toString)
                     .collect(Collectors.toList());
-        } catch (IOException e) {
-            LOGGER.error("Error while recursively fetching paths from: {}", baseFolder, e);
+        } catch (IOException e)
+        {
+            LOGGER.error("Error while recursively fetching paths from: {}", path.normalize(), e);
             return Collections.emptyList();
         }
     }
@@ -128,13 +146,15 @@ public class CustomPathParser {
      * @param baseFolder The folder to scan.
      * @return A list of file paths inside the folder.
      */
-    public List<String> getFolderContent(String baseFolder) {
+    public List<String> getFolderContent(String baseFolder)
+    {
         // TODO: Return an array of paths or files, not strings
-        Path path = Path.of(this.baseDirectory, baseFolder);
+        Path path = this.baseDirectory.resolve(baseFolder);
         File[] files = path.toFile().listFiles(File::isFile);
 
-        if (files == null) {
-            LOGGER.warn("Failed to list contents of folder: {}", baseFolder);
+        if (files == null)
+        {
+            LOGGER.warn("Failed to list contents of folder: {}", path.normalize());
             return Collections.emptyList();
         }
 
