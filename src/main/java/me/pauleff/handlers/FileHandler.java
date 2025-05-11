@@ -23,19 +23,32 @@ public class FileHandler
     private static final Logger LOGGER = LoggerFactory.getLogger(FileHandler.class);
 
     /**
-     * Renames a file within the specified base directory.
+     * Renames a file and keep source file extension.
      *
-     * @param baseFolder Base directory.
-     * @param oldFile    Current file path relative to base.
-     * @param newFile    New file path relative to base.
+     * @param sourceFile  Current file path.
+     * @param newFileName New file name.
      * @throws IOException If renaming is unsuccessful.
      */
-    public static void renameFile(Path baseFolder, String oldFile, String newFile) throws IOException
+    public static void renameFile(Path sourceFile, String newFileName) throws IOException
     {
-        Path source = baseFolder.resolve(oldFile);
-        Path target = baseFolder.resolve(newFile);
-        Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
-        LOGGER.debug("Renamed file\n\tFROM: '{}'\n\tTO: '{}'", source, target);
+        Path parentDir = sourceFile.getParent();
+        String originalFileName = sourceFile.getFileName().toString();
+        String extension = "";
+
+        // Extract the extension from the original file if it exists
+        int dotIndex = originalFileName.lastIndexOf('.');
+        if (dotIndex > 0) {
+            extension = originalFileName.substring(dotIndex);
+
+            // Avoid double extension if newFileName already has the extension
+            if (!newFileName.endsWith(extension)) {
+                newFileName = newFileName + extension;
+            }
+        }
+
+        Path target = parentDir.resolve(newFileName);
+        Files.move(sourceFile, target, StandardCopyOption.REPLACE_EXISTING);
+        LOGGER.debug("Renamed file\n\tFROM: '{}'\n\tTO: '{}'", sourceFile.normalize(), target.normalize());
     }
 
     /**
@@ -53,7 +66,7 @@ public class FileHandler
             return new JSONArray(jsonString);
         } catch (IOException e)
         {
-            LOGGER.warn("Could not read usercache.json from path: {}. Continuing without prefetching userdata.", pathToUsercache);
+            LOGGER.warn("Could not read usercache.json from path: {}. Continuing without prefetching userdata.", pathToUsercache.normalize());
             return new JSONArray();
         }
     }
@@ -77,7 +90,7 @@ public class FileHandler
             return worldName;
         } catch (IOException e)
         {
-            LOGGER.warn("Could not read server.properties at path: {}. Assuming 'world' to be correct.", pathToProperties, e);
+            LOGGER.warn("Could not read server.properties at path: {}. Assuming 'world' to be correct.", pathToProperties.normalize(), e);
             return "world";
         }
     }
@@ -101,7 +114,7 @@ public class FileHandler
             LOGGER.debug("Updated property '{}' to value '{}'", key, value);
         } catch (IOException e)
         {
-            LOGGER.error("Could not update property '{}' to value '{}' in server.properties at path: {}", key, value, pathToProperties, e);
+            LOGGER.error("Could not update property '{}' to value '{}' in server.properties at path: {}", key, value, pathToProperties.normalize(), e);
         }
     }
 
@@ -142,7 +155,7 @@ public class FileHandler
                 }
             }
             boolean isTextFile = numberOfNonTextChars <= 2 && (raf.length() - (double) numberOfNonTextChars / raf.length()) >= 0.99;
-            LOGGER.info("Detected a {} file at {}.{}", isTextFile ? "text" : "binary", pathToFile, isTextFile ? "" : " Skipping...");
+            LOGGER.debug("Detected a {} file at {}.{}", isTextFile ? "text" : "binary", pathToFile.normalize(), isTextFile ? "" : " Skipping...");
             return isTextFile;
         }
     }

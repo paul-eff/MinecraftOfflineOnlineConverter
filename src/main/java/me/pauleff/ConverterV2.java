@@ -56,10 +56,10 @@ public class ConverterV2 {
         this.worldFolder = this.serverFolder.resolve(worldName);
 
         if (!Files.exists(this.worldFolder)) {
-            throw new PathNotValidException(this.worldFolder.toAbsolutePath().toString());
+            throw new PathNotValidException(this.worldFolder.toAbsolutePath().normalize());
         }
 
-        LOGGER.info("Server folder set to: {}", this.serverFolder.toAbsolutePath());
+        LOGGER.info("Server folder set to: {}", this.serverFolder.toAbsolutePath().normalize());
     }
 
     /**
@@ -98,10 +98,10 @@ public class ConverterV2 {
         boolean isOnline = "-online".equals(mode);
         if (!isOnline)
         {
-            System.out.println("\nCONVERSION: ONLINE --> OFFLINE");
+            LOGGER.info("CONVERSION: ONLINE --> OFFLINE");
         } else
         {
-            System.out.println("\nCONVERSION: OFFLINE --> ONLINE");
+            LOGGER.info("CONVERSION: OFFLINE --> ONLINE");
         }
         fetchUsercache(isOnline ? "online" : "offline");
 
@@ -125,8 +125,8 @@ public class ConverterV2 {
         String onlineMode = Boolean.toString(!mode.equals("-offline"));
         FileHandler.writeToProperties(this.serverFolder.resolve("server.properties"), "online-mode", onlineMode);
 
-        for (String relativePath : flavor.getFiles(this.serverFolder.toString(), this.worldFolder.getFileName().toString())) {
-            Path currentPath = this.serverFolder.resolve(relativePath);
+        for (String relativePath : flavor.getFiles(this.serverFolder, this.worldFolder.getFileName().toString())) {
+            Path currentPath = this.serverFolder.resolve(relativePath).normalize();
             File currentFile = currentPath.toFile();
 
             // TODO: IMPORTANT REMOVE AGAIN LATER - STILL WORKING ON MCA SUPPORT!!!!
@@ -148,31 +148,33 @@ public class ConverterV2 {
 
                 // TODO: Currently a dirty fix. Should be handled correctly!
                 if (uuidMap.get(fileUUID) == null) {
-                    LOGGER.warn("Was not able to fetch information for file: {}", currentPath);
+                    LOGGER.warn("Was not able to fetch information for file: {}", currentPath.normalize());
                     LOGGER.warn("Please send this error to the developer, along with some information on what you were converting to!");
                     LOGGER.warn("Skipping and continuing with rest of the files.");
                     LOGGER.warn("This can just be a temporary error that won't have any consequences, but please report it anyway.");
                     continue;
                 }
-
-                Path newFileName = currentPath.resolveSibling(uuidMap.get(fileUUID).getUuid() + fileName.substring(fileName.lastIndexOf('.')));
-                Files.move(currentPath, newFileName, StandardCopyOption.REPLACE_EXISTING);
-                LOGGER.info("Renamed {} to {}", currentPath, newFileName);
+                FileHandler.renameFile(currentPath, uuidMap.get(fileUUID).getUuid().toString());
 
             } catch (IllegalArgumentException | IOException e) {
                 // TODO: Message was not very helpful, maybe add more details/context later?
-                if (Main.getArgs().hasOption("v")) LOGGER.warn("Skipping file {} due to an error: {}", currentPath, e.getMessage());
+                LOGGER.debug("Skipping file {} due to an error: {}", currentPath.normalize(), e.getMessage());
             }
 
             if (Files.isRegularFile(currentPath)) {
                 if(FileHandler.isText(currentPath))
                 {
                     String content = Files.readString(currentPath);
+                    boolean didReplace = false;
                     for (Map.Entry<UUID, Player> entry : uuidMap.entrySet()) {
+                        if (!didReplace) didReplace = content.contains(entry.getKey().toString());
                         content = content.replace(entry.getKey().toString(), entry.getValue().getUuid().toString());
                     }
-                    Files.writeString(currentPath, content);
-                    LOGGER.info("Updated UUIDs in file: {}", currentPath);
+                    if (didReplace)
+                    {
+                        Files.writeString(currentPath, content);
+                        LOGGER.info("Updated UUIDs in file: {}", currentPath.normalize());
+                    }
                 }else if (currentPath.toString().contains("entities")){
                     //Try reading as NBT or Anvil
                     // TODO: Implement NBT/Anvil file handling

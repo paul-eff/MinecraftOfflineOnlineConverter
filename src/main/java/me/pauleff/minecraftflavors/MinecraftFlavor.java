@@ -2,6 +2,7 @@ package me.pauleff.minecraftflavors;
 
 import me.pauleff.handlers.CustomPathParser;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +49,7 @@ public enum MinecraftFlavor
      * @param worldName     The name of the Minecraft world.
      * @return An array of file paths relevant to the specified Minecraft flavor.
      */
-    public String[] getFiles(String baseDirectory, String worldName)
+    public String[] getFiles(Path baseDirectory, String worldName)
     {
         // TODO: Return an array of paths or files, not strings
         CustomPathParser cpp = new CustomPathParser(baseDirectory);

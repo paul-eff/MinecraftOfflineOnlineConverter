@@ -29,7 +29,7 @@ public class MinecraftFlavorDetection
             this.baseDirectory = baseDirectory;
         } else
         {
-            throw new PathNotValidException(baseDirectory.toString());
+            throw new PathNotValidException(baseDirectory.normalize());
         }
     }
 
@@ -46,7 +46,7 @@ public class MinecraftFlavorDetection
             this.baseDirectory = path;
         } else
         {
-            throw new PathNotValidException(path.toString());
+            throw new PathNotValidException(path.normalize());
         }
     }
 

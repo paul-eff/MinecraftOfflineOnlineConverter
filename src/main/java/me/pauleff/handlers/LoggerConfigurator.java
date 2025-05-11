@@ -4,6 +4,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.filter.ThresholdFilter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
@@ -41,10 +42,17 @@ public class LoggerConfigurator
         consoleEncoder.setCharset(StandardCharsets.UTF_8);
         consoleEncoder.start();
 
+        // Console filter to control minimum level based on 'verbose'
+        ThresholdFilter consoleFilter = new ThresholdFilter();
+        consoleFilter.setContext(context);
+        consoleFilter.setLevel(verbose ? Level.DEBUG.levelStr : Level.INFO.levelStr);
+        consoleFilter.start();
+
         // Console appender
         ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<>();
         consoleAppender.setContext(context);
         consoleAppender.setEncoder(consoleEncoder);
+        consoleAppender.addFilter(consoleFilter);
         consoleAppender.start();
 
         // File encoder
@@ -64,11 +72,12 @@ public class LoggerConfigurator
 
         // Root logger setup
         Logger rootLogger = context.getLogger(Logger.ROOT_LOGGER_NAME);
-        rootLogger.setLevel(verbose ? Level.DEBUG : Level.INFO);
+        rootLogger.setLevel(Level.TRACE); // Always capture everything for file
         rootLogger.addAppender(consoleAppender);
         rootLogger.addAppender(fileAppender);
 
         // Print any Logback config issues
         StatusPrinter.printInCaseOfErrorsOrWarnings(context);
+
     }
 }
