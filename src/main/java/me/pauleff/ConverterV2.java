@@ -65,9 +65,9 @@ public class ConverterV2 {
     /**
      * Fetches all known players from usercache.json and stores them in a map.
      *
-     * @param mode Specifies if the server should be converted to offline or online mode.
+     * @param toOnlineMode Specifies if the server should be converted to offline or online mode.
      */
-    private void fetchUsercache(String mode) {
+    private void fetchUsercache(boolean toOnlineMode) {
         Path usercache = this.serverFolder.resolve("usercache.json");
         JSONArray knownPlayers = FileHandler.loadArrayFromUsercache(usercache);
 
@@ -77,11 +77,21 @@ public class ConverterV2 {
             JSONObject knownPlayer = (JSONObject) obj;
             try {
                 String playerName = knownPlayer.getString("name");
-                UUID onlineUUID = UUID.fromString(knownPlayer.getString("uuid"));
-                UUID convertedUUID = ("offline".equals(mode)) ? UUIDHandler.onlineUUIDToOffline(onlineUUID) : UUIDHandler.onlineNameToUUID(playerName);
+                UUID playerUUID = UUID.fromString(knownPlayer.getString("uuid")); //Can be online or offline!
 
-                uuidMap.put(onlineUUID, new Player(playerName, convertedUUID));
-                LOGGER.info("Prefetched player: {} ({})", playerName, convertedUUID);
+                if (toOnlineMode) {
+                    UUID onlineUUID = UUIDHandler.onlineNameToUUID(playerName);//Converts a player name to an online UUID by querying Mojang's API.
+                    uuidMap.put(playerUUID, new Player(playerName, onlineUUID));
+                    LOGGER.info("Prefetched player: {} ({})", playerName, onlineUUID);
+                } else {
+                    //Since we only want offline UUID, we can just retrieve it from player name
+                    UUID offlineUUID = UUIDHandler.offlineNameToUUID(playerName);
+
+                    uuidMap.put(playerUUID, new Player(playerName, offlineUUID));
+                    LOGGER.info("Prefetched player: {} ({})", playerName, offlineUUID);
+                }
+
+
             } catch (IOException | JSONException e) {
                 LOGGER.warn("Could not prefetch player from usercache.json", e);
             }
@@ -91,21 +101,18 @@ public class ConverterV2 {
     /**
      * Performs a pre-check before conversion to ensure valid player data is available.
      *
-     * @param mode Conversion mode ("-online" or "-offline").
+     * @param toOnlineMode Conversion mode ("-online" or "-offline").
      * @return True if conversion can proceed, false otherwise.
      */
-    private boolean preCheck(String mode) {
-        boolean isOnline = "-online".equals(mode);
-        if (!isOnline)
-        {
+    private boolean preCheck(boolean toOnlineMode) {
+        if (!toOnlineMode) {
             LOGGER.info("CONVERSION: ONLINE --> OFFLINE");
-        } else
-        {
+        } else {
             LOGGER.info("CONVERSION: OFFLINE --> ONLINE");
         }
-        fetchUsercache(isOnline ? "online" : "offline");
+        fetchUsercache(toOnlineMode);
 
-        if (isOnline && uuidMap.isEmpty()) {
+        if (toOnlineMode && uuidMap.isEmpty()) {
             LOGGER.error("No offline profiles found to convert to online profiles. Aborting...");
             return false;
         }
@@ -115,23 +122,26 @@ public class ConverterV2 {
     /**
      * Converts all player-related files and UUIDs to match the selected mode.
      *
-     * @param mode    Conversion mode ("-online" or "-offline").
-     * @param flavor The Minecraft server type, defining file locations.
+     * @param toOnlineMode Conversion mode ("-online" or "-offline").
+     * @param flavor       The Minecraft server type, defining file locations.
      * @throws IOException if file operations fail.
      */
-    public void convert(String mode, MinecraftFlavor flavor) throws IOException {
-        if (!preCheck(mode)) return;
+    public void convert(boolean toOnlineMode, MinecraftFlavor flavor) throws IOException {
+        if (!preCheck(toOnlineMode)) return;
 
-        String onlineMode = Boolean.toString(!mode.equals("-offline"));
-        FileHandler.writeToProperties(this.serverFolder.resolve("server.properties"), "online-mode", onlineMode);
+        FileHandler.writeToProperties(this.serverFolder.resolve("server.properties"), "online-mode", Boolean.toString(toOnlineMode));
 
         String[] allFiles = flavor.getFiles(this.serverFolder, this.serverFolder.relativize(this.worldFolder));
+        int discoveredValidFiles = 0;
+        int renamedFiles = 0;
         for (String relativePath : allFiles) {
             Path currentPath = this.serverFolder.resolve(relativePath).normalize();
             File currentFile = currentPath.toFile();
 
             // TODO: IMPORTANT REMOVE AGAIN LATER - STILL WORKING ON MCA SUPPORT!!!!
-            if (currentFile.toString().contains("/region/")){continue;}
+            if (currentFile.toString().contains("/region/")) {
+                continue;
+            }
 
             if (!currentFile.isFile() || IGNORED_FILE_EXTENSIONS.stream().anyMatch(currentFile.getName()::endsWith)) {
                 continue;
@@ -141,21 +151,32 @@ public class ConverterV2 {
 
             try {
                 String fileName = currentPath.getFileName().toString();
+                //Could be online or offline!
                 UUID fileUUID = UUID.fromString(fileName.substring(0, fileName.lastIndexOf('.')));
+                UUIDHandler.UUIDType uuidType = UUIDHandler.getUUIDType(fileUUID);
+                discoveredValidFiles++;
+                LOGGER.info("File UUID Type: {}", uuidType);
 
-                if (!uuidMap.containsKey(fileUUID) && "-offline".equals(mode)) {
-                    uuidMap.put(fileUUID, new Player(UUIDHandler.onlineUUIDToName(fileUUID), UUIDHandler.onlineUUIDToOffline(fileUUID)));
+                if (toOnlineMode) {
+                    if (uuidType == UUIDHandler.UUIDType.ONLINE) continue;
+                    //We have no way of knowing the player name from just on offline UUID, so we have to skip it
+                } else {
+                    if (uuidType == UUIDHandler.UUIDType.OFFLINE) continue;
+                    if (!uuidMap.containsKey(fileUUID)) {
+                        String playerName = UUIDHandler.onlineUUIDToName(fileUUID);
+                        UUID onlineUUID = UUIDHandler.offlineNameToUUID(playerName);
+                        uuidMap.put(fileUUID, new Player(playerName, onlineUUID));
+                    }
                 }
 
-                // TODO: Currently a dirty fix. Should be handled correctly!
-                if (uuidMap.get(fileUUID) == null) {
-                    LOGGER.warn("Was not able to fetch information for file: {}", currentPath.normalize());
-                    LOGGER.warn("Please send this error to the developer, along with some information on what you were converting to!");
-                    LOGGER.warn("Skipping and continuing with rest of the files.");
-                    LOGGER.warn("This can just be a temporary error that won't have any consequences, but please report it anyway.");
+                if (uuidMap.get(fileUUID) == null) {//if usercache.json has no record of the player, and we couldn't extract it from the file name, there is nothing we can do
+                    LOGGER.warn("Unable to fetch player data from file. Skipping...");
                     continue;
                 }
-                FileHandler.renameFile(currentPath, uuidMap.get(fileUUID).getUuid().toString());
+                //Rename the file to online or offline UUID
+                LOGGER.info("Renaming file to {}", uuidMap.get(fileUUID).getTargetUUID().toString());
+                renamedFiles++;
+                FileHandler.renameFile(currentPath, uuidMap.get(fileUUID).getTargetUUID().toString());
 
             } catch (IllegalArgumentException | IOException e) {
                 // TODO: Message was not very helpful, maybe add more details/context later?
@@ -163,24 +184,26 @@ public class ConverterV2 {
             }
 
             if (Files.isRegularFile(currentPath)) {
-                if(FileHandler.isText(currentPath))
-                {
+                if (FileHandler.isText(currentPath)) {
                     String content = Files.readString(currentPath);
                     boolean didReplace = false;
                     for (Map.Entry<UUID, Player> entry : uuidMap.entrySet()) {
                         if (!didReplace) didReplace = content.contains(entry.getKey().toString());
-                        content = content.replace(entry.getKey().toString(), entry.getValue().getUuid().toString());
+                        content = content.replace(entry.getKey().toString(), entry.getValue().getTargetUUID().toString());
                     }
-                    if (didReplace)
-                    {
+                    if (didReplace) {
                         Files.writeString(currentPath, content);
                         LOGGER.info("Updated UUIDs in file: {}", currentPath.normalize());
                     }
-                }else if (currentPath.toString().contains("entities")){
+                } else if (currentPath.toString().contains("entities")) {
                     //Try reading as NBT or Anvil
                     // TODO: Implement NBT/Anvil file handling
                 }
             }
+
         }
+
+
+        LOGGER.info("Changed {} out of {} files to {} UUIDs", renamedFiles, discoveredValidFiles, toOnlineMode ? "online" : "offline");
     }
 }

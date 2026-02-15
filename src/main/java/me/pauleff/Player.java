@@ -16,15 +16,15 @@ public class Player
     private static final Logger LOGGER = LoggerFactory.getLogger(Player.class);
 
     private final String name;
-    private final UUID uuid;
+    private final UUID targetUUID;
 
     /**
      * Constructs a new Player instance.
      *
      * @param name The player's name.
-     * @param uuid The player's UUID (offline or online).
+     * @param targetUUID The player's UUID (offline or online).
      */
-    public Player(String name, UUID uuid)
+    public Player(String name, UUID targetUUID)
     {
         // Log error and throw exception if name is null or empty
         if (name == null || name.isEmpty())
@@ -34,15 +34,15 @@ public class Player
             throw new IllegalArgumentException(msg);
         }
         // Log error and throw exception if uuid is null
-        if (uuid == null)
+        if (targetUUID == null)
         {
-            String msg = "Player UUID cannot be null.";
+            String msg = "Player Target UUID cannot be null.";
             LOGGER.error(msg);
             throw new IllegalArgumentException(msg);
         }
         // Otherwise create Player
         this.name = name;
-        this.uuid = uuid;
+        this.targetUUID = targetUUID;
     }
 
     /**
@@ -60,8 +60,8 @@ public class Player
      *
      * @return The player's {@link UUID}.
      */
-    public UUID getUuid()
+    public UUID getTargetUUID()
     {
-        return uuid;
+        return targetUUID;
     }
 }

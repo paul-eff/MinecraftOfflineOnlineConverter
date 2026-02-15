@@ -49,7 +49,7 @@ public class Main
         MinecraftFlavor mcFlavor = mfd.detectMinecraftFlavor();
         LOGGER.info("This is a {} Minecraft Server!", mcFlavor);
         // Start conversion process
-        converter.convert(mode, mcFlavor);
+        converter.convert(mode.equals("-online"), mcFlavor);
         LOGGER.info("Job finished in {} seconds.", String.format("%.3f", (System.nanoTime() - startTime) / 1_000_000_000.0));
     }
 
