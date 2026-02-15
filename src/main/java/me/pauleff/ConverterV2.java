@@ -39,7 +39,7 @@ public class ConverterV2 {
      * @throws PathNotValidException if the world folder cannot be resolved.
      */
     public ConverterV2() throws PathNotValidException {
-        this(Path.of("./"));
+        this(Path.of("./").toAbsolutePath().normalize());
     }
 
     /**
