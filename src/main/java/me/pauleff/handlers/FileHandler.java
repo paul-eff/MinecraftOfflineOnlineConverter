@@ -111,7 +111,7 @@ public class FileHandler
                     .map(line -> line.startsWith(key + "=") ? key + "=" + value : line)
                     .collect(Collectors.toList());
             Files.write(pathToProperties, modifiedLines, StandardCharsets.UTF_8);
-            LOGGER.debug("Updated property '{}' to value '{}'", key, value);
+            LOGGER.info("Updated property '{}' to value '{}'", key, value);
         } catch (IOException e)
         {
             LOGGER.error("Could not update property '{}' to value '{}' in server.properties at path: {}", key, value, pathToProperties.normalize(), e);

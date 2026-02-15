@@ -25,7 +25,7 @@ public class ConverterV2 {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConverterV2.class);
 
-    private final Path serverFolder;
+    public final Path serverFolder;
     private final Path worldFolder;
     private final Map<UUID, Player> uuidMap = new HashMap<>();
     private static final Set<String> IGNORED_FILE_EXTENSIONS = Set.of(
