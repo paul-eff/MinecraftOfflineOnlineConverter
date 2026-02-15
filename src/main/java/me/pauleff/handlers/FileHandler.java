@@ -29,8 +29,7 @@ public class FileHandler
      * @param newFileName New file name.
      * @throws IOException If renaming is unsuccessful.
      */
-    public static void renameFile(Path sourceFile, String newFileName) throws IOException
-    {
+    public static void renameFile(Path sourceFile, String newFileName) throws IOException {
         Path parentDir = sourceFile.getParent();
         String originalFileName = sourceFile.getFileName().toString();
         String extension = "";
@@ -57,15 +56,12 @@ public class FileHandler
      * @param pathToUsercache Path to usercache.json.
      * @return JSONArray containing the user cache data.
      */
-    public static JSONArray loadArrayFromUsercache(Path pathToUsercache)
-    {
-        try
-        {
+    public static JSONArray loadArrayFromUsercache(Path pathToUsercache) {
+        try {
             String jsonString = Files.readString(pathToUsercache, StandardCharsets.UTF_8);
             LOGGER.info("Loaded usercache.json file successfully.");
             return new JSONArray(jsonString);
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             LOGGER.warn("Could not read usercache.json from path: {}. Continuing without prefetching userdata.", pathToUsercache.normalize());
             return new JSONArray();
         }
@@ -77,10 +73,8 @@ public class FileHandler
      * @param pathToProperties Path to server.properties.
      * @return Extracted world name or default "world" if not found.
      */
-    public static String readWorldNameFromProperties(Path pathToProperties)
-    {
-        try (BufferedReader br = new BufferedReader(new FileReader(pathToProperties.toFile())))
-        {
+    public static String readWorldNameFromProperties(Path pathToProperties) {
+        try (BufferedReader br = new BufferedReader(new FileReader(pathToProperties.toFile()))) {
             String worldName = br.lines()
                     .filter(line -> line.startsWith("level-name="))
                     .map(line -> line.substring("level-name=".length()))
@@ -88,8 +82,7 @@ public class FileHandler
                     .orElse("world");
             LOGGER.info("Found world name: '{}'", worldName);
             return worldName;
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             LOGGER.warn("Could not read server.properties at path: {}. Assuming 'world' to be correct.", pathToProperties.normalize(), e);
             return "world";
         }
@@ -102,18 +95,15 @@ public class FileHandler
      * @param key              Property key.
      * @param value            Property value.
      */
-    public static void writeToProperties(Path pathToProperties, String key, String value)
-    {
-        try
-        {
+    public static void writeToProperties(Path pathToProperties, String key, String value) {
+        try {
             List<String> lines = Files.readAllLines(pathToProperties, StandardCharsets.UTF_8);
             List<String> modifiedLines = lines.stream()
                     .map(line -> line.startsWith(key + "=") ? key + "=" + value : line)
                     .collect(Collectors.toList());
             Files.write(pathToProperties, modifiedLines, StandardCharsets.UTF_8);
             LOGGER.info("Updated property '{}' to value '{}'", key, value);
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             LOGGER.error("Could not update property '{}' to value '{}' in server.properties at path: {}", key, value, pathToProperties.normalize(), e);
         }
     }
@@ -126,18 +116,14 @@ public class FileHandler
      * @throws IOException              If an I/O error occurs.
      * @throws IllegalArgumentException If the file is invalid.
      */
-    public static boolean isText(Path pathToFile) throws IOException
-    {
+    public static boolean isText(Path pathToFile) throws IOException {
         File file = pathToFile.toFile();
-        if (!file.isFile())
-        {
+        if (!file.isFile()) {
             throw new IllegalArgumentException("Path must be a valid file.");
         }
-        try (RandomAccessFile raf = new RandomAccessFile(file, "r"))
-        {
+        try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
             int numberOfNonTextChars = 0;
-            while (raf.getFilePointer() < raf.length())
-            {
+            while (raf.getFilePointer() < raf.length()) {
                 final int b = raf.readUnsignedByte();
                 // http://www.table-ascii.com/
                 if (b == 0x09 || // horizontal tabulation
@@ -149,8 +135,7 @@ public class FileHandler
                         (b >= 0xA0 && b <= 0xFF)) // latin-1 symbols
                 {
                     // OK
-                } else
-                {
+                } else {
                     numberOfNonTextChars++;
                 }
             }
@@ -158,5 +143,12 @@ public class FileHandler
             LOGGER.debug("Detected a {} file at {}.{}", isTextFile ? "text" : "binary", pathToFile.normalize(), isTextFile ? "" : " Skipping...");
             return isTextFile;
         }
+    }
+
+    public static String stripFileExtension(String fileName) {
+        if (fileName.contains(".")) { //strip file extension
+            return fileName.substring(0, fileName.lastIndexOf('.')).trim();
+        }
+        return fileName;
     }
 }

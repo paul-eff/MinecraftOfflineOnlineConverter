@@ -167,10 +167,7 @@ public class ConverterV2 {
                 boolean inPlayerdata = currentPath.getParent().getFileName().toString().equals("playerdata");
                 //Check if this is a valid UUID filename before moving
                 if (!inPlayerdata) {
-                    String fileName = currentPath.getFileName().toString();
-                    if (fileName.contains(".")) { //strip file extension
-                        fileName = fileName.substring(0, fileName.lastIndexOf('.')).trim();
-                    }
+                    String fileName = FileHandler.stripFileExtension(currentPath.getFileName().toString());
                     if (!UUIDHandler.isValidUUID(fileName)) {
                         continue;
                     }
@@ -226,34 +223,35 @@ public class ConverterV2 {
             LOGGER.info("Processing file: {}", currentPath);
 
             try {
-                String fileName = currentPath.getFileName().toString();
-                //Could be online or offline!
-                UUID fileUUID = UUID.fromString(fileName.substring(0, fileName.lastIndexOf('.')));
-                UUIDHandler.UUIDType uuidType = UUIDHandler.getUUIDType(fileUUID);
-                discoveredValidFiles++;
-                LOGGER.info("File UUID Type: {}", uuidType);
+                String fileName = FileHandler.stripFileExtension(currentPath.getFileName().toString());
 
-                if (toOnlineMode) {
-                    if (uuidType == UUIDHandler.UUIDType.ONLINE) continue;
-                    //We have no way of knowing the player name from just on offline UUID, so we have to skip it
-                } else {
-                    if (uuidType == UUIDHandler.UUIDType.OFFLINE) continue;
-                    if (!uuidMap.containsKey(fileUUID)) {
-                        String playerName = UUIDHandler.onlineUUIDToName(fileUUID);
-                        UUID onlineUUID = UUIDHandler.offlineNameToUUID(playerName);
-                        uuidMap.put(fileUUID, new Player(playerName, onlineUUID));
+                if (UUIDHandler.isValidUUID(fileName)) {
+                    UUID fileUUID = UUID.fromString(fileName);//Could be online or offline!
+                    UUIDHandler.UUIDType uuidType = UUIDHandler.getUUIDType(fileUUID);
+                    discoveredValidFiles++;
+                    LOGGER.info("File UUID Type: {}", uuidType);
+
+                    if (toOnlineMode) {
+                        if (uuidType == UUIDHandler.UUIDType.ONLINE) continue;
+                        //We have no way of knowing the player name from just on offline UUID, so we have to skip it
+                    } else {
+                        if (uuidType == UUIDHandler.UUIDType.OFFLINE) continue;
+                        if (!uuidMap.containsKey(fileUUID)) {
+                            String playerName = UUIDHandler.onlineUUIDToName(fileUUID);
+                            UUID onlineUUID = UUIDHandler.offlineNameToUUID(playerName);
+                            uuidMap.put(fileUUID, new Player(playerName, onlineUUID));
+                        }
                     }
-                }
 
-                if (uuidMap.get(fileUUID) == null) {//if usercache.json has no record of the player, and we couldn't extract it from the file name, there is nothing we can do
-                    LOGGER.warn("Unable to fetch player data from file. Skipping...");
-                    continue;
+                    if (uuidMap.get(fileUUID) == null) {//if usercache.json has no record of the player, and we couldn't extract it from the file name, there is nothing we can do
+                        LOGGER.warn("Unable to fetch player data from file. Skipping...");
+                        continue;
+                    }
+                    //Rename the file to online or offline UUID
+                    LOGGER.info("Renaming file to {}", uuidMap.get(fileUUID).getTargetUUID().toString());
+                    FileHandler.renameFile(currentPath, uuidMap.get(fileUUID).getTargetUUID().toString());
+                    renamedFiles++;
                 }
-                //Rename the file to online or offline UUID
-                LOGGER.info("Renaming file to {}", uuidMap.get(fileUUID).getTargetUUID().toString());
-                FileHandler.renameFile(currentPath, uuidMap.get(fileUUID).getTargetUUID().toString());
-                renamedFiles++;
-
             } catch (IllegalArgumentException | IOException e) {
                 // TODO: Message was not very helpful, maybe add more details/context later?
                 LOGGER.debug("Skipping file {} due to an error: {}", currentPath.normalize(), e.getMessage());

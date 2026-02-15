@@ -24,7 +24,7 @@ import static java.lang.System.exit;
  */
 public class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
-    private static final String VERSION = "3";
+    private static final String VERSION = "4";
     private static CommandLine cmd;
     private static HashMap<String, String> serverPropertiesChanges = new HashMap<>();
     private static String mode = "N/A";
@@ -102,13 +102,13 @@ public class Main {
         options.addOption("offline", false, "Convert server files to offline mode");
         options.addOption("online", false, "Convert server files to online mode");
 
-        Option copyOption = Option.builder("c")
-                .longOpt("copy")
-                .desc("Copy playerdata folder. Optionally specify a source folder to copy from, If no source is specified, will copy from last world.")
-                .optionalArg(true) // This makes the "/path/to/data" part optional
-                .hasArg()          // It can still take an argument
-                .build();
-        options.addOption(copyOption);
+//        Option copyOption = Option.builder("c")
+//                .longOpt("copy")
+//                .desc("Copy player data between worlds. Optionally specify a source folder to copy from, If no source is specified, will copy from last world.")
+//                .optionalArg(true) // This makes the "/path/to/data" part optional
+//                .hasArg()          // It can still take an argument
+//                .build();
+//        options.addOption(copyOption);
 
         Option properties = Option.builder("properties")
                 .hasArgs()           // This is crucial: it tells the parser to expect more than one value
@@ -148,12 +148,12 @@ public class Main {
             // Set if a path is provided
             hasPath = cmd.hasOption("p");
 
-            if (cmd.hasOption("c")) {
-                movePlayerdataFrom = cmd.getOptionValue("c");
-                if (movePlayerdataFrom == null) {
-                    movePlayerdataFrom = "";
-                }
-            }
+//            if (cmd.hasOption("c")) {
+//                movePlayerdataFrom = cmd.getOptionValue("c");
+//                if (movePlayerdataFrom == null) {
+//                    movePlayerdataFrom = "";
+//                }
+//            }
 
             //Handle server.properties entry changes
             if (cmd.hasOption("properties")) {
