@@ -63,7 +63,7 @@ public class Main {
             converter.convert(mode.equals("-online"), mcFlavor);
         }
         double elapsedSeconds = (System.nanoTime() - startTime) / 1_000_000_000.0;
-        if (elapsedSeconds < 0.15) {
+        if (elapsedSeconds > 0.15) {
             LOGGER.info("Job finished in {} seconds.", String.format("%.3f", elapsedSeconds));
         }
     }
