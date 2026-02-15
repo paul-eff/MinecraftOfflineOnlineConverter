@@ -125,7 +125,8 @@ public class ConverterV2 {
         String onlineMode = Boolean.toString(!mode.equals("-offline"));
         FileHandler.writeToProperties(this.serverFolder.resolve("server.properties"), "online-mode", onlineMode);
 
-        for (String relativePath : flavor.getFiles(this.serverFolder, this.worldFolder.getFileName().toString())) {
+        String[] allFiles = flavor.getFiles(this.serverFolder, this.serverFolder.relativize(this.worldFolder));
+        for (String relativePath : allFiles) {
             Path currentPath = this.serverFolder.resolve(relativePath).normalize();
             File currentFile = currentPath.toFile();
 

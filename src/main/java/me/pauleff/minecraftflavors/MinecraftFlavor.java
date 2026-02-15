@@ -46,10 +46,10 @@ public enum MinecraftFlavor
      * Returns an array of file paths relevant to the specified Minecraft flavor.
      *
      * @param baseDirectory The base directory where the Minecraft server is installed.
-     * @param worldName     The name of the Minecraft world.
+     * @param worldDirectory The directory to the Minecraft world.
      * @return An array of file paths relevant to the specified Minecraft flavor.
      */
-    public String[] getFiles(Path baseDirectory, String worldName)
+    public String[] getFiles(Path baseDirectory, Path worldDirectory)
     {
         // TODO: Return an array of paths or files, not strings
         CustomPathParser cpp = new CustomPathParser(baseDirectory);
@@ -61,9 +61,9 @@ public enum MinecraftFlavor
          */
         ArrayList<String> defaultDirectories = new ArrayList<>();
         defaultDirectories.add("./");
-        defaultDirectories.add("./" + worldName + "/playerdata");
-        defaultDirectories.add("./" + worldName + "/advancements");
-        defaultDirectories.add("./" + worldName + "/stats");
+        defaultDirectories.add("./" + worldDirectory + "/playerdata");
+        defaultDirectories.add("./" + worldDirectory + "/advancements");
+        defaultDirectories.add("./" + worldDirectory + "/stats");
         // Get the content of the default directories
         for (String path : defaultDirectories)
         {
@@ -81,7 +81,7 @@ public enum MinecraftFlavor
             // TODO: Find more flavor specific directories
             case VANILLA:
                 // defaultDirectories.add("some/vanillaspecific/path");
-                filesAndFolders.addAll(cpp.getPathsRecursively("./" + worldName));
+                filesAndFolders.addAll(cpp.getPathsRecursively("./" + worldDirectory));
                 break;
             case LIGHT_MODDED:
                 // defaultDirectories.add("some/lightmoddedspecific/path");
