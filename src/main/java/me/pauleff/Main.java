@@ -58,7 +58,7 @@ public class Main {
             FileHandler.writeToProperties(serverProperties, m.getKey(), m.getValue());
         }
 
-        if (mode.equals("-online") || mode.equals("-onffline")) {
+        if (mode.equals("-online") || mode.equals("-offline")) {
             // Start conversion process
             converter.convert(mode.equals("-online"), mcFlavor);
         }
