@@ -1,6 +1,5 @@
 package me.pauleff;
 
-import me.pauleff.exceptions.PathNotValidException;
 import me.pauleff.handlers.FileHandler;
 import me.pauleff.handlers.LoggerConfigurator;
 import me.pauleff.minecraftflavors.MinecraftFlavor;
@@ -32,6 +31,7 @@ public class Main {
     private static boolean hasPath = false;
     private static ConverterV2 converter;
     private static MinecraftFlavorDetection mfd;
+    private static String movePlayerdataFrom = null;
 
     /**
      * Main method - entry point of the application.
@@ -45,17 +45,38 @@ public class Main {
         // Setup CLI options and logger
         Options options = defineOptions();
         parseArguments(args, options);
-        LOGGER.info("Starting MinecraftOfflineOnlineConverter Version {}", VERSION);
-        // Setup converter
-        initializeConverter();
+        LOGGER.debug("Starting MinecraftOfflineOnlineConverter Version {}", VERSION);
+
+        // Init converter with or without a path to the server folder and detect the Minecraft flavor
+        if (hasPath) {
+            Path path = Paths.get(cmd.getOptionValue("path"));
+            converter = new ConverterV2(path);
+            mfd = new MinecraftFlavorDetection(path);
+        } else {
+            converter = new ConverterV2();
+            mfd = new MinecraftFlavorDetection();
+        }
+
         // Detect Minecraft server flavor
         MinecraftFlavor mcFlavor = mfd.detectMinecraftFlavor();
         LOGGER.info("This is a {} Minecraft Server!", mcFlavor);
 
         //Update server.properties
         Path serverProperties = converter.serverFolder.resolve("server.properties");
+        String oldWorldPath = FileHandler.readWorldNameFromProperties(serverProperties);
+
         for (Map.Entry<String, String> m : serverPropertiesChanges.entrySet()) {
             FileHandler.writeToProperties(serverProperties, m.getKey(), m.getValue());
+        }
+
+        //set the world folder after server.properties was changed
+        converter.setWorldFolder();
+
+        if (movePlayerdataFrom != null) {
+            //Move player data
+            if(movePlayerdataFrom.isBlank())
+                movePlayerdataFrom = oldWorldPath;
+            converter.copyPlayerData(movePlayerdataFrom, mcFlavor);
         }
 
         if (mode.equals("-online") || mode.equals("-offline")) {
@@ -80,6 +101,15 @@ public class Main {
         options.addOption("h", "help", false, "Display help message");
         options.addOption("offline", false, "Convert server files to offline mode");
         options.addOption("online", false, "Convert server files to online mode");
+
+        Option copyOption = Option.builder("c")
+                .longOpt("copy")
+                .desc("Copy playerdata folder. Optionally specify a source folder to copy from, If no source is specified, will copy from last world.")
+                .optionalArg(true) // This makes the "/path/to/data" part optional
+                .hasArg()          // It can still take an argument
+                .build();
+        options.addOption(copyOption);
+
         Option properties = Option.builder("properties")
                 .hasArgs()           // This is crucial: it tells the parser to expect more than one value
                 .valueSeparator('=') // This tells the parser how to split the key from the value
@@ -102,11 +132,13 @@ public class Main {
             cmd = new DefaultParser().parse(options, args);
             // Configure logger for the whole application
             LoggerConfigurator.configure(cmd.hasOption("v"));
+
             // Handle printing the help message
             if (cmd.hasOption("h")) {
                 formatter.printHelp("MinecraftOfflineOnlineConverter", options);
                 exit(0);
             }
+
             // Handle setting the mode to convert to
             if (cmd.hasOption("offline")) {
                 mode = "-offline";
@@ -115,6 +147,13 @@ public class Main {
             }
             // Set if a path is provided
             hasPath = cmd.hasOption("p");
+
+            if (cmd.hasOption("c")) {
+                movePlayerdataFrom = cmd.getOptionValue("c");
+                if (movePlayerdataFrom == null) {
+                    movePlayerdataFrom = "";
+                }
+            }
 
             //Handle server.properties entry changes
             if (cmd.hasOption("properties")) {
@@ -136,20 +175,6 @@ public class Main {
         }
     }
 
-    /**
-     * Initializes the converter and Minecraft flavor detection based on parsed arguments.
-     */
-    private static void initializeConverter() throws PathNotValidException {
-        // Init converter with or without a path to the server folder and detect the Minecraft flavor
-        if (hasPath) {
-            Path path = Paths.get(cmd.getOptionValue("path"));
-            converter = new ConverterV2(path);
-            mfd = new MinecraftFlavorDetection(path);
-        } else {
-            converter = new ConverterV2();
-            mfd = new MinecraftFlavorDetection();
-        }
-    }
 
     /**
      * Retrieves parsed command-line arguments.

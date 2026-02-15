@@ -26,7 +26,7 @@ public class ConverterV2 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConverterV2.class);
 
     public final Path serverFolder;
-    private final Path worldFolder;
+    public Path worldFolder;
     private final Map<UUID, Player> uuidMap = new HashMap<>();
     private static final Set<String> IGNORED_FILE_EXTENSIONS = Set.of(
             "mcr", "mca", "jar", "gz", "lock", "sh", "bat", "log", "mcmeta",
@@ -50,16 +50,16 @@ public class ConverterV2 {
      */
     public ConverterV2(Path serverFolderPath) throws PathNotValidException {
         this.serverFolder = serverFolderPath;
-        Path serverProperties = this.serverFolder.resolve("server.properties");
+        LOGGER.info("Server folder set to: {}", this.serverFolder.toAbsolutePath().normalize());
+    }
 
+    public void setWorldFolder() throws PathNotValidException {
+        Path serverProperties = this.serverFolder.resolve("server.properties");
         String worldName = FileHandler.readWorldNameFromProperties(serverProperties);
         this.worldFolder = this.serverFolder.resolve(worldName);
-
         if (!Files.exists(this.worldFolder)) {
             throw new PathNotValidException(this.worldFolder.toAbsolutePath().normalize());
         }
-
-        LOGGER.info("Server folder set to: {}", this.serverFolder.toAbsolutePath().normalize());
     }
 
     /**
@@ -120,6 +120,82 @@ public class ConverterV2 {
     }
 
     /**
+     * Copies all player data from the source world to the destination world
+     *
+     * @param sourceWorld The source world
+     * @param flavor      The Minecraft server type, defining file locations.
+     * @throws IOException if file operations fail.
+     */
+    public void copyPlayerData(String sourceWorld, MinecraftFlavor flavor) throws IOException {
+        Path relativeSource = Paths.get(sourceWorld);
+        if (relativeSource.isAbsolute()) {
+            relativeSource = relativeSource.getRoot().relativize(relativeSource);
+        }
+
+        Path sourceWorldFolder = this.serverFolder.resolve(relativeSource).toAbsolutePath().normalize();
+        Path destWorldFolder = this.worldFolder;
+        if (!destWorldFolder.toFile().exists() || Files.isSameFile(sourceWorldFolder, destWorldFolder)) {
+            LOGGER.warn("Could not move player data from {} to {}. Destination folder is invalid",
+                    this.serverFolder.relativize(sourceWorldFolder),
+                    this.serverFolder.relativize(destWorldFolder));
+            return;
+        }
+
+        LOGGER.info("Copying player data from {} to {}",
+                this.serverFolder.relativize(sourceWorldFolder),
+                this.serverFolder.relativize(destWorldFolder));
+
+        String[] allFiles = flavor.getFiles(this.serverFolder, this.serverFolder.relativize(sourceWorldFolder), true);
+        int discoveredValidFiles = 0;
+        int movedFiles = 0;
+        for (String relativePath : allFiles) {
+            Path currentPath = this.serverFolder.resolve(relativePath).normalize();
+            File currentFile = currentPath.toFile();
+
+            // TODO: IMPORTANT REMOVE AGAIN LATER - STILL WORKING ON MCA SUPPORT!!!!
+            if (currentFile.toString().contains("/region/")) {
+                continue;
+            }
+
+            if (!currentFile.isFile() || IGNORED_FILE_EXTENSIONS.stream().anyMatch(currentFile.getName()::endsWith)) {
+                continue;
+            }
+            LOGGER.info("Processing file: {}", currentPath);
+
+            try {
+                //Move all files from playerdata no matter what
+                boolean inPlayerdata = currentPath.getParent().getFileName().toString().equals("playerdata");
+                //Check if this is a valid UUID filename before moving
+                if (!inPlayerdata) {
+                    String fileName = currentPath.getFileName().toString();
+                    if (fileName.contains(".")) { //strip file extension
+                        fileName = fileName.substring(0, fileName.lastIndexOf('.')).trim();
+                    }
+                    if (!UUIDHandler.isValidUUID(fileName)) {
+                        continue;
+                    }
+                }
+
+                discoveredValidFiles++;
+
+                // 1. Get the "tail" (world/region/data.mca)
+                Path tail = sourceWorldFolder.relativize(currentPath);
+                // 2. Attach it to the new base
+                Path finalPath = destWorldFolder.resolve(tail);
+                LOGGER.info("Copying file to {}", destWorldFolder.normalize());
+//                FileHandler.renameFile(currentPath, finalPath.toAbsolutePath().normalize().toString());
+                Files.copy(currentPath, finalPath, StandardCopyOption.REPLACE_EXISTING);
+                movedFiles++;
+            } catch (IllegalArgumentException | IOException e) {
+                // TODO: Message was not very helpful, maybe add more details/context later?
+                LOGGER.debug("Skipping file {} due to an error: {}", currentPath.normalize(), e.getMessage());
+            }
+        }
+
+        LOGGER.info("Copied {} out of {} files to {}", movedFiles, discoveredValidFiles, destWorldFolder.normalize().toString());
+    }
+
+    /**
      * Converts all player-related files and UUIDs to match the selected mode.
      *
      * @param toOnlineMode Conversion mode ("-online" or "-offline").
@@ -131,7 +207,7 @@ public class ConverterV2 {
 
         FileHandler.writeToProperties(this.serverFolder.resolve("server.properties"), "online-mode", Boolean.toString(toOnlineMode));
 
-        String[] allFiles = flavor.getFiles(this.serverFolder, this.serverFolder.relativize(this.worldFolder));
+        String[] allFiles = flavor.getFiles(this.serverFolder, this.serverFolder.relativize(this.worldFolder), false);
         int discoveredValidFiles = 0;
         int renamedFiles = 0;
         for (String relativePath : allFiles) {
@@ -175,8 +251,8 @@ public class ConverterV2 {
                 }
                 //Rename the file to online or offline UUID
                 LOGGER.info("Renaming file to {}", uuidMap.get(fileUUID).getTargetUUID().toString());
-                renamedFiles++;
                 FileHandler.renameFile(currentPath, uuidMap.get(fileUUID).getTargetUUID().toString());
+                renamedFiles++;
 
             } catch (IllegalArgumentException | IOException e) {
                 // TODO: Message was not very helpful, maybe add more details/context later?

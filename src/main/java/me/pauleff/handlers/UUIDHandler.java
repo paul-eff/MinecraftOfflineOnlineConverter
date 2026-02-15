@@ -64,6 +64,7 @@ public class UUIDHandler {
     /**
      * Retrieves a player's name from their online {@link UUID} using Mojang's Session Server.
      * * @param uuid The player's {@link UUID}.
+     *
      * @return The player's name, or null if the player is not found/offline.
      * @throws IOException If a connection or rate-limiting issue occurs.
      */
@@ -118,6 +119,19 @@ public class UUIDHandler {
         if (v == 4) return UUIDType.ONLINE;
         if (v == 3) return UUIDType.OFFLINE;
         return UUIDType.INVALID;
+    }
+
+    public static boolean isValidUUID(String uuidString) {
+        if (uuidString == null || uuidString.length() != 36) {
+            return false;
+        }
+        try {
+            UUID uuid = UUID.fromString(uuidString);
+            return getUUIDType(uuid) != UUIDType.INVALID;
+        } catch (IllegalArgumentException e) {
+            // This catches BOTH "Invalid UUID string" and "NumberFormatException"
+            return false;
+        }
     }
 
 //    /**
