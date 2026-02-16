@@ -1,5 +1,6 @@
 package me.pauleff;
 
+import me.pauleff.config.Config;
 import me.pauleff.handlers.FileHandler;
 import me.pauleff.handlers.LoggerConfigurator;
 import me.pauleff.minecraftflavors.MinecraftFlavor;
@@ -31,9 +32,9 @@ public class Main {
     private static boolean hasPath = false;
     private static ConverterV2 converter;
     private static MinecraftFlavorDetection mfd;
-
     private static boolean movePlayerData = false;
     private static String movePlayerdataSourceDir = null;
+    public static Config config;
 
     /**
      * Main method - entry point of the application.
@@ -58,6 +59,7 @@ public class Main {
             converter = new ConverterV2();
             mfd = new MinecraftFlavorDetection();
         }
+        config = new Config(converter.serverFolder);
 
         // Detect Minecraft server flavor
         MinecraftFlavor mcFlavor = mfd.detectMinecraftFlavor();

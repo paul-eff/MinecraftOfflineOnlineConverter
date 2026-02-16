@@ -1,0 +1,5 @@
+name: MOOC-Config
+config:
+  version: 1.0.0
+  playerdata-world-blacklist: [ "worlds/test-world" ]
+paths:

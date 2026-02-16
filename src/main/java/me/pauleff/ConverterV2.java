@@ -128,25 +128,30 @@ public class ConverterV2 {
      * @throws IOException if file operations fail.
      */
     public void copyPlayerData(String sourceWorld, MinecraftFlavor flavor) throws IOException {
-        Path relativeSource = Paths.get(sourceWorld);
-        if (relativeSource.isAbsolute()) {
-            relativeSource = relativeSource.getRoot().relativize(relativeSource);
+        Path _relativeSource = Paths.get(sourceWorld);
+        if (_relativeSource.isAbsolute()) {
+            _relativeSource = _relativeSource.getRoot().relativize(_relativeSource);
         }
-
-        Path sourceWorldFolder = this.serverFolder.resolve(relativeSource).toAbsolutePath().normalize();
+        Path sourceWorldFolder = this.serverFolder.resolve(_relativeSource).toAbsolutePath().normalize();
         Path destWorldFolder = this.worldFolder;
+
+        Path relativeSourceWorldFolder = this.serverFolder.relativize(sourceWorldFolder);
+        Path relativeDestWorldFolder = this.serverFolder.relativize(destWorldFolder);
+
         if (!destWorldFolder.toFile().exists() || Files.isSameFile(sourceWorldFolder, destWorldFolder)) {
-            LOGGER.warn("Could not move player data from {} to {}. Destination folder is invalid",
-                    this.serverFolder.relativize(sourceWorldFolder),
-                    this.serverFolder.relativize(destWorldFolder));
+            LOGGER.warn("Could not move player data from {} to {}. Destination folder is invalid", relativeSourceWorldFolder, relativeDestWorldFolder);
+            return;
+        }
+//        System.out.println(Main.config.playerdataWorldBlacklist);
+        if (Main.config.playerdataWorldBlacklist.contains(relativeSourceWorldFolder.toString()) ||
+                Main.config.playerdataWorldBlacklist.contains(relativeDestWorldFolder.toString())) {
+            LOGGER.warn("Could not move player data from {} to {}. Source or destination folder is blacklisted.", relativeSourceWorldFolder, relativeDestWorldFolder);
             return;
         }
 
-        LOGGER.info("Copying player data from {} to {}",
-                this.serverFolder.relativize(sourceWorldFolder),
-                this.serverFolder.relativize(destWorldFolder));
+        LOGGER.info("Copying player data from {} to {}", relativeSourceWorldFolder, relativeDestWorldFolder);
 
-        String[] allFiles = flavor.getFiles(this.serverFolder, this.serverFolder.relativize(sourceWorldFolder), true);
+        String[] allFiles = flavor.getFiles(this.serverFolder, relativeSourceWorldFolder, true);
         int movedFiles = 0;
         for (String relativePath : allFiles) {
             Path currentPath = this.serverFolder.resolve(relativePath).normalize();

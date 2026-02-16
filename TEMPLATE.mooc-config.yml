@@ -1,6 +1,7 @@
 name: MOOC-Config
 config:
   version: 1.0.0
+  playerdata-world-blacklist: [ "worlds/test-world" ]
 paths:
   # Convert all files in a folder and subfolders
   # If "recursive: true" missing, "recursive: false" is assumed. See example below.
