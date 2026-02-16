@@ -24,6 +24,14 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
+    <repositories>
+        <!-- https://github.com/Querz/NBT -->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <!-- Project dependencies -->
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.json/json -->
@@ -54,6 +62,13 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.5.13</version>
+        </dependency>
+
+        <!-- https://github.com/Querz/NBT -->
+        <dependency>
+            <groupId>com.github.Querz</groupId>
+            <artifactId>NBT</artifactId>
+            <version>6.1</version>
         </dependency>
     </dependencies>
 

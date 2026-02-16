@@ -1,6 +1,7 @@
 package me.pauleff;
 
 import me.pauleff.handlers.FileHandler;
+import me.pauleff.handlers.NBTHandler;
 import me.pauleff.handlers.UUIDHandler;
 import me.pauleff.minecraftflavors.MinecraftFlavor;
 import me.pauleff.exceptions.PathNotValidException;
@@ -146,7 +147,6 @@ public class ConverterV2 {
                 this.serverFolder.relativize(destWorldFolder));
 
         String[] allFiles = flavor.getFiles(this.serverFolder, this.serverFolder.relativize(sourceWorldFolder), true);
-        int discoveredValidFiles = 0;
         int movedFiles = 0;
         for (String relativePath : allFiles) {
             Path currentPath = this.serverFolder.resolve(relativePath).normalize();
@@ -161,26 +161,23 @@ public class ConverterV2 {
                 continue;
             }
             LOGGER.info("Processing file: {}", currentPath);
-
             try {
-                //Move all files from playerdata no matter what
-                boolean inPlayerdata = currentPath.getParent().getFileName().toString().equals("playerdata");
-                //Check if this is a valid UUID filename before moving
-                if (!inPlayerdata) {
-                    String fileName = FileHandler.stripFileExtension(currentPath.getFileName().toString());
-                    if (!UUIDHandler.isValidUUID(fileName)) {
+                Path tail = sourceWorldFolder.relativize(currentPath);
+                Path finalPath = destWorldFolder.resolve(tail);
+
+                if (currentPath.getParent().getFileName().toString().equals("playerdata")) {
+                    if (NBTHandler.isNBTFile(currentFile)) {
+                        LOGGER.info("Copying NBT file to {}", destWorldFolder.normalize());
+                        NBTHandler.copyPlayerDataNBT(currentPath, finalPath);
+                        movedFiles++;
                         continue;
                     }
+                } else {
+                    String fileName = FileHandler.stripFileExtension(currentPath.getFileName().toString());
+                    if (!UUIDHandler.isValidUUID(fileName)) continue;
                 }
 
-                discoveredValidFiles++;
-
-                // 1. Get the "tail" (world/region/data.mca)
-                Path tail = sourceWorldFolder.relativize(currentPath);
-                // 2. Attach it to the new base
-                Path finalPath = destWorldFolder.resolve(tail);
                 LOGGER.info("Copying file to {}", destWorldFolder.normalize());
-//                FileHandler.renameFile(currentPath, finalPath.toAbsolutePath().normalize().toString());
                 Files.copy(currentPath, finalPath, StandardCopyOption.REPLACE_EXISTING);
                 movedFiles++;
             } catch (IllegalArgumentException | IOException e) {
@@ -189,7 +186,7 @@ public class ConverterV2 {
             }
         }
 
-        LOGGER.info("Copied {} out of {} files to {}", movedFiles, discoveredValidFiles, destWorldFolder.normalize().toString());
+        LOGGER.info("Copied {} files to {}", movedFiles, destWorldFolder.normalize().toString());
     }
 
     /**

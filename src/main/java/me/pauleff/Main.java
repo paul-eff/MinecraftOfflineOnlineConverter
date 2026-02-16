@@ -31,7 +31,9 @@ public class Main {
     private static boolean hasPath = false;
     private static ConverterV2 converter;
     private static MinecraftFlavorDetection mfd;
-    private static String movePlayerdataFrom = null;
+
+    private static boolean movePlayerData = false;
+    private static String movePlayerdataSourceDir = null;
 
     /**
      * Main method - entry point of the application.
@@ -72,11 +74,10 @@ public class Main {
         //set the world folder after server.properties was changed
         converter.setWorldFolder();
 
-        if (movePlayerdataFrom != null) {
-            //Move player data
-            if(movePlayerdataFrom.isBlank())
-                movePlayerdataFrom = oldWorldPath;
-            converter.copyPlayerData(movePlayerdataFrom, mcFlavor);
+        if (movePlayerData) {
+            if (movePlayerdataSourceDir == null || movePlayerdataSourceDir.isBlank())
+                movePlayerdataSourceDir = oldWorldPath;
+            converter.copyPlayerData(movePlayerdataSourceDir, mcFlavor);
         }
 
         if (mode.equals("-online") || mode.equals("-offline")) {
@@ -102,13 +103,13 @@ public class Main {
         options.addOption("offline", false, "Convert server files to offline mode");
         options.addOption("online", false, "Convert server files to online mode");
 
-//        Option copyOption = Option.builder("c")
-//                .longOpt("copy")
-//                .desc("Copy player data between worlds. Optionally specify a source folder to copy from, If no source is specified, will copy from last world.")
-//                .optionalArg(true) // This makes the "/path/to/data" part optional
-//                .hasArg()          // It can still take an argument
-//                .build();
-//        options.addOption(copyOption);
+        Option copyOption = Option.builder("c")
+                .longOpt("copy")
+                .desc("Copy player data between worlds. Optionally specify a source folder to copy from, If no source is specified, will copy from last world.")
+                .optionalArg(true) // This makes the "/path/to/data" part optional
+                .hasArg()          // It can still take an argument
+                .build();
+        options.addOption(copyOption);
 
         Option properties = Option.builder("properties")
                 .hasArgs()           // This is crucial: it tells the parser to expect more than one value
@@ -148,12 +149,10 @@ public class Main {
             // Set if a path is provided
             hasPath = cmd.hasOption("p");
 
-//            if (cmd.hasOption("c")) {
-//                movePlayerdataFrom = cmd.getOptionValue("c");
-//                if (movePlayerdataFrom == null) {
-//                    movePlayerdataFrom = "";
-//                }
-//            }
+            if (cmd.hasOption("c")) {
+                movePlayerData = true;
+                movePlayerdataSourceDir = cmd.getOptionValue("c");
+            }
 
             //Handle server.properties entry changes
             if (cmd.hasOption("properties")) {
