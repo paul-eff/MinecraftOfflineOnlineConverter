@@ -35,16 +35,19 @@ public class NBTHandler {
                 NamedTag destRoot = NBTUtil.read(nbtDest.toFile());
                 CompoundTag destCompound = (CompoundTag) destRoot.getTag();
 
-                // Tags to preserve (Position, Rotation, Dimension, Spawn points)
-                String[] tagsToPreserve = {
-                        "Pos", "Rotation", "Dimension",
-                        "SpawnX", "SpawnY", "SpawnZ", "SpawnForced"
+                //We use dot notation to specify nested tags
+                String[] tagsToKeep = {
+                        "Pos",
+                        "Rotation",
+                        "Dimension",
+                        "abilities.flying",
+                        "abilities.mayfly",
+                        "abilities.invunerable",
+                        "playerGameType"
                 };
 
-                for (String key : tagsToPreserve) {
-                    if (destCompound.containsKey(key)) {
-                        sourceCompound.put(key, destCompound.get(key));
-                    }
+                for (String path : tagsToKeep) {
+                    preserveTag(sourceCompound, destCompound, path);
                 }
             }
 
@@ -54,6 +57,33 @@ public class NBTHandler {
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void preserveTag(CompoundTag source, CompoundTag dest, String path) {
+        String[] parts = path.split("\\.");
+        CompoundTag currentSource = source;
+        CompoundTag currentDest = dest;
+
+        // Traverse to the parent of the target tag
+        for (int i = 0; i < parts.length - 1; i++) {
+            String part = parts[i];
+            if (currentDest.containsKey(part)) {
+                // If source is missing the 'folder', create it so we have somewhere to put the leaf
+                if (!currentSource.containsKey(part)) {
+                    currentSource.put(part, new CompoundTag());
+                }
+                currentDest = currentDest.getCompoundTag(part);
+                currentSource = currentSource.getCompoundTag(part);
+            } else {
+                return; // Target data doesn't exist in destination, nothing to preserve
+            }
+        }
+
+        // Copy the actual leaf tag (the last part of the path)
+        String leaf = parts[parts.length - 1];
+        if (currentDest.containsKey(leaf)) {
+            currentSource.put(leaf, currentDest.get(leaf));
         }
     }
 }
