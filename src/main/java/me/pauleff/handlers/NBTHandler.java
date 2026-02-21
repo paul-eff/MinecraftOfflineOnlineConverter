@@ -1,5 +1,6 @@
 package me.pauleff.handlers;
 
+import me.pauleff.Main;
 import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.io.NamedTag;
 import net.querz.nbt.tag.CompoundTag;
@@ -8,9 +9,26 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Path;
 
 public class NBTHandler {
+
+    static String[] DEFAULT_TAGS_TO_KEEP = {
+            //position
+            "Pos",
+            "Rotation",
+            "Dimension",
+            //Flying, and gamemode data
+//            "abilities.flying",
+//            "abilities.mayfly",
+//            "abilities.invulnerable",
+//            "playerGameType",
+            //Spawn Data
+            "SpawnX",
+            "SpawnY",
+            "SpawnZ",
+            "SpawnDimension",
+            "SpawnForced"
+    };
 
     public static boolean isNBTFile(File file) {
         try {
@@ -36,18 +54,14 @@ public class NBTHandler {
                 CompoundTag destCompound = (CompoundTag) destRoot.getTag();
 
                 //We use dot notation to specify nested tags
-                String[] tagsToKeep = {
-                        "Pos",
-                        "Rotation",
-                        "Dimension",
-                        "abilities.flying",
-                        "abilities.mayfly",
-                        "abilities.invunerable",
-                        "playerGameType"
-                };
-
-                for (String path : tagsToKeep) {
-                    preserveTag(sourceCompound, destCompound, path);
+                if (!Main.config.playerDataTagsToKeep.isEmpty()) {
+                    for (String path : Main.config.playerDataTagsToKeep) {
+                        preserveTag(sourceCompound, destCompound, path);
+                    }
+                } else {
+                    for (String path : DEFAULT_TAGS_TO_KEEP) {
+                        preserveTag(sourceCompound, destCompound, path);
+                    }
                 }
             }
 

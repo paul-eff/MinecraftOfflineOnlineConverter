@@ -27,6 +27,7 @@ public class Config {
     private final Path pathFile;
     private final List<String> pathList;
     public List<String> playerdataWorldBlacklist = new ArrayList<>();
+    public List<String> playerDataTagsToKeep = new ArrayList<>();
 
     public List<String> getPaths() {
         return pathList;
@@ -60,6 +61,7 @@ public class Config {
                 Map<String, Object> config = (Map<String, Object>) yamlData.get("config");
                 LOGGER.info("Config version: {}", config.get("version"));
                 playerdataWorldBlacklist = (List<String>) config.getOrDefault("playerdata-world-blacklist", new ArrayList<String>());
+                playerDataTagsToKeep = (List<String>) config.getOrDefault("playerdata-tags-to-keep", new ArrayList<String>());
             }
 
             if (yamlData.containsKey("paths")) {
