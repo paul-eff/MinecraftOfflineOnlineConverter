@@ -26,7 +26,7 @@ First look at [Disclaimer](#disclaimer) and make sure you understand the "risks"
 - Obviously download the jar
 - Place it in your server's main folder (not mandatory, just makes things easier)
 
-- Optional: Rename `TEMPLATE.custom_paths.yml` to `custom_paths.yml` and use the examples presented to define custom directories you want to convert
+- Optional: Rename `TEMPLATE.mooc-config.yml` to `mooc-config.yml` and use the examples presented to define custom directories you want to convert
 
 - Execute the jar through your terminal with the following command:
 ```java

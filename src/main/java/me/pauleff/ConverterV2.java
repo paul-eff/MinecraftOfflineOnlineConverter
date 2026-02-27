@@ -28,6 +28,7 @@ public class ConverterV2 {
 
     public final Path serverFolder;
     public Path worldFolder;
+    public final Path serverProperties;
     private final Map<UUID, Player> uuidMap = new HashMap<>();
     private static final Set<String> IGNORED_FILE_EXTENSIONS = Set.of(
             "mcr", "mca", "jar", "gz", "lock", "sh", "bat", "log", "mcmeta",
@@ -47,15 +48,23 @@ public class ConverterV2 {
      * Constructor allowing a custom server folder path.
      *
      * @param serverFolderPath The path to the Minecraft server directory.
-     * @throws PathNotValidException if the world folder cannot be resolved.
      */
     public ConverterV2(Path serverFolderPath) throws PathNotValidException {
         this.serverFolder = serverFolderPath;
-        LOGGER.info("Server folder set to: {}", this.serverFolder.toAbsolutePath().normalize());
+
+        if (!Files.exists(this.serverFolder)) {
+            throw new PathNotValidException("Server folder not found", this.serverFolder.toAbsolutePath().normalize());
+        } else {
+            LOGGER.info("Server folder set to: {}", this.serverFolder.toAbsolutePath().normalize());
+        }
+
+        serverProperties = this.serverFolder.resolve("server.properties");
+        if (!Files.exists(this.serverProperties)) {
+            throw new PathNotValidException("Could not find server.properties", this.serverProperties.toAbsolutePath().normalize());
+        }
     }
 
     public void setWorldFolder() throws PathNotValidException {
-        Path serverProperties = this.serverFolder.resolve("server.properties");
         String worldName = FileHandler.readWorldNameFromProperties(serverProperties);
         this.worldFolder = this.serverFolder.resolve(worldName);
         if (!Files.exists(this.worldFolder)) {
@@ -203,8 +212,7 @@ public class ConverterV2 {
      */
     public void convert(boolean toOnlineMode, MinecraftFlavor flavor) throws IOException {
         if (!preCheck(toOnlineMode)) return;
-
-        FileHandler.writeToProperties(this.serverFolder.resolve("server.properties"), "online-mode", Boolean.toString(toOnlineMode));
+        FileHandler.writeToProperties(serverProperties, "online-mode", Boolean.toString(toOnlineMode));
 
         String[] allFiles = flavor.getFiles(this.serverFolder, this.serverFolder.relativize(this.worldFolder), false);
         int discoveredValidFiles = 0;
@@ -250,8 +258,8 @@ public class ConverterV2 {
                         continue;
                     }
                     //Rename the file to online or offline UUID
-                    LOGGER.info("Renaming file to {}", uuidMap.get(fileUUID).getTargetUUID().toString());
-                    FileHandler.renameFile(currentPath, uuidMap.get(fileUUID).getTargetUUID().toString());
+                    LOGGER.info("Renaming file to {}", uuidMap.get(fileUUID).getNewUUID().toString());
+                    FileHandler.renameFile(currentPath, uuidMap.get(fileUUID).getNewUUID().toString());
                     renamedFiles++;
                 }
             } catch (IllegalArgumentException | IOException e) {
@@ -265,7 +273,7 @@ public class ConverterV2 {
                     boolean didReplace = false;
                     for (Map.Entry<UUID, Player> entry : uuidMap.entrySet()) {
                         if (!didReplace) didReplace = content.contains(entry.getKey().toString());
-                        content = content.replace(entry.getKey().toString(), entry.getValue().getTargetUUID().toString());
+                        content = content.replace(entry.getKey().toString(), entry.getValue().getNewUUID().toString());
                     }
                     if (didReplace) {
                         Files.writeString(currentPath, content);

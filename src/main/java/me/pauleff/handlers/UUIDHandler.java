@@ -133,20 +133,4 @@ public class UUIDHandler {
             return false;
         }
     }
-
-//    /**
-//     * Converts an online UUID to an offline UUID by first retrieving the player's name.
-//     *
-//     * @param onlineUUID The player's online {@link UUID}.
-//     * @return The player's offline {@link UUID}, or null if conversion fails.
-//     * @throws IOException If a connection issue occurs.
-//     */
-//    public static UUID onlineUUIDToOffline(UUID onlineUUID) throws IOException {
-//        String playerName = onlineUUIDToName(onlineUUID);
-//        if (playerName == null) {
-//            LOGGER.error("Failed to convert online UUID '{}' to offline (no name found).", onlineUUID);
-//            return null;
-//        }
-//        return offlineNameToUUID(playerName);
-//    }
 }

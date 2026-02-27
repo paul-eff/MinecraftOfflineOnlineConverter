@@ -11,8 +11,7 @@ import java.nio.file.Path;
  *
  * @author Paul Ferlitz
  */
-public class PathNotValidException extends Exception
-{
+public class PathNotValidException extends Exception {
     private static final Logger LOGGER = LoggerFactory.getLogger(PathNotValidException.class);
 
     /**
@@ -20,8 +19,17 @@ public class PathNotValidException extends Exception
      *
      * @param path The invalid path that caused the exception.
      */
-    public PathNotValidException(Path path)
-    {
+    public PathNotValidException(String explanation, Path path) {
+        super(String.format("%s: %s", explanation, path));
+        LOGGER.error("{}: {}", explanation, path);
+    }
+
+    /**
+     * Constructs a PathNotValidException with a detailed message.
+     *
+     * @param path The invalid path that caused the exception.
+     */
+    public PathNotValidException(Path path) {
         super(String.format("The given path does not exist: %s", path));
         LOGGER.error("The given path does not exist: {}", path);
     }
