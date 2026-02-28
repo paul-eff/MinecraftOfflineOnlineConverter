@@ -1,6 +1,7 @@
 package me.pauleff.minecraftflavors;
 
-import me.pauleff.handlers.CustomPathParser;
+import me.pauleff.Main;
+import me.pauleff.config.Config;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -13,8 +14,7 @@ import java.util.List;
  *
  * @author Paul Ferlitz
  */
-public enum MinecraftFlavor
-{
+public enum MinecraftFlavor {
     VANILLA("Vanilla"),
     LIGHT_MODDED("Lightly Modded (Bukkit,Paper,...)"),
     MODDED("Modded (Forge,Fabric,...)");
@@ -26,8 +26,7 @@ public enum MinecraftFlavor
      *
      * @param description The description of the Minecraft flavor.
      */
-    MinecraftFlavor(String description)
-    {
+    MinecraftFlavor(String description) {
         this.description = description;
     }
 
@@ -37,22 +36,18 @@ public enum MinecraftFlavor
      * @return The description of the Minecraft flavor.
      */
     @Override
-    public String toString()
-    {
+    public String toString() {
         return description;
     }
 
     /**
      * Returns an array of file paths relevant to the specified Minecraft flavor.
      *
-     * @param baseDirectory The base directory where the Minecraft server is installed.
-     * @param worldName     The name of the Minecraft world.
+     * @param baseDirectory  The base directory where the Minecraft server is installed.
+     * @param worldDirectory The directory to the Minecraft world.
      * @return An array of file paths relevant to the specified Minecraft flavor.
      */
-    public String[] getFiles(Path baseDirectory, String worldName)
-    {
-        // TODO: Return an array of paths or files, not strings
-        CustomPathParser cpp = new CustomPathParser(baseDirectory);
+    public String[] getFiles(Path baseDirectory, Path worldDirectory, boolean justWorld) {
         ArrayList<String> filesAndFolders = new ArrayList<>();
         /*
          * This works for all flavors because the default directory for player connected data is always in the world folder.
@@ -60,28 +55,27 @@ public enum MinecraftFlavor
          * But the relevant information to convert is always saved in the overworld world folder.
          */
         ArrayList<String> defaultDirectories = new ArrayList<>();
-        defaultDirectories.add("./");
-        defaultDirectories.add("./" + worldName + "/playerdata");
-        defaultDirectories.add("./" + worldName + "/advancements");
-        defaultDirectories.add("./" + worldName + "/stats");
+        if (!justWorld) {
+            defaultDirectories.add("./");
+        }
+        defaultDirectories.add("./" + worldDirectory + "/playerdata");
+        defaultDirectories.add("./" + worldDirectory + "/advancements");
+        defaultDirectories.add("./" + worldDirectory + "/stats");
         // Get the content of the default directories
-        for (String path : defaultDirectories)
-        {
-            filesAndFolders.addAll(cpp.getFolderContent(path));
+        for (String path : defaultDirectories) {
+            filesAndFolders.addAll(Main.config.getFolderContent(path));
         }
         // If a custom_paths.yml file exists, add the paths from it
-        if (cpp.isFileSet())
-        {
-            List<String> pathList = cpp.getPaths();
+        if (Main.config.isFileSet()) {
+            List<String> pathList = Main.config.getPaths();
             if (!pathList.isEmpty()) filesAndFolders.addAll(pathList);
         }
         // At last, add all flavor-specific paths
-        switch (this)
-        {
+        switch (this) {
             // TODO: Find more flavor specific directories
             case VANILLA:
                 // defaultDirectories.add("some/vanillaspecific/path");
-                filesAndFolders.addAll(cpp.getPathsRecursively("./" + worldName));
+                filesAndFolders.addAll(Main.config.getPathsRecursively("./" + worldDirectory));
                 break;
             case LIGHT_MODDED:
                 // defaultDirectories.add("some/lightmoddedspecific/path");

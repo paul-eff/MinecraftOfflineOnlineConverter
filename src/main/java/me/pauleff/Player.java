@@ -15,16 +15,16 @@ public class Player
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(Player.class);
 
-    private final String name;
-    private final UUID uuid;
+    private final String name; //Player name
+    private final UUID newUUID; //the UUID we want to have assigned to the player
 
     /**
      * Constructs a new Player instance.
      *
      * @param name The player's name.
-     * @param uuid The player's UUID (offline or online).
+     * @param newUUID The UUID we want to reassign to the player (offline or online).
      */
-    public Player(String name, UUID uuid)
+    public Player(String name, UUID newUUID)
     {
         // Log error and throw exception if name is null or empty
         if (name == null || name.isEmpty())
@@ -34,7 +34,7 @@ public class Player
             throw new IllegalArgumentException(msg);
         }
         // Log error and throw exception if uuid is null
-        if (uuid == null)
+        if (newUUID == null)
         {
             String msg = "Player UUID cannot be null.";
             LOGGER.error(msg);
@@ -42,7 +42,7 @@ public class Player
         }
         // Otherwise create Player
         this.name = name;
-        this.uuid = uuid;
+        this.newUUID = newUUID;
     }
 
     /**
@@ -56,12 +56,12 @@ public class Player
     }
 
     /**
-     * Retrieves the player's UUID.
+     * Retrieves the player's new UUID.
      *
      * @return The player's {@link UUID}.
      */
-    public UUID getUuid()
+    public UUID getNewUUID()
     {
-        return uuid;
+        return newUUID;
     }
 }
