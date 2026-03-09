@@ -7,7 +7,7 @@
     <!-- Project coordinates -->
     <groupId>me.pauleff</groupId>
     <artifactId>MinecraftOfflineOnlineConverter</artifactId>
-    <version>3</version>
+    <version>3.1.0</version>
 
     <!-- Project's packaging type -->
     <packaging>jar</packaging>
@@ -61,7 +61,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.5.13</version>
+            <version>1.5.32</version>
         </dependency>
 
         <!-- https://github.com/Querz/NBT -->
