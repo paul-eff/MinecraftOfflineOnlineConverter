@@ -1,7 +1,7 @@
 # MinecraftOfflineOnlineConverter v3
 <p align="center">
   <img src="https://img.shields.io/badge/version-3-blue">
-  <img src="https://img.shields.io/badge/minecraft-1.21.5-green">
+  <img src="https://img.shields.io/badge/minecraft-1.21.11-green">
   <img src="https://img.shields.io/badge/java-21-red">
 </p>
 
