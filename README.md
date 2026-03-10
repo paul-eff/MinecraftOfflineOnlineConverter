@@ -23,7 +23,7 @@ But using the new `mooc-config.yml` file, you can specify custom directories to 
 
 First look at [Disclaimer](#disclaimer) and make sure you understand the "risks" of using this tool.
 
-- Obviously download the jar
+- Download the [most current jar](https://github.com/paul-eff/MinecraftOfflineOnlineConverter/releases/latest)
 - Place it in your server's main folder (not mandatory, just makes things easier)
 
 - Optional: Rename `TEMPLATE.mooc-config.yml` to `mooc-config.yml` and use the examples presented to define custom directories you want to convert
