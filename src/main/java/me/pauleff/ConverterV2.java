@@ -30,6 +30,7 @@ public class ConverterV2 {
     public Path worldFolder;
     public final Path serverProperties;
     private final Map<UUID, Player> uuidMap = new HashMap<>();
+    private int lastUsercacheEntryCount;
     private static final Set<String> IGNORED_FILE_EXTENSIONS = Set.of(
             "mcr", "mca", "jar", "gz", "lock", "sh", "bat", "log", "mcmeta",
             "md", "snbt", "nbt", "zip", "cache", "png", "jpeg", "js", "DS_Store"
@@ -82,6 +83,7 @@ public class ConverterV2 {
         JSONArray knownPlayers = FileHandler.loadArrayFromUsercache(usercache);
 
         uuidMap.clear();
+        lastUsercacheEntryCount = knownPlayers.length();
 
         for (Object obj : knownPlayers) {
             JSONObject knownPlayer = (JSONObject) obj;
@@ -91,6 +93,10 @@ public class ConverterV2 {
 
                 if (toOnlineMode) {
                     UUID onlineUUID = UUIDHandler.onlineNameToUUID(playerName);//Converts a player name to an online UUID by querying Mojang's API.
+                    if (onlineUUID == null) {
+                        LOGGER.warn("Skipping player '{}' — no online UUID found.", playerName);
+                        continue;
+                    }
                     uuidMap.put(playerUUID, new Player(playerName, onlineUUID));
                     LOGGER.info("Prefetched player: {} ({})", playerName, onlineUUID);
                 } else {
@@ -123,7 +129,11 @@ public class ConverterV2 {
         fetchUsercache(toOnlineMode);
 
         if (toOnlineMode && uuidMap.isEmpty()) {
-            LOGGER.error("No offline profiles found to convert to online profiles. Aborting...");
+            if (lastUsercacheEntryCount > 0) {
+                LOGGER.error("No online profile could be resolved for any player in usercache.json (all lookups failed). Aborting...");
+            } else {
+                LOGGER.error("No offline profiles found to convert to online profiles. Aborting...");
+            }
             return false;
         }
         return true;

@@ -1,7 +1,6 @@
 package me.pauleff.minecraftflavors;
 
 import me.pauleff.Main;
-import me.pauleff.config.Config;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
