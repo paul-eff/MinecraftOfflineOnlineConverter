@@ -64,7 +64,7 @@ public enum MinecraftFlavor {
         for (String path : defaultDirectories) {
             filesAndFolders.addAll(Main.config.getFolderContent(path));
         }
-        // If a custom_paths.yml file exists, add the paths from it
+        // If mooc-config.yml exists, add the paths from it
         if (Main.config.isFileSet()) {
             List<String> pathList = Main.config.getPaths();
             if (!pathList.isEmpty()) filesAndFolders.addAll(pathList);

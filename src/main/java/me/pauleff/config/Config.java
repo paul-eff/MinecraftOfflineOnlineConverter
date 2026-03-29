@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * @author Paul Ferlitz
  */
 public class Config {
-    private static final String CONFIG_NAME = "mooc-config.yml";
+    public static final String CONFIG_NAME = "mooc-config.yml";
     private static final Logger LOGGER = LoggerFactory.getLogger(Config.class);
 
     private final Path baseDirectory;
@@ -35,7 +35,7 @@ public class Config {
 
     /**
      * Constructor for CustomPathParser.
-     * Initializes the base directory and checks for the existence of the custom_paths.yml file.
+     * Initializes the base directory and checks for the existence of the {@value #CONFIG_NAME} file.
      *
      * @throws InvalidPathException if the provided path is invalid.
      */
@@ -87,8 +87,8 @@ public class Config {
                 }
             }
         } catch (IOException e) {
-            LOGGER.error("Failed to read custom_paths.yml", e);
-            throw new RuntimeException("Error reading custom_paths.yml", e);
+            LOGGER.error("Failed to read {}", CONFIG_NAME, e);
+            throw new RuntimeException("Error reading " + CONFIG_NAME, e);
         }
     }
 
