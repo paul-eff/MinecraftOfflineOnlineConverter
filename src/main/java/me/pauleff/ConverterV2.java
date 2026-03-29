@@ -65,8 +65,10 @@ public class ConverterV2 {
         }
     }
 
-    public void setWorldFolder() throws PathNotValidException {
-        String worldName = FileHandler.readWorldNameFromProperties(serverProperties);
+    /**
+     * Resolves {@link #worldFolder} from the world directory name (as in {@code server.properties} {@code level-name}).
+     */
+    public void setWorldFolder(String worldName) throws PathNotValidException {
         this.worldFolder = this.serverFolder.resolve(worldName);
         if (!Files.exists(this.worldFolder)) {
             throw new PathNotValidException(this.worldFolder.toAbsolutePath().normalize());

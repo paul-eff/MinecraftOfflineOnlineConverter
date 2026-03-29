@@ -72,14 +72,14 @@ public class Main {
 
         //Update server.properties
         Path serverProperties = converter.serverFolder.resolve("server.properties");
-        String oldWorldPath = FileHandler.readWorldNameFromProperties(serverProperties);
+        String oldWorldPath = FileHandler.readWorldNameFromProperties(serverProperties, false);
 
         for (Map.Entry<String, String> m : serverPropertiesChanges.entrySet()) {
             FileHandler.writeToProperties(serverProperties, m.getKey(), m.getValue());
         }
 
-        //set the world folder after server.properties was changed
-        converter.setWorldFolder();
+        String worldName = FileHandler.readWorldNameFromProperties(serverProperties, true);
+        converter.setWorldFolder(worldName);
 
         if (movePlayerData) {
             if (movePlayerdataSourceDir == null || movePlayerdataSourceDir.isBlank())
@@ -196,5 +196,4 @@ public class Main {
     public static CommandLine getArgs() {
         return cmd;
     }
-
 }

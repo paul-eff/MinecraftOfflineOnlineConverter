@@ -74,13 +74,22 @@ public class FileHandler
      * @return Extracted world name or default "world" if not found.
      */
     public static String readWorldNameFromProperties(Path pathToProperties) {
+        return readWorldNameFromProperties(pathToProperties, true);
+    }
+
+    /**
+     * @param logFound If true, logs the resolved world name at INFO (use once per run to avoid duplicate lines).
+     */
+    public static String readWorldNameFromProperties(Path pathToProperties, boolean logFound) {
         try (BufferedReader br = new BufferedReader(new FileReader(pathToProperties.toFile()))) {
             String worldName = br.lines()
                     .filter(line -> line.startsWith("level-name="))
                     .map(line -> line.substring("level-name=".length()))
                     .findFirst()
                     .orElse("world");
-            LOGGER.info("Found world name: '{}'", worldName);
+            if (logFound) {
+                LOGGER.info("Found world name: '{}'", worldName);
+            }
             return worldName;
         } catch (IOException e) {
             LOGGER.warn("Could not read server.properties at path: {}. Assuming 'world' to be correct.", pathToProperties.normalize(), e);
