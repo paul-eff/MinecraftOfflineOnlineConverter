@@ -32,7 +32,7 @@ public class FileHandler
     public static void renameFile(Path sourceFile, String newFileName) throws IOException {
         Path parentDir = sourceFile.getParent();
         String originalFileName = sourceFile.getFileName().toString();
-        String extension = "";
+        String extension;
 
         // Extract the extension from the original file if it exists
         int dotIndex = originalFileName.lastIndexOf('.');
@@ -71,14 +71,8 @@ public class FileHandler
      * Reads the world name from a server.properties file.
      *
      * @param pathToProperties Path to server.properties.
-     * @return Extracted world name or default "world" if not found.
-     */
-    public static String readWorldNameFromProperties(Path pathToProperties) {
-        return readWorldNameFromProperties(pathToProperties, true);
-    }
-
-    /**
      * @param logFound If true, logs the resolved world name at INFO (use once per run to avoid duplicate lines).
+     * @return Extracted world name or default "world" if not found.
      */
     public static String readWorldNameFromProperties(Path pathToProperties, boolean logFound) {
         try (BufferedReader br = new BufferedReader(new FileReader(pathToProperties.toFile()))) {
@@ -135,16 +129,14 @@ public class FileHandler
             while (raf.getFilePointer() < raf.length()) {
                 final int b = raf.readUnsignedByte();
                 // http://www.table-ascii.com/
-                if (b == 0x09 || // horizontal tabulation
+                if (!(b == 0x09 || // horizontal tabulation
                         b == 0x0A || // line feed
                         b == 0x0C || // form feed
                         b == 0x0D || // carriage return
                         (b >= 0x20 && b <= 0x7E) || // "normal" characters
                         (b >= 0x80 && b <= 0x9F) || // latin-1 symbols
-                        (b >= 0xA0 && b <= 0xFF)) // latin-1 symbols
+                        (b >= 0xA0 && b <= 0xFF))) // latin-1 symbols
                 {
-                    // OK
-                } else {
                     numberOfNonTextChars++;
                 }
             }

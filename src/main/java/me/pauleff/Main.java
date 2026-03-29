@@ -27,7 +27,7 @@ public class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
     private static final String VERSION = "3.1.1";
     private static CommandLine cmd;
-    private static HashMap<String, String> serverPropertiesChanges = new HashMap<>();
+    private static final HashMap<String, String> serverPropertiesChanges = new HashMap<>();
     private static String mode = "N/A";
     private static boolean hasPath = false;
     private static ConverterV2 converter;

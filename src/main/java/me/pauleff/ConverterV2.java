@@ -212,7 +212,7 @@ public class ConverterV2 {
             }
         }
 
-        LOGGER.info("Copied {} files to {}", movedFiles, destWorldFolder.normalize().toString());
+        LOGGER.info("Copied {} files to {}", movedFiles, destWorldFolder.normalize());
     }
 
     /**
