@@ -1,4 +1,4 @@
-package me.pauleff.handlers;
+package me.pauleff.common.handlers;
 
 import org.json.JSONArray;
 import org.slf4j.Logger;

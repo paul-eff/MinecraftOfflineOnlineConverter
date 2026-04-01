@@ -1,4 +1,4 @@
-package me.pauleff.minecraftflavors;
+package me.pauleff.detection;
 
 import me.pauleff.Main;
 

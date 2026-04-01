@@ -1,6 +1,6 @@
-package me.pauleff.minecraftflavors;
+package me.pauleff.detection;
 
-import me.pauleff.exceptions.PathNotValidException;
+import me.pauleff.common.exceptions.PathNotValidException;
 
 import java.io.File;
 import java.nio.file.Files;

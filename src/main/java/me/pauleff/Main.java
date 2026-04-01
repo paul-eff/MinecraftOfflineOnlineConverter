@@ -1,10 +1,11 @@
 package me.pauleff;
 
-import me.pauleff.config.Config;
-import me.pauleff.handlers.FileHandler;
-import me.pauleff.handlers.LoggerConfigurator;
-import me.pauleff.minecraftflavors.MinecraftFlavor;
-import me.pauleff.minecraftflavors.MinecraftFlavorDetection;
+import me.pauleff.common.config.Config;
+import me.pauleff.common.handlers.FileHandler;
+import me.pauleff.common.LoggerConfigurator;
+import me.pauleff.converter.ConverterV2;
+import me.pauleff.detection.MinecraftFlavor;
+import me.pauleff.detection.MinecraftFlavorDetection;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

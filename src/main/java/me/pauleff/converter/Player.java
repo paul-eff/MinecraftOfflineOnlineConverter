@@ -1,4 +1,4 @@
-package me.pauleff;
+package me.pauleff.converter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

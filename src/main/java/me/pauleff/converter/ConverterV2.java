@@ -1,10 +1,11 @@
-package me.pauleff;
+package me.pauleff.converter;
 
-import me.pauleff.handlers.FileHandler;
-import me.pauleff.handlers.NBTHandler;
-import me.pauleff.handlers.UUIDHandler;
-import me.pauleff.minecraftflavors.MinecraftFlavor;
-import me.pauleff.exceptions.PathNotValidException;
+import me.pauleff.Main;
+import me.pauleff.common.handlers.FileHandler;
+import me.pauleff.common.handlers.NBTHandler;
+import me.pauleff.common.handlers.UUIDHandler;
+import me.pauleff.detection.MinecraftFlavor;
+import me.pauleff.common.exceptions.PathNotValidException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -1,4 +1,4 @@
-package me.pauleff.handlers;
+package me.pauleff.common.handlers;
 
 import me.pauleff.Main;
 import net.querz.nbt.io.NBTUtil;
