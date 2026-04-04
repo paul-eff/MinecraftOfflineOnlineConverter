@@ -14,10 +14,11 @@ import static java.nio.file.Files.writeString;
 
 public class UpdateDefaultServerFiles implements MOOCPlugin
 {
-    private static final PluginMetadata META = new PluginMetadata(
+    private static final PluginMetadata META = PluginMetadata.of(
             "update-default-server-files",
             "Update default server files",
-            "Rewrites UUIDs in root server files (whitelist, bans, ops, etc.).");
+            "Rewrites UUIDs in root server files (whitelist, bans, ops, etc.).",
+            2);
 
     @Override
     public PluginMetadata metadata()

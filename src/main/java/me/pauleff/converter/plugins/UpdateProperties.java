@@ -11,10 +11,11 @@ import java.util.List;
 
 public class UpdateProperties implements MOOCPlugin
 {
-    private static final PluginMetadata META = new PluginMetadata(
+    private static final PluginMetadata META = PluginMetadata.of(
             "update-properties",
             "Update Properties",
-            "Sets online-mode from the conversion direction.");
+            "Sets online-mode from the conversion direction.",
+            1);
 
     @Override
     public PluginMetadata metadata()

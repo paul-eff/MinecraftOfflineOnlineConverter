@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ModdedWorld implements MOOCPlugin
 {
-    private static final PluginMetadata META = new PluginMetadata(
+    private static final PluginMetadata META = PluginMetadata.of(
             "modded-world",
             "Modded World",
             "Conversion of basic world directories/files from a modded Minecraft server (Forge, Fabric, ...).");

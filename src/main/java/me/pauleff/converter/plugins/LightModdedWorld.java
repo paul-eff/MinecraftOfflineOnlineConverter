@@ -10,7 +10,7 @@ import java.util.List;
 
 public class LightModdedWorld implements MOOCPlugin
 {
-    private static final PluginMetadata META = new PluginMetadata(
+    private static final PluginMetadata META = PluginMetadata.of(
             "light-modded-world",
             "Light Modded World",
             "Conversion of basic world directories/files from a lightly modded Minecraft server (Bukkit, Paper, ...).");
