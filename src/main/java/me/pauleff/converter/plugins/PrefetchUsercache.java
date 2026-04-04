@@ -17,10 +17,11 @@ import static me.pauleff.common.handlers.UUIDHandler.nameToOfflineUUID;
 
 public class PrefetchUsercache implements MOOCPlugin
 {
-    private static final PluginMetadata META = new PluginMetadata(
+    private static final PluginMetadata META = PluginMetadata.of(
             "prefetch-usercache",
             "Prefetch usercache",
-            "Reads usercache.json and fills UUID mappings for online/offline conversion.");
+            "Reads usercache.json and fills UUID mappings for online/offline conversion.",
+            0);
 
     @Override
     public PluginMetadata metadata()

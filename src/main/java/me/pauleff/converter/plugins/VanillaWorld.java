@@ -10,7 +10,7 @@ import java.util.List;
 
 public class VanillaWorld implements MOOCPlugin
 {
-    private static final PluginMetadata META = new PluginMetadata(
+    private static final PluginMetadata META = PluginMetadata.of(
             "vanilla-world",
             "Vanilla World",
             "Conversion of basic world directories/files from a vanilla Minecraft server.");
