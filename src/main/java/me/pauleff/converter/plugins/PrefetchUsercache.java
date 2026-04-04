@@ -75,12 +75,12 @@ public class PrefetchUsercache implements MOOCPlugin
                             logger().warn("Skipping '{}' — no online UUID found (Mojang API).", playerName);
                             continue;
                         }
-                        ctx.uuidMap().put(playerUUID, onlineUUID);
+                        ctx.putUuidMapping(playerUUID, onlineUUID);
                         logger().info("Prefetched {} -> {}", playerName, onlineUUID);
                     } else
                     {
                         UUID offlineUUID = nameToOfflineUUID(playerName);
-                        ctx.uuidMap().put(playerUUID, offlineUUID);
+                        ctx.putUuidMapping(playerUUID, offlineUUID);
                         logger().info("Prefetched {} -> {}", playerName, offlineUUID);
                     }
                 } catch (IOException e)
