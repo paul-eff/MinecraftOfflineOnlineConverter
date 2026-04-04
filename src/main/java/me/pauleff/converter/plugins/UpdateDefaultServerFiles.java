@@ -71,6 +71,20 @@ public class UpdateDefaultServerFiles implements MOOCPlugin
                 }
 
                 writeString(path, fileContent);
+                Path serverFolder = ctx.serverFolder();
+                Path serverNamePath = serverFolder.getFileName();
+                String serverName = (serverNamePath != null ? serverNamePath : serverFolder)
+                        .toString()
+                        .replace('\\', '/');
+                Path relativeToServer = serverFolder.relativize(path);
+                String relativePart = relativeToServer.toString().replace('\\', '/');
+                if (relativePart.isEmpty())
+                {
+                    logger().info("Updated file: .../{}", serverName);
+                } else
+                {
+                    logger().info("Updated file: .../{}/{}", serverName, relativePart);
+                }
             } catch (IOException e)
             {
                 throw new RuntimeException("Failed to update file: " + path, e);
