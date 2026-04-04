@@ -1,5 +1,6 @@
 package me.pauleff.converter.api;
 
+import me.pauleff.converter.PluginRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +10,9 @@ import java.util.List;
 
 /**
  * Template interface used when creating a custom plugin for MOOC.
- * The {@link PluginMetadata} defines some core information about the plugin.
+ * The {@link PluginMetadata} defines identity and {@linkplain PluginMetadata#priority() execution priority}
+ * ({@value PluginMetadata#MIN_PRIORITY}–{@value PluginMetadata#MAX_PRIORITY}, lower runs first). In a
+ * {@link PluginRegistry}, ties break by registration order.
  */
 public interface MOOCPlugin
 {
