@@ -5,14 +5,18 @@ import me.pauleff.converter.api.PluginMetadata;
 import me.pauleff.converter.plugins.*;
 import me.pauleff.detection.MinecraftFlavor;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
- * Immutable ordered {@link MOOCPlugin} lists. Register plugins in the list that matches your case.
+ * Immutable {@link MOOCPlugin} list. Plugins are ordered by {@link PluginMetadata#priority()} (lower
+ * runs first), then by registration order in the input list when priorities tie.
  */
 public record PluginRegistry(List<MOOCPlugin> plugins)
 {
@@ -54,7 +58,25 @@ public record PluginRegistry(List<MOOCPlugin> plugins)
     {
         Objects.requireNonNull(plugins, "Plugins List can't be null.");
         assertUniquePluginIds(plugins);
-        this.plugins = List.copyOf(plugins);
+        this.plugins = List.copyOf(sortByPriorityThenIndex(plugins));
+    }
+
+    /**
+     * Stable sort: ascending {@link PluginMetadata#priority()}, then original list index.
+     */
+    private static List<MOOCPlugin> sortByPriorityThenIndex(List<MOOCPlugin> plugins)
+    {
+        int n = plugins.size();
+        if (n <= 1)
+        {
+            return plugins;
+        }
+        MOOCPlugin[] arr = plugins.toArray(MOOCPlugin[]::new);
+        Integer[] ord = IntStream.range(0, n).boxed().toArray(Integer[]::new);
+        Arrays.sort(ord, Comparator
+                .comparingInt((Integer i) -> arr[i].metadata().priority())
+                .thenComparingInt(i -> i));
+        return Arrays.stream(ord).map(i -> arr[i]).toList();
     }
 
     private static void assertUniquePluginIds(List<MOOCPlugin> plugins)
