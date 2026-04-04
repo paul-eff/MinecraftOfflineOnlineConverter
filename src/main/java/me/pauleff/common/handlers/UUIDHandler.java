@@ -26,7 +26,7 @@ public class UUIDHandler {
      * @param name The player's name.
      * @return The resulting {@link UUID}.
      */
-    public static UUID offlineNameToUUID(String name) {
+    public static UUID nameToOfflineUUID(String name) {
         UUID uuid = UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(StandardCharsets.UTF_8));
         LOGGER.info("Offline UUID generated for '{}': {}", name, uuid);
         return uuid;
@@ -39,7 +39,7 @@ public class UUIDHandler {
      * @return The resulting {@link UUID}.
      * @throws IOException If a connection issue occurs.
      */
-    public static UUID onlineNameToUUID(String name) throws IOException {
+    public static UUID nameToOnlineUUID(String name) throws IOException {
         HTTP.set(apiBasePath + "users/profiles/minecraft/" + name);
         String response = HTTP.get();
 

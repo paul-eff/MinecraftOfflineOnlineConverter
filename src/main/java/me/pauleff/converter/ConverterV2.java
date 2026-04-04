@@ -95,7 +95,7 @@ public class ConverterV2 {
                 UUID playerUUID = UUID.fromString(knownPlayer.getString("uuid")); //Can be online or offline!
 
                 if (toOnlineMode) {
-                    UUID onlineUUID = UUIDHandler.onlineNameToUUID(playerName);//Converts a player name to an online UUID by querying Mojang's API.
+                    UUID onlineUUID = UUIDHandler.nameToOnlineUUID(playerName);//Converts a player name to an online UUID by querying Mojang's API.
                     if (onlineUUID == null) {
                         LOGGER.warn("Skipping player '{}' — no online UUID found.", playerName);
                         continue;
@@ -104,7 +104,7 @@ public class ConverterV2 {
                     LOGGER.info("Prefetched player: {} ({})", playerName, onlineUUID);
                 } else {
                     //Since we only want offline UUID, we can just retrieve it from player name
-                    UUID offlineUUID = UUIDHandler.offlineNameToUUID(playerName);
+                    UUID offlineUUID = UUIDHandler.nameToOfflineUUID(playerName);
 
                     uuidMap.put(playerUUID, new Player(playerName, offlineUUID));
                     LOGGER.info("Prefetched player: {} ({})", playerName, offlineUUID);
@@ -261,7 +261,7 @@ public class ConverterV2 {
                         if (uuidType == UUIDHandler.UUIDType.OFFLINE) continue;
                         if (!uuidMap.containsKey(fileUUID)) {
                             String playerName = UUIDHandler.onlineUUIDToName(fileUUID);
-                            UUID onlineUUID = UUIDHandler.offlineNameToUUID(playerName);
+                            UUID onlineUUID = UUIDHandler.nameToOfflineUUID(playerName);
                             uuidMap.put(fileUUID, new Player(playerName, onlineUUID));
                         }
                     }
