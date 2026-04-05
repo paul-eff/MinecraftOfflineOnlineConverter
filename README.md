@@ -13,6 +13,9 @@ The Java applicatin will convert all player related files to be offline or onlin
 
 # Supporting
 
+> [!WARNING]  
+> As of **Minecraft version 26.1** there were some changes to world folder structure! This means **I currently can't guarantee that the plugin will work as intended**. I am on it, but this can take a bit. Cheers!
+
 Currently I tested and can confirm support for Vanilla, Bukkit, Paper and Purpur servers.
 Every Minecraft version since and including 1.17.1 is confirmed to work. Earlier versions I can't guarantee.
 
