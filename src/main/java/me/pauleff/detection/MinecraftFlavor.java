@@ -10,8 +10,6 @@ import java.util.List;
  * Enum representing different Minecraft flavors.
  * Flavors are different types of Minecraft installations, such as Vanilla, Paper, Forge, ...
  * Each flavor has a description and a method to get relevant files.
- *
- * @author Paul Ferlitz
  */
 public enum MinecraftFlavor {
     VANILLA("Vanilla"),

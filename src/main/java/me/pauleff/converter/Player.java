@@ -8,8 +8,6 @@ import java.util.UUID;
 /**
  * Represents a Minecraft player with a name and UUID.
  * Provides access to player details and ensures immutability.
- *
- * @author Paul Ferlitz
  */
 public class Player
 {

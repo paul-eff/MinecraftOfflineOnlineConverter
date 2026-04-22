@@ -16,8 +16,6 @@ import java.util.stream.Collectors;
 /**
  * Class for parsing custom paths from a YAML configuration file.
  * Handles recursive directory listing and file filtering.
- *
- * @author Paul Ferlitz
  */
 public class Config {
     public static final String CONFIG_NAME = "mooc-config.yml";

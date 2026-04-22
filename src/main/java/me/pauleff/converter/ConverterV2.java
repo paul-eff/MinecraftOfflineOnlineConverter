@@ -20,8 +20,6 @@ import java.util.*;
 /**
  * Handles the conversion of Minecraft server player data between online and offline modes.
  * This includes renaming files and replacing UUIDs in various server files.
- *
- * @author Paul Ferlitz
  */
 public class ConverterV2 {
 
