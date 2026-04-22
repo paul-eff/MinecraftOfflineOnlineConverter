@@ -18,7 +18,7 @@ public class UpdateDefaultServerFiles implements MOOCPlugin
             "update-default-server-files",
             "Update default server files",
             "Rewrites UUIDs in root server files (whitelist, bans, ops, etc.).",
-            2);
+            3);
 
     @Override
     public PluginMetadata metadata()

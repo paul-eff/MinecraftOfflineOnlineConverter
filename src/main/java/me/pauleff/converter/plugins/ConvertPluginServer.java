@@ -8,12 +8,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-public class VanillaWorld implements MOOCPlugin
+public class ConvertPluginServer implements MOOCPlugin
 {
     private static final PluginMetadata META = PluginMetadata.of(
-            "vanilla-world",
-            "Vanilla World",
-            "Conversion of basic world directories/files from a vanilla Minecraft server.");
+            "bukkit-world",
+            "Bukkit World",
+            "Conversion of basic world directories/files from a Bukkit Minecraft server (Bukkit, Paper, ...).");
 
     @Override
     public PluginMetadata metadata()

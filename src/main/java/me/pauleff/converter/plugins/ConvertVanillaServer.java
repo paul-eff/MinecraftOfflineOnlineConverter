@@ -8,12 +8,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-public class LightModdedWorld implements MOOCPlugin
+public class ConvertVanillaServer implements MOOCPlugin
 {
     private static final PluginMetadata META = PluginMetadata.of(
-            "light-modded-world",
-            "Light Modded World",
-            "Conversion of basic world directories/files from a lightly modded Minecraft server (Bukkit, Paper, ...).");
+            "vanilla-world",
+            "Vanilla World",
+            "Conversion of basic world directories/files from a vanilla Minecraft server.");
 
     @Override
     public PluginMetadata metadata()
