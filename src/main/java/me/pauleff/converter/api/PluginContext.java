@@ -1,6 +1,8 @@
 package me.pauleff.converter.api;
 
-import me.pauleff.detection.MinecraftFlavor;
+import me.pauleff.converter.ConversionTarget;
+import me.pauleff.converter.ServerType;
+import me.pauleff.converter.WorldFormat;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -11,25 +13,29 @@ import java.util.UUID;
  * Data passed into {@link MOOCPlugin}s. The same instance is passed through the pipeline, so all
  * components are shared by reference—especially {@link #uuidMap()}.
  *
- * @param serverFolder Absolute server root.
- * @param worldFolder  Absolute world folder ({@code level-name}).
- * @param toOnlineMode Converting to online when {@code true}, offline when {@code false}.
- * @param flavor       Detected server type.
- * @param uuidMap      Map of UUIDs and their converted counterparts.
+ * @param serverFolder     Absolute server root.
+ * @param worldFolder      Absolute world folder ({@code level-name}).
+ * @param conversionTarget What target to convert the server to.
+ * @param serverType       Detected server type.
+ * @param worldFormat      Detected server world worldFormat.
+ * @param uuidMap          Map of UUIDs and their converted counterparts.
  */
 public record PluginContext(
         Path serverFolder,
         Path worldFolder,
-        boolean toOnlineMode,
-        MinecraftFlavor flavor,
+        ConversionTarget conversionTarget,
+        ServerType serverType,
+        WorldFormat worldFormat,
         Map<UUID, UUID> uuidMap)
 {
     public PluginContext
     {
-        Objects.requireNonNull(serverFolder, "ServerFolder can't be null.");
-        Objects.requireNonNull(worldFolder, "WorldFolder can't be null.");
-        Objects.requireNonNull(flavor, "Flavour can't be null.");
-        Objects.requireNonNull(uuidMap, "UuidReplacements can't be null.");
+        Objects.requireNonNull(serverFolder, "Server folder path can't be null.");
+        Objects.requireNonNull(worldFolder, "World folder path can't be null.");
+        Objects.requireNonNull(conversionTarget, "Target to convert to must be set.");
+        Objects.requireNonNull(serverType, "Server type can't be null.");
+        Objects.requireNonNull(worldFormat, "World worldFormat can't be null.");
+        Objects.requireNonNull(uuidMap, "UUID map can't be null.");
     }
 
     /**
