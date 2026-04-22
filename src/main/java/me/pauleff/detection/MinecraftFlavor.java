@@ -40,11 +40,10 @@ public enum MinecraftFlavor {
     /**
      * Returns an array of file paths relevant to the specified Minecraft flavor.
      *
-     * @param baseDirectory  The base directory where the Minecraft server is installed.
      * @param worldDirectory The directory to the Minecraft world.
      * @return An array of file paths relevant to the specified Minecraft flavor.
      */
-    public String[] getFiles(Path baseDirectory, Path worldDirectory, boolean justWorld) {
+    public String[] getFiles(Path worldDirectory, boolean justWorld) {
         ArrayList<String> filesAndFolders = new ArrayList<>();
         /*
          * This works for all flavors because the default directory for player connected data is always in the world folder.

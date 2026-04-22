@@ -171,7 +171,7 @@ public class ConverterV2 {
 
         LOGGER.info("Copying player data from {} to {}", relativeSourceWorldFolder, relativeDestWorldFolder);
 
-        String[] allFiles = flavor.getFiles(this.serverFolder, relativeSourceWorldFolder, true);
+        String[] allFiles = flavor.getFiles(relativeSourceWorldFolder, true);
         int movedFiles = 0;
         for (String relativePath : allFiles) {
             Path currentPath = this.serverFolder.resolve(relativePath).normalize();
@@ -225,7 +225,7 @@ public class ConverterV2 {
         if (!preCheck(toOnlineMode)) return;
         FileHandler.writeToProperties(serverProperties, "online-mode", Boolean.toString(toOnlineMode));
 
-        String[] allFiles = flavor.getFiles(this.serverFolder, this.serverFolder.relativize(this.worldFolder), false);
+        String[] allFiles = flavor.getFiles(this.serverFolder.relativize(this.worldFolder), false);
         int discoveredValidFiles = 0;
         int renamedFiles = 0;
         for (String relativePath : allFiles) {
