@@ -4,9 +4,7 @@ import me.pauleff.common.LoggerConfigurator;
 import me.pauleff.common.config.Config;
 import me.pauleff.common.handlers.FileHandler;
 import me.pauleff.common.handlers.UUIDHandler;
-import me.pauleff.converter.ConverterV2;
-import me.pauleff.converter.PluginOrchestrator;
-import me.pauleff.converter.PluginRegistry;
+import me.pauleff.converter.*;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.detection.MinecraftFlavor;
 import me.pauleff.detection.MinecraftFlavorDetection;
@@ -25,8 +23,6 @@ import static java.lang.System.exit;
 /**
  * Entry point for MinecraftOfflineOnlineConverter.
  * Handles argument parsing, initializes components, and starts the conversion process.
- *
- * @author Paul Ferlitz
  */
 public class Main
 {
@@ -65,7 +61,8 @@ public class Main
             {
                 Path path = Paths.get("/Users/paulferlitz/Desktop/Server/Testing_Servers/Vanilla");
                 mfd = new MinecraftFlavorDetection(path);
-                PluginContext ctx = new PluginContext(path, path.resolve("world"), mode.equals("-online"), mfd.detectMinecraftFlavor(), new HashMap<>());
+                ConversionTarget conversionTarget = mode.equals("-online") ? ConversionTarget.ONLINE : ConversionTarget.OFFLINE;
+                PluginContext ctx = new PluginContext(path, path.resolve("world"), conversionTarget, ServerType.VANILLA, WorldFormat.ANVIL_2026, new HashMap<>());
                 PluginRegistry registry = new PluginRegistry(PluginRegistry.defaultPlugins());
                 PluginOrchestrator orchestrator = new PluginOrchestrator(registry);
                 orchestrator.run(ctx);
