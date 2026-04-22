@@ -9,8 +9,6 @@ import java.nio.file.Path;
 /**
  * This class is responsible for detecting the flavor of a Minecraft server based on its directory structure and files.
  * It checks for various indicators to determine if the server is vanilla, lightly modded (e.g., Bukkit), or heavily modded (e.g., Forge).
- *
- * @author Paul Ferlitz
  */
 public class MinecraftFlavorDetection
 {

@@ -15,8 +15,6 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * LoggerConfigurator is responsible for configuring the logging system using Logback.
- *
- * @author Paul Ferlitz
  */
 public class LoggerConfigurator
 {

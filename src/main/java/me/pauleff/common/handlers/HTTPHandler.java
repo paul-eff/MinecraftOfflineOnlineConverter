@@ -11,8 +11,6 @@ import java.net.URL;
 
 /**
  * Handles HTTP requests to external services, such as the Mojang API.
- *
- * @author Paul Ferlitz
  */
 public class HTTPHandler
 {

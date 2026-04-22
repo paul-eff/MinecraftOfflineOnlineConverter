@@ -15,8 +15,6 @@ import java.util.stream.Collectors;
 /**
  * Utility class for handling file operations efficiently.
  * Provides methods for renaming, listing, reading, and writing files.
- *
- * @author Paul Ferlitz
  */
 public class FileHandler
 {

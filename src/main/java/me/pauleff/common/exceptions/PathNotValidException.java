@@ -8,8 +8,6 @@ import java.nio.file.Path;
 /**
  * Exception thrown when a given file path is invalid or does not exist.
  * Logs the invalid path for better debugging.
- *
- * @author Paul Ferlitz
  */
 public class PathNotValidException extends Exception {
     private static final Logger LOGGER = LoggerFactory.getLogger(PathNotValidException.class);
