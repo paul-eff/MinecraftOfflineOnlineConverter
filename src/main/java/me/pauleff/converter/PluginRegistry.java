@@ -3,14 +3,8 @@ package me.pauleff.converter;
 import me.pauleff.converter.api.MOOCPlugin;
 import me.pauleff.converter.api.PluginMetadata;
 import me.pauleff.converter.plugins.*;
-import me.pauleff.detection.MinecraftFlavor;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -21,33 +15,35 @@ import java.util.stream.Stream;
 public record PluginRegistry(List<MOOCPlugin> plugins)
 {
     /**
-     * Plugins that run for every {@link MinecraftFlavor}.
+     * Plugins that run for every {@link ServerType}.
      */
     private static final List<MOOCPlugin> DEFAULT_PLUGINS = List.of(
+            new DetectServerType(),
+            new DetectWorldFormat(),
             new PrefetchUsercache(),
             new UpdateProperties(),
             new UpdateDefaultServerFiles()
     );
 
     /**
-     * Plugins for {@link MinecraftFlavor#VANILLA} only.
+     * Plugins for {@link ServerType#VANILLA} only.
      */
     private static final List<MOOCPlugin> VANILLA_PLUGINS = List.of(
-            new VanillaWorld()
+            new ConvertVanillaServer()
     );
 
     /**
-     * Plugins for {@link MinecraftFlavor#LIGHT_MODDED} only (e.g. Paper, Spigot).
+     * Plugins for {@link ServerType#BUKKIT} only (e.g. Paper, Spigot).
      */
-    private static final List<MOOCPlugin> LIGHT_MODDED_PLUGINS = List.of(
-            new LightModdedWorld()
+    private static final List<MOOCPlugin> BUKKIT_PLUGINS = List.of(
+            new ConvertPluginServer()
     );
 
     /**
-     * Plugins for {@link MinecraftFlavor#MODDED} only (e.g. Forge, Fabric).
+     * Plugins for {@link ServerType#MODDED} only (e.g. Forge, Fabric).
      */
     private static final List<MOOCPlugin> MODDED_PLUGINS = List.of(
-            new ModdedWorld()
+            new ConvertModdedServer()
     );
 
     /**
@@ -84,23 +80,21 @@ public record PluginRegistry(List<MOOCPlugin> plugins)
         Set<String> seen = new HashSet<>();
         for (MOOCPlugin plugin : plugins)
         {
-            Objects.requireNonNull(plugin, "Passed plugin can't be null.");
             PluginMetadata meta = Objects.requireNonNull(plugin.metadata(), "Plugin metadata can't be null.");
             String id = meta.id();
             if (!seen.add(id))
             {
-                throw new IllegalArgumentException(
-                        String.format("Duplicate plugin id \"%s\". Each %s must use a unique %s#id().",
-                                id,
-                                MOOCPlugin.class.getSimpleName(),
-                                PluginMetadata.class.getSimpleName())
+                throw new IllegalArgumentException("Duplicate plugin id \"%s\". Each %s must use a unique %s#id().".formatted(
+                        id,
+                        MOOCPlugin.class.getSimpleName(),
+                        PluginMetadata.class.getSimpleName())
                 );
             }
         }
     }
 
     /**
-     * Unmodifiable; plugins for all {@link MinecraftFlavor}s.
+     * Unmodifiable; plugins for all {@link ServerType}s.
      */
     public static List<MOOCPlugin> defaultPlugins()
     {
@@ -108,7 +102,7 @@ public record PluginRegistry(List<MOOCPlugin> plugins)
     }
 
     /**
-     * Unmodifiable; {@link MinecraftFlavor#VANILLA}-specific plugins.
+     * Unmodifiable; {@link ServerType#VANILLA}-specific plugins.
      */
     public static List<MOOCPlugin> vanillaPlugins()
     {
@@ -116,15 +110,15 @@ public record PluginRegistry(List<MOOCPlugin> plugins)
     }
 
     /**
-     * Unmodifiable; {@link MinecraftFlavor#LIGHT_MODDED}-specific plugins.
+     * Unmodifiable; {@link ServerType#BUKKIT}-specific plugins.
      */
-    public static List<MOOCPlugin> lightModdedPlugins()
+    public static List<MOOCPlugin> bukkitPlugins()
     {
-        return Stream.concat(DEFAULT_PLUGINS.stream(), LIGHT_MODDED_PLUGINS.stream()).toList();
+        return Stream.concat(DEFAULT_PLUGINS.stream(), BUKKIT_PLUGINS.stream()).toList();
     }
 
     /**
-     * Unmodifiable; {@link MinecraftFlavor#MODDED}-specific plugins.
+     * Unmodifiable; {@link ServerType#MODDED}-specific plugins.
      */
     public static List<MOOCPlugin> moddedPlugins()
     {
