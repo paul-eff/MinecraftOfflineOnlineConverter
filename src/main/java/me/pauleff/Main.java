@@ -27,8 +27,9 @@ public class Main
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
     private static final String VERSION = "3.1.1";
-    private static CommandLine cmd;
     private static final HashMap<String, String> serverPropertiesChanges = new HashMap<>();
+    public static Config config;
+    private static CommandLine cmd;
     private static String mode = "N/A";
     private static boolean hasPath = false;
     private static boolean isDev = false;
@@ -36,7 +37,6 @@ public class Main
     private static MinecraftFlavorDetection mfd;
     private static boolean movePlayerData = false;
     private static String movePlayerdataSourceDir = null;
-    public static Config config;
 
     /**
      * Main method - entry point of the application.

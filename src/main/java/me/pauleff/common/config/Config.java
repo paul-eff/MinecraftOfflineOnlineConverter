@@ -17,7 +17,8 @@ import java.util.stream.Collectors;
  * Class for parsing custom paths from a YAML configuration file.
  * Handles recursive directory listing and file filtering.
  */
-public class Config {
+public class Config
+{
     public static final String CONFIG_NAME = "mooc-config.yml";
     private static final Logger LOGGER = LoggerFactory.getLogger(Config.class);
 
@@ -27,67 +28,81 @@ public class Config {
     public List<String> playerdataWorldBlacklist = new ArrayList<>();
     public List<String> playerDataTagsToKeep = new ArrayList<>();
 
-    public List<String> getPaths() {
-        return pathList;
-    }
-
     /**
      * Constructor for CustomPathParser.
      * Initializes the base directory and checks for the existence of the {@value #CONFIG_NAME} file.
      *
      * @throws InvalidPathException if the provided path is invalid.
      */
-    public Config(Path baseDirectory) {
+    public Config(Path baseDirectory)
+    {
         this.baseDirectory = baseDirectory;
         pathList = new ArrayList<>();
         Path cp_path = Path.of("./" + CONFIG_NAME);
 
-        if (Files.exists(cp_path)) {
+        if (Files.exists(cp_path))
+        {
             this.pathFile = cp_path;
-        } else {
+        } else
+        {
             LOGGER.warn("Config file ({}) not found, did you place it next to the MOOC.jar?", CONFIG_NAME);
             this.pathFile = null;
             return;
         }
 
-        try (Reader reader = Files.newBufferedReader(this.pathFile)) {
+        try (Reader reader = Files.newBufferedReader(this.pathFile))
+        {
             Yaml yaml = new Yaml();
             Map<String, Object> yamlData = yaml.load(reader);
             if (yamlData == null) return;
 
-            if (yamlData.containsKey("config")) {
+            if (yamlData.containsKey("config"))
+            {
                 Map<String, Object> config = (Map<String, Object>) yamlData.get("config");
                 LOGGER.info("Config version: {}", config.get("version"));
                 playerdataWorldBlacklist = (List<String>) config.getOrDefault("playerdata-world-blacklist", new ArrayList<String>());
                 playerDataTagsToKeep = (List<String>) config.getOrDefault("playerdata-tags-to-keep", new ArrayList<String>());
             }
 
-            if (yamlData.containsKey("paths")) {
+            if (yamlData.containsKey("paths"))
+            {
                 List<Map<String, Object>> pathsMap = (List<Map<String, Object>>) yamlData.get("paths");
-                if (pathsMap != null) {
-                    for (Map<String, Object> path : pathsMap) {
+                if (pathsMap != null)
+                {
+                    for (Map<String, Object> path : pathsMap)
+                    {
                         String filePath = (String) path.get("path");
                         boolean isRecursive = (boolean) path.getOrDefault("recursive", false);
 
-                        if ("folder".equals(path.get("type"))) {
-                            if (isRecursive) {
+                        if ("folder".equals(path.get("type")))
+                        {
+                            if (isRecursive)
+                            {
                                 pathList.addAll(getPathsRecursively(filePath));
                                 LOGGER.debug("Recursively added folder: {}", filePath);
-                            } else {
+                            } else
+                            {
                                 pathList.addAll(getFolderContent(filePath));
                                 LOGGER.debug("Added folder: {}", filePath);
                             }
-                        } else {
+                        } else
+                        {
                             pathList.add(filePath);
                             LOGGER.debug("Added file: {}", filePath);
                         }
                     }
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             LOGGER.error("Failed to read {}", CONFIG_NAME, e);
             throw new RuntimeException("Error reading " + CONFIG_NAME, e);
         }
+    }
+
+    public List<String> getPaths()
+    {
+        return pathList;
     }
 
     /**
@@ -95,7 +110,8 @@ public class Config {
      *
      * @return True if the YAML file exists, otherwise false.
      */
-    public boolean isFileSet() {
+    public boolean isFileSet()
+    {
         return this.pathFile != null;
     }
 
@@ -106,15 +122,18 @@ public class Config {
      * @param baseFolder The folder to scan.
      * @return A list of file paths within the folder and subfolders.
      */
-    public List<String> getPathsRecursively(String baseFolder) {
+    public List<String> getPathsRecursively(String baseFolder)
+    {
         // TODO: Return an array of paths or files, not strings
         Path path = this.baseDirectory.resolve(baseFolder);
-        try {
+        try
+        {
             return Files.walk(path)
                     .filter(Files::isRegularFile)
                     .map(Path::toString)
                     .collect(Collectors.toList());
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             LOGGER.error("Error while recursively fetching paths from: {}", path.normalize(), e);
             return Collections.emptyList();
         }
@@ -126,12 +145,14 @@ public class Config {
      * @param baseFolder The folder to scan.
      * @return A list of file paths inside the folder.
      */
-    public List<String> getFolderContent(String baseFolder) {
+    public List<String> getFolderContent(String baseFolder)
+    {
         // TODO: Return an array of paths or files, not strings
         Path path = this.baseDirectory.resolve(baseFolder);
         File[] files = path.toFile().listFiles(File::isFile);
 
-        if (files == null) {
+        if (files == null)
+        {
             LOGGER.warn("Failed to list contents of folder: {}", path.normalize());
             return Collections.emptyList();
         }
