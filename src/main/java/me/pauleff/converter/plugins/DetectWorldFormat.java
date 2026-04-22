@@ -7,13 +7,15 @@ import me.pauleff.converter.api.PluginMetadata;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.UUID;
 
-public class ModdedWorld implements MOOCPlugin
+public class DetectWorldFormat implements MOOCPlugin
 {
     private static final PluginMetadata META = PluginMetadata.of(
-            "modded-world",
-            "Modded World",
-            "Conversion of basic world directories/files from a modded Minecraft server (Forge, Fabric, ...).");
+            "detect-world-format",
+            "Detect World Format",
+            "Detect the Minecraft world format (Alpha, McRegion, Anvil...).",
+            1);
 
     @Override
     public PluginMetadata metadata()
@@ -35,6 +37,8 @@ public class ModdedWorld implements MOOCPlugin
 
     /**
      * Do work only on {@code resolvedExistingTargets} (absolute, existing).
+     * You may {@linkplain PluginContext#putUuidMapping(UUID, UUID) extend} {@link PluginContext#uuidMap()}
+     * for later plugins.
      *
      * @param ctx                     {@link PluginContext} holding information on folders and conversion target.
      * @param resolvedExistingTargets {@link List} of {@link Path}s to convert or further work on.

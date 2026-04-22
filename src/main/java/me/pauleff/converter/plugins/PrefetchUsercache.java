@@ -1,6 +1,7 @@
 package me.pauleff.converter.plugins;
 
 import me.pauleff.common.handlers.UUIDHandler;
+import me.pauleff.converter.ConversionTarget;
 import me.pauleff.converter.api.MOOCPlugin;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
@@ -21,7 +22,7 @@ public class PrefetchUsercache implements MOOCPlugin
             "prefetch-usercache",
             "Prefetch usercache",
             "Reads usercache.json and fills UUID mappings for online/offline conversion.",
-            0);
+            2);
 
     @Override
     public PluginMetadata metadata()
@@ -66,7 +67,7 @@ public class PrefetchUsercache implements MOOCPlugin
                     String playerName = knownPlayer.getString("name");
                     UUID playerUUID = UUID.fromString(knownPlayer.getString("uuid"));
 
-                    if (ctx.toOnlineMode())
+                    if (ctx.conversionTarget().equals(ConversionTarget.ONLINE))
                     {
                         UUID onlineUUID = UUIDHandler.nameToOnlineUUID(playerName);
 
