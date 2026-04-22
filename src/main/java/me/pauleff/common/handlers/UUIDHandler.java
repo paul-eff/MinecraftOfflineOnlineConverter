@@ -1,6 +1,5 @@
 package me.pauleff.common.handlers;
 
-import me.pauleff.converter.api.PluginMetadata;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,8 @@ import java.util.UUID;
  * Handles UUID-related actions, including conversions between online and offline UUIDs.
  * Uses Mojang's API for retrieving UUIDs and names from online services.
  */
-public class UUIDHandler {
+public class UUIDHandler
+{
     private static final Logger LOGGER = LoggerFactory.getLogger(UUIDHandler.class);
     private static final HTTPHandler HTTP = new HTTPHandler();
     private static final String DEFAULT_NAME_API_BASE = "https://api.mojang.com/";
@@ -114,7 +114,8 @@ public class UUIDHandler {
      * @param name The player's name.
      * @return The resulting {@link UUID}.
      */
-    public static UUID nameToOfflineUUID(String name) {
+    public static UUID nameToOfflineUUID(String name)
+    {
         UUID uuid = UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(StandardCharsets.UTF_8));
         LOGGER.info("Offline UUID generated for '{}': {}", name, uuid);
         return uuid;
@@ -128,11 +129,13 @@ public class UUIDHandler {
      * @return The resulting {@link UUID}.
      * @throws IOException If a connection issue occurs.
      */
-    public static UUID nameToOnlineUUID(String name) throws IOException {
+    public static UUID nameToOnlineUUID(String name) throws IOException
+    {
         HTTP.set(buildNameToUuidUrl(name));
         String response = HTTP.get();
 
-        if (response == null || response.isEmpty()) {
+        if (response == null || response.isEmpty())
+        {
             LOGGER.warn("No UUID found for online player '{}'.", name);
             return null;
         }
@@ -141,7 +144,8 @@ public class UUIDHandler {
         String uuid = json.optString("id", "").replaceAll(
                 "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5");
         // Check if the UUID is valid
-        if (uuid.isEmpty()) {
+        if (uuid.isEmpty())
+        {
             LOGGER.warn("Invalid UUID retrieved for name '{}'.", name);
             return null;
         }
@@ -163,18 +167,21 @@ public class UUIDHandler {
         String response = HTTP.get();
 
         // 2. Check for empty response
-        if (response == null || response.isEmpty()) {
+        if (response == null || response.isEmpty())
+        {
             LOGGER.warn("No profile found for UUID '{}'. This may be an offline/cracked UUID.", uuid);
             return null;
         }
 
-        try {
+        try
+        {
             JSONObject json = new JSONObject(response);
 
             // 3. Extract the name field
             String name = json.optString("name", "");
 
-            if (name.isEmpty()) {
+            if (name.isEmpty())
+            {
                 LOGGER.warn("Response for UUID '{}' did not contain a name.", uuid);
                 return null;
             }
@@ -182,16 +189,11 @@ public class UUIDHandler {
             LOGGER.info("Successfully retrieved name: {} for UUID: {}", name, uuid);
             return name;
 
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             LOGGER.error("Failed to parse Mojang API response for UUID: {}", uuid, e);
             return null;
         }
-    }
-
-    public enum UUIDType {
-        ONLINE,   // Version 4
-        OFFLINE,  // Version 3
-        INVALID   // Anything else
     }
 
     /**
@@ -201,23 +203,35 @@ public class UUIDHandler {
      * @param uuid The {@link UUID} to check.
      * @return True if the {@link UUID} is online, {@link UUIDType#INVALID} otherwise.
      */
-    public static UUIDType getUUIDType(UUID uuid) {
+    public static UUIDType getUUIDType(UUID uuid)
+    {
         int v = uuid.version();
         if (v == 4) return UUIDType.ONLINE;
         if (v == 3) return UUIDType.OFFLINE;
         return UUIDType.INVALID;
     }
 
-    public static boolean isValidUUID(String uuidString) {
-        if (uuidString == null || uuidString.length() != 36) {
+    public static boolean isValidUUID(String uuidString)
+    {
+        if (uuidString == null || uuidString.length() != 36)
+        {
             return false;
         }
-        try {
+        try
+        {
             UUID uuid = UUID.fromString(uuidString);
             return getUUIDType(uuid) != UUIDType.INVALID;
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e)
+        {
             // This catches BOTH "Invalid UUID string" and "NumberFormatException"
             return false;
         }
+    }
+
+    public enum UUIDType
+    {
+        ONLINE,   // Version 4
+        OFFLINE,  // Version 3
+        INVALID   // Anything else
     }
 }

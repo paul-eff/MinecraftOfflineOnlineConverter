@@ -24,6 +24,21 @@ public record PluginMetadata(String id, String displayName, String description, 
     public static final int DEFAULT_PRIORITY = 50;
 
     /**
+     * @throws IllegalArgumentException if {@code id} is blank
+     */
+    public PluginMetadata
+    {
+        Objects.requireNonNull(id, "ID can't be null.");
+        Objects.requireNonNull(displayName, "DisplayName can't be null.");
+        Objects.requireNonNull(description, "Description can't be null.");
+        if (id.isBlank())
+        {
+            throw new IllegalArgumentException("ID must not be blank.");
+        }
+        priority = clampPriority(priority);
+    }
+
+    /**
      * Metadata with {@link #DEFAULT_PRIORITY} (no explicit priority argument).
      */
     public static PluginMetadata of(String id, String displayName, String description)
@@ -45,20 +60,5 @@ public record PluginMetadata(String id, String displayName, String description, 
     private static int clampPriority(int p)
     {
         return Math.clamp(p, MIN_PRIORITY, MAX_PRIORITY);
-    }
-
-    /**
-     * @throws IllegalArgumentException if {@code id} is blank
-     */
-    public PluginMetadata
-    {
-        Objects.requireNonNull(id, "ID can't be null.");
-        Objects.requireNonNull(displayName, "DisplayName can't be null.");
-        Objects.requireNonNull(description, "Description can't be null.");
-        if (id.isBlank())
-        {
-            throw new IllegalArgumentException("ID must not be blank.");
-        }
-        priority = clampPriority(priority);
     }
 }

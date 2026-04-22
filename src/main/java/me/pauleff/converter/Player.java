@@ -8,21 +8,21 @@ import java.util.UUID;
 /**
  * Represents a Minecraft player with a name and UUID.
  * Provides access to player details and ensures immutability.
+ *
+ * @param name    Player name
+ * @param newUUID the UUID we want to have assigned to the player
  */
-public class Player
+public record Player(String name, UUID newUUID)
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(Player.class);
-
-    private final String name; //Player name
-    private final UUID newUUID; //the UUID we want to have assigned to the player
 
     /**
      * Constructs a new Player instance.
      *
-     * @param name The player's name.
+     * @param name    The player's name.
      * @param newUUID The UUID we want to reassign to the player (offline or online).
      */
-    public Player(String name, UUID newUUID)
+    public Player
     {
         // Log error and throw exception if name is null or empty
         if (name == null || name.isEmpty())
@@ -39,8 +39,6 @@ public class Player
             throw new IllegalArgumentException(msg);
         }
         // Otherwise create Player
-        this.name = name;
-        this.newUUID = newUUID;
     }
 
     /**
@@ -48,7 +46,8 @@ public class Player
      *
      * @return The player's name.
      */
-    public String getName()
+    @Override
+    public String name()
     {
         return name;
     }
@@ -58,7 +57,8 @@ public class Player
      *
      * @return The player's {@link UUID}.
      */
-    public UUID getNewUUID()
+    @Override
+    public UUID newUUID()
     {
         return newUUID;
     }
