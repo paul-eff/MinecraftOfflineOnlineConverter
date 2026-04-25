@@ -1,13 +1,14 @@
 package me.pauleff.converter.plugins;
 
+import me.pauleff.converter.ServerType;
 import me.pauleff.converter.api.MOOCPlugin;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.UUID;
 
 public class DetectServerType implements MOOCPlugin
 {
@@ -32,13 +33,11 @@ public class DetectServerType implements MOOCPlugin
     @Override
     public List<Path> setTargets(PluginContext ctx)
     {
-        return List.of();
+        return List.of(Path.of("."));
     }
 
     /**
      * Do work only on {@code resolvedExistingTargets} (absolute, existing).
-     * You may {@linkplain PluginContext#putUuidMapping(UUID, UUID) extend} {@link PluginContext#uuidMap()}
-     * for later plugins.
      *
      * @param ctx                     {@link PluginContext} holding information on folders and conversion target.
      * @param resolvedExistingTargets {@link List} of {@link Path}s to convert or further work on.
@@ -46,6 +45,31 @@ public class DetectServerType implements MOOCPlugin
     @Override
     public void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException
     {
+        ServerType detectedServerType = ServerType.VANILLA;
+        if (isModded(ctx))
+        {
+            detectedServerType = ServerType.MODDED;
+        } else if (isBukkit(ctx))
+        {
+            detectedServerType = ServerType.BUKKIT;
+        }
+        ctx.setServerType(detectedServerType);
+        logger().info("Detected server type: {}", detectedServerType);
+    }
 
+    private boolean isBukkit(PluginContext ctx)
+    {
+        Path serverRoot = ctx.serverFolder();
+        return Files.isDirectory(serverRoot.resolve("plugins"))
+                && Files.exists(serverRoot.resolve("commands.yml"))
+                && (Files.exists(serverRoot.resolve("bukkit.yml"))
+                || Files.exists(serverRoot.resolve("spigot.yml")));
+    }
+
+    private boolean isModded(PluginContext ctx)
+    {
+        Path serverRoot = ctx.serverFolder();
+        return Files.isDirectory(serverRoot.resolve("mods"))
+                || Files.isDirectory(serverRoot.resolve(".fabric"));
     }
 }
