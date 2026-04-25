@@ -25,8 +25,7 @@ public class UpdateProperties implements MOOCPlugin
     }
 
     /**
-     * Paths relative to e.g. {@link PluginContext#serverFolder()} and which will be
-     * the target of this plugin's conversion.
+     * Paths relative to e.g. {@link PluginContext#serverFolder()} and which will be the target of this plugin's conversion.
      *
      * @param ctx {@link PluginContext} holding information on folders and conversion target.
      * @return {@link List} of {@link Path}s to convert; non-null; may be empty
