@@ -1,70 +1,97 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- Project coordinates -->
     <groupId>me.pauleff</groupId>
     <artifactId>MinecraftOfflineOnlineConverter</artifactId>
     <version>3.1.2</version>
-
-    <!-- Project's packaging type -->
     <packaging>jar</packaging>
 
-    <!-- Project metadata -->
     <name>MinecraftOfflineOnlineConverter</name>
-    <description>A Java application to convert a Minecraft Server between online and offline mode</description>
+    <description>Converts Minecraft servers between offline and online mode.</description>
+    <url>https://github.com/paul-eff/MinecraftOfflineOnlineConverter</url>
+    <inceptionYear>2024</inceptionYear>
 
-    <!-- Java version to be used for compilation -->
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/license/mit/</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>paul-eff</id>
+            <name>Paul Ferlitz</name>
+            <url>https://github.com/paul-eff</url>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/paul-eff/MinecraftOfflineOnlineConverter.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/paul-eff/MinecraftOfflineOnlineConverter.git</developerConnection>
+        <url>https://github.com/paul-eff/MinecraftOfflineOnlineConverter</url>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/paul-eff/MinecraftOfflineOnlineConverter/issues</url>
+    </issueManagement>
+
     <properties>
-        <maven.compiler.source>26</maven.compiler.source>
-        <maven.compiler.target>26</maven.compiler.target>
+        <maven.compiler.release>26</maven.compiler.release>
+        <maven.compiler.parameters>true</maven.compiler.parameters>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <main.class>me.pauleff.Main</main.class>
+
+        <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
+        <maven.jar.plugin.version>3.5.0</maven.jar.plugin.version>
+        <maven.assembly.plugin.version>3.7.1</maven.assembly.plugin.version>
     </properties>
 
     <repositories>
-        <!-- https://github.com/Querz/NBT -->
+        <repository>
+            <id>central</id>
+            <name>Maven Central</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
         <repository>
             <id>jitpack.io</id>
+            <name>JitPack</name>
             <url>https://jitpack.io</url>
         </repository>
     </repositories>
 
-    <!-- Project dependencies -->
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.json/json -->
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20251224</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->
         <dependency>
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
             <version>1.6.0</version>
         </dependency>
         <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20251224</version>
+        </dependency>
+        <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
             <version>2.6</version>
         </dependency>
-        <!-- SLF4J API -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>2.0.9</version>
         </dependency>
-        <!-- Logback (SLF4J Implementation) -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.5.32</version>
         </dependency>
-
-        <!-- https://github.com/Querz/NBT -->
         <dependency>
             <groupId>com.github.Querz</groupId>
             <artifactId>NBT</artifactId>
@@ -72,22 +99,57 @@
         </dependency>
     </dependencies>
 
-    <!-- Build configuration -->
     <build>
+        <finalName>${project.artifactId}-${project.version}</finalName>
         <plugins>
-            <!-- Configure the Maven JAR plugin -->
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
+                <configuration>
+                    <release>${maven.compiler.release}</release>
+                    <parameters>${maven.compiler.parameters}</parameters>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven.jar.plugin.version}</version>
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>me.pauleff.Main</mainClass>
+                            <mainClass>${main.class}</mainClass>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>${maven.assembly.plugin.version}</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>${main.class}</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>make-jar-with-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
