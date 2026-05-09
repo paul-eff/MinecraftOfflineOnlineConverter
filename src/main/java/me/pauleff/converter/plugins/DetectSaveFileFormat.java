@@ -1,6 +1,5 @@
 package me.pauleff.converter.plugins;
 
-import me.pauleff.converter.ServerType;
 import me.pauleff.converter.api.MOOCPlugin;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
@@ -9,16 +8,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Stream;
 
-import static me.pauleff.converter.ServerType.*;
+import static me.pauleff.converter.SaveFileFormat.ANVIL;
+import static me.pauleff.converter.SaveFileFormat.MC_REGION;
 
-public class DetectServerType implements MOOCPlugin
+public class DetectSaveFileFormat implements MOOCPlugin
 {
     private static final PluginMetadata META = PluginMetadata.of(
-            "detect-server-type",
-            "Detect Server Type",
-            "Detect the Minecraft server type (Vanilla, Bukkit, Modded..).",
-            0);
+            "detect-world-savefile-format",
+            "Detect World save file format",
+            "Detect the Minecraft's world file format (Alpha, McRegion, Anvil...).",
+            1);
 
     @Override
     public PluginMetadata metadata()
@@ -47,31 +49,32 @@ public class DetectServerType implements MOOCPlugin
     @Override
     public void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException
     {
-        ServerType detectedServerType = VANILLA;
-        if (isModded(ctx))
+        if (isMCA(ctx))
         {
-            detectedServerType = MODDED;
-        } else if (isBukkit(ctx))
+            ctx.setSaveFileFormat(ANVIL);
+        } else
         {
-            detectedServerType = BUKKIT;
+            ctx.setSaveFileFormat(MC_REGION);
         }
-        ctx.setServerType(detectedServerType);
-        logger().info("Detected server type: {}", detectedServerType);
     }
 
-    private boolean isBukkit(PluginContext ctx)
+    private boolean isMCR(PluginContext ctx) throws IOException
     {
-        Path serverRoot = ctx.serverFolder();
-        return Files.isDirectory(serverRoot.resolve("plugins"))
-                && Files.exists(serverRoot.resolve("commands.yml"))
-                && (Files.exists(serverRoot.resolve("bukkit.yml"))
-                || Files.exists(serverRoot.resolve("spigot.yml")));
+        try (Stream<Path> pathStream = Files.walk(ctx.worldFolder()))
+        {
+            return pathStream.filter(Files::isRegularFile)
+                    .map(path -> path.getFileName().toString().toLowerCase(Locale.ROOT))
+                    .anyMatch(name -> name.endsWith(".mcr"));
+        }
     }
 
-    private boolean isModded(PluginContext ctx)
+    private boolean isMCA(PluginContext ctx) throws IOException
     {
-        Path serverRoot = ctx.serverFolder();
-        return Files.isDirectory(serverRoot.resolve("mods"))
-                || Files.isDirectory(serverRoot.resolve(".fabric"));
+        try (Stream<Path> pathStream = Files.walk(ctx.worldFolder()))
+        {
+            return pathStream.filter(Files::isRegularFile)
+                    .map(path -> path.getFileName().toString().toLowerCase(Locale.ROOT))
+                    .anyMatch(name -> name.endsWith(".mca"));
+        }
     }
 }
