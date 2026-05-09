@@ -4,7 +4,10 @@ import me.pauleff.common.LoggerConfigurator;
 import me.pauleff.common.config.Config;
 import me.pauleff.common.handlers.FileHandler;
 import me.pauleff.common.handlers.UUIDHandler;
-import me.pauleff.converter.*;
+import me.pauleff.converter.ConversionTarget;
+import me.pauleff.converter.ConverterV2;
+import me.pauleff.converter.PluginOrchestrator;
+import me.pauleff.converter.PluginRegistry;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.detection.MinecraftFlavor;
 import me.pauleff.detection.MinecraftFlavorDetection;
@@ -62,10 +65,11 @@ public class Main
                 Path path = Paths.get("/Users/paulferlitz/Desktop/Server/Testing_Servers/Vanilla");
                 mfd = new MinecraftFlavorDetection(path);
                 ConversionTarget conversionTarget = mode.equals("-online") ? ConversionTarget.ONLINE : ConversionTarget.OFFLINE;
-                PluginContext ctx = new PluginContext(path, path.resolve("world"), conversionTarget, ServerType.VANILLA, WorldFormat.ANVIL_2026, new HashMap<>());
+                PluginContext ctx = new PluginContext(path, path.resolve("world"), conversionTarget);
                 PluginRegistry registry = new PluginRegistry(PluginRegistry.defaultPlugins());
                 PluginOrchestrator orchestrator = new PluginOrchestrator(registry);
                 orchestrator.run(ctx);
+                LOGGER.info(ctx.toString());
                 return;
             } else
             {

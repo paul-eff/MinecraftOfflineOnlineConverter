@@ -1,10 +1,12 @@
 package me.pauleff.converter.api;
 
 import me.pauleff.converter.ConversionTarget;
+import me.pauleff.converter.SaveFileFormat;
 import me.pauleff.converter.ServerType;
-import me.pauleff.converter.WorldFormat;
+import me.pauleff.converter.WorldFolderStructure;
 
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -16,19 +18,19 @@ public final class PluginContext
     private final Path worldFolder;
     private final ConversionTarget conversionTarget;
     private ServerType serverType;
-    private WorldFormat worldFormat;
+    private WorldFolderStructure worldFolderStructure;
+    private SaveFileFormat saveFileFormat;
     private final Map<UUID, UUID> uuidMap;
 
     public PluginContext(
             Path serverFolder,
             Path worldFolder,
-            ConversionTarget conversionTarget,
-            Map<UUID, UUID> uuidMap)
+            ConversionTarget conversionTarget)
     {
         this.serverFolder = Objects.requireNonNull(serverFolder, "Server folder path can't be null.");
         this.worldFolder = Objects.requireNonNull(worldFolder, "World folder path can't be null.");
         this.conversionTarget = Objects.requireNonNull(conversionTarget, "Target to convert to must be set.");
-        this.uuidMap = Objects.requireNonNull(uuidMap, "UUID map can't be null.");
+        this.uuidMap = new HashMap<>();
     }
 
     public PluginContext(
@@ -36,15 +38,17 @@ public final class PluginContext
             Path worldFolder,
             ConversionTarget conversionTarget,
             ServerType serverType,
-            WorldFormat worldFormat,
+            WorldFolderStructure worldFolderStructure,
+            SaveFileFormat saveFileFormat,
             Map<UUID, UUID> uuidMap)
     {
         this.serverFolder = Objects.requireNonNull(serverFolder, "Server folder path can't be null.");
         this.worldFolder = Objects.requireNonNull(worldFolder, "World folder path can't be null.");
         this.conversionTarget = Objects.requireNonNull(conversionTarget, "Target to convert to must be set.");
-        this.serverType = Objects.requireNonNull(serverType, "Server type can't be null.");
-        this.worldFormat = Objects.requireNonNull(worldFormat, "World worldFormat can't be null.");
-        this.uuidMap = Objects.requireNonNull(uuidMap, "UUID map can't be null.");
+        this.serverType = serverType;
+        this.worldFolderStructure = worldFolderStructure;
+        this.saveFileFormat = saveFileFormat;
+        this.uuidMap = uuidMap;
     }
 
     /**
@@ -85,7 +89,12 @@ public final class PluginContext
         return serverType;
     }
 
-    public WorldFormat worldFormat() { return worldFormat; }
+    public WorldFolderStructure worldFolderStructure()
+    {
+        return worldFolderStructure;
+    }
+
+    public SaveFileFormat worldSaveFileFormat() { return saveFileFormat; }
 
     public Map<UUID, UUID> uuidMap()
     {
@@ -97,8 +106,27 @@ public final class PluginContext
         this.serverType = serverType;
     }
 
-    public void setWorldFormat(WorldFormat worldFormat)
+    public void setWorldFolderStructure(WorldFolderStructure worldFolderStructure)
     {
-        this.worldFormat = worldFormat;
+        this.worldFolderStructure = worldFolderStructure;
+    }
+
+    public void setSaveFileFormat(SaveFileFormat saveFileFormat)
+    {
+        this.saveFileFormat = saveFileFormat;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "PluginContext{" +
+                "serverFolder=" + serverFolder +
+                ", worldFolder=" + worldFolder +
+                ", conversionTarget=" + conversionTarget +
+                ", serverType=" + serverType +
+                ", worldFolderStructure=" + worldFolderStructure +
+                ", saveFileFormat=" + saveFileFormat +
+                ", uuidMap=" + uuidMap +
+                '}';
     }
 }
