@@ -19,7 +19,8 @@ public record PluginRegistry(List<MOOCPlugin> plugins)
      */
     private static final List<MOOCPlugin> DEFAULT_PLUGINS = List.of(
             new DetectServerType(),
-            new DetectWorldFormat(),
+            new DetectWorldStructure(),
+            new DetectSaveFileFormat(),
             new PrefetchUsercache(),
             new UpdateProperties(),
             new UpdateDefaultServerFiles()
