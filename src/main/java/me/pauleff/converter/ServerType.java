@@ -12,21 +12,11 @@ public enum ServerType
 
     private final String description;
 
-    /**
-     * Constructor for ServerType enum.
-     *
-     * @param description The description of the Minecraft server type.
-     */
     ServerType(String description)
     {
         this.description = description;
     }
 
-    /**
-     * Returns the description of the Minecraft server type.
-     *
-     * @return The description of the Minecraft server type.
-     */
     @Override
     public String toString()
     {
