@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 import static me.pauleff.converter.WorldFolderStructure.*;
 
-public class DetectWorldStructure implements MOOCPlugin
+public class DetectWorldFolderStructure implements MOOCPlugin
 {
     private static final PluginMetadata META = PluginMetadata.of(
             "detect-world-format",
@@ -36,7 +36,7 @@ public class DetectWorldStructure implements MOOCPlugin
     @Override
     public List<Path> setTargets(PluginContext ctx)
     {
-        return List.of(Path.of("."));
+        return List.of(ctx.serverFolder());
     }
 
     /**
@@ -61,6 +61,7 @@ public class DetectWorldStructure implements MOOCPlugin
         {
             ctx.setWorldFolderStructure(PER_DIMENSION);
         }
+        logger().info("Detected world folder structure: {}", ctx.worldFolderStructure().name());
     }
 
     private boolean hasSingleWorldFolder(PluginContext ctx) throws IOException

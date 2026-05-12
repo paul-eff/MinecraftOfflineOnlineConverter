@@ -37,7 +37,7 @@ public class DetectSaveFileFormat implements MOOCPlugin
     @Override
     public List<Path> setTargets(PluginContext ctx)
     {
-        return List.of(Path.of("."));
+        return List.of(ctx.worldFolder());
     }
 
     /**
@@ -56,6 +56,7 @@ public class DetectSaveFileFormat implements MOOCPlugin
         {
             ctx.setSaveFileFormat(MC_REGION);
         }
+        logger().info("Detected save file format: {}", ctx.worldSaveFileFormat().name());
     }
 
     private boolean isMCR(PluginContext ctx) throws IOException

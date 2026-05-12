@@ -49,7 +49,7 @@ public class Main
      * @param args The command-line arguments.
      * @throws Exception If any error occurs during execution.
      */
-    public static void main(String[] args) throws Exception
+    static void main(String[] args) throws Exception
     {
         long startTime = System.nanoTime();
         // Setup CLI options and logger

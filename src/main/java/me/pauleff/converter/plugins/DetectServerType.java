@@ -35,7 +35,7 @@ public class DetectServerType implements MOOCPlugin
     @Override
     public List<Path> setTargets(PluginContext ctx)
     {
-        return List.of(Path.of("."));
+        return List.of(ctx.serverFolder());
     }
 
     /**
@@ -47,16 +47,15 @@ public class DetectServerType implements MOOCPlugin
     @Override
     public void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException
     {
-        ServerType detectedServerType = VANILLA;
+        ctx.setServerType(VANILLA);
         if (isModded(ctx))
         {
-            detectedServerType = MODDED;
+            ctx.setServerType(MODDED);
         } else if (isBukkit(ctx))
         {
-            detectedServerType = BUKKIT;
+            ctx.setServerType(BUKKIT);
         }
-        ctx.setServerType(detectedServerType);
-        logger().info("Detected server type: {}", detectedServerType);
+        logger().info("Detected server type: {}", ctx.serverType().name());
     }
 
     private boolean isBukkit(PluginContext ctx)
