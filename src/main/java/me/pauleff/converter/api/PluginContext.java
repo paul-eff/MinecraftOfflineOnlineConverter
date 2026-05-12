@@ -122,10 +122,10 @@ public final class PluginContext
         return "PluginContext{" +
                 "serverFolder=" + serverFolder +
                 ", worldFolder=" + worldFolder +
-                ", conversionTarget=" + conversionTarget +
-                ", serverType=" + serverType +
-                ", worldFolderStructure=" + worldFolderStructure +
-                ", saveFileFormat=" + saveFileFormat +
+                ", conversionTarget=" + conversionTarget.name() +
+                ", serverType=" + serverType.name() +
+                ", worldFolderStructure=" + worldFolderStructure.name() +
+                ", saveFileFormat=" + saveFileFormat.name() +
                 ", uuidMap=" + uuidMap +
                 '}';
     }
