@@ -1,6 +1,5 @@
 package me.pauleff.converter.plugins;
 
-import me.pauleff.converter.ServerType;
 import me.pauleff.converter.api.MOOCPlugin;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;

@@ -36,8 +36,7 @@ public class ConverterV3
         LOGGER.info("Starting world conversion ({} --> {}) on {} files...",
                 ctx.conversionTarget() == ConversionTarget.ONLINE ? ConversionTarget.OFFLINE.name() : ConversionTarget.ONLINE.name(),
                 ctx.conversionTarget().name(),
-                toConvert.size(),
-                ctx.serverFolder());
+                toConvert.size());
         int discoveredValidFiles = 0;
         int renamedFiles = 0;
         int updatedTextFiles = 0;
