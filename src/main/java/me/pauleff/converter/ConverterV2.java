@@ -23,6 +23,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static me.pauleff.common.handlers.UUIDHandler.getUUIDType;
+import static me.pauleff.converter.UUIDType.OFFLINE;
+import static me.pauleff.converter.UUIDType.ONLINE;
+
 /**
  * Handles the conversion of Minecraft server player data between online and offline modes.
  * This includes renaming files and replacing UUIDs in various server files.
@@ -292,22 +296,22 @@ public class ConverterV2
                 if (UUIDHandler.isValidUUID(fileName))
                 {
                     UUID fileUUID = UUID.fromString(fileName);//Could be online or offline!
-                    UUIDHandler.UUIDType uuidType = UUIDHandler.getUUIDType(fileUUID);
+                    UUIDType sourceUuidType = getUUIDType(fileUUID);
                     discoveredValidFiles++;
-                    LOGGER.info("File UUID Type: {}", uuidType);
+                    LOGGER.info("File UUID Type: {}", sourceUuidType);
 
                     if (toOnlineMode)
                     {
-                        if (uuidType == UUIDHandler.UUIDType.ONLINE) continue;
+                        if (sourceUuidType == ONLINE) continue;
                         //We have no way of knowing the player name from just on offline UUID, so we have to skip it
                     } else
                     {
-                        if (uuidType == UUIDHandler.UUIDType.OFFLINE) continue;
+                        if (sourceUuidType == OFFLINE) continue;
                         if (!uuidMap.containsKey(fileUUID))
                         {
                             String playerName = UUIDHandler.onlineUUIDToName(fileUUID);
-                            UUID onlineUUID = UUIDHandler.nameToOfflineUUID(playerName);
-                            uuidMap.put(fileUUID, new Player(playerName, onlineUUID));
+                            UUID offlineUUID = UUIDHandler.nameToOfflineUUID(playerName);
+                            uuidMap.put(fileUUID, new Player(playerName, offlineUUID));
                         }
                     }
 
@@ -329,7 +333,7 @@ public class ConverterV2
 
             if (Files.isRegularFile(currentPath))
             {
-                if (FileHandler.isText(currentPath))
+                if (FileHandler.isTextBasedFile(currentPath))
                 {
                     String content = Files.readString(currentPath);
                     boolean didReplace = false;

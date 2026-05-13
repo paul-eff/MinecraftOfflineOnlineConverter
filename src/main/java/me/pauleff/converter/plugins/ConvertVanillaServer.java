@@ -1,12 +1,15 @@
 package me.pauleff.converter.plugins;
 
+import me.pauleff.converter.ConverterV3;
 import me.pauleff.converter.api.MOOCPlugin;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class ConvertVanillaServer implements MOOCPlugin
 {
@@ -30,7 +33,16 @@ public class ConvertVanillaServer implements MOOCPlugin
     @Override
     public List<Path> setTargets(PluginContext ctx)
     {
-        return List.of();
+        try (Stream<Path> worldFolderStream = Files.walk(ctx.worldFolder()))
+        {
+            return worldFolderStream
+                    .filter(path -> !path.equals(ctx.worldFolder()))
+                    .toList();
+        } catch (IOException e)
+        {
+            logger().warn("Could not collect vanilla world targets from {}", ctx.worldFolder().normalize(), e);
+            return List.of();
+        }
     }
 
     /**
@@ -42,6 +54,7 @@ public class ConvertVanillaServer implements MOOCPlugin
     @Override
     public void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException
     {
-
+        ConverterV3 converterV3 = new ConverterV3(ctx);
+        converterV3.convert(resolvedExistingTargets);
     }
 }

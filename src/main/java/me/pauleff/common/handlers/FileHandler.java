@@ -130,7 +130,7 @@ public class FileHandler
      * @throws IOException              If an I/O error occurs.
      * @throws IllegalArgumentException If the file is invalid.
      */
-    public static boolean isText(Path pathToFile) throws IOException
+    public static boolean isTextBasedFile(Path pathToFile) throws IOException
     {
         File file = pathToFile.toFile();
         if (!file.isFile())
