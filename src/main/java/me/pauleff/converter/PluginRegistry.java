@@ -107,7 +107,7 @@ public record PluginRegistry(List<MOOCPlugin> plugins)
      */
     public static List<MOOCPlugin> vanillaPlugins()
     {
-        return Stream.concat(DEFAULT_PLUGINS.stream(), VANILLA_PLUGINS.stream()).toList();
+        return Stream.concat(defaultPlugins().stream(), VANILLA_PLUGINS.stream()).toList();
     }
 
     /**
@@ -115,7 +115,7 @@ public record PluginRegistry(List<MOOCPlugin> plugins)
      */
     public static List<MOOCPlugin> bukkitPlugins()
     {
-        return Stream.concat(DEFAULT_PLUGINS.stream(), BUKKIT_PLUGINS.stream()).toList();
+        return Stream.concat(defaultPlugins().stream(), BUKKIT_PLUGINS.stream()).toList();
     }
 
     /**
@@ -123,6 +123,6 @@ public record PluginRegistry(List<MOOCPlugin> plugins)
      */
     public static List<MOOCPlugin> moddedPlugins()
     {
-        return Stream.concat(DEFAULT_PLUGINS.stream(), MODDED_PLUGINS.stream()).toList();
+        return Stream.concat(defaultPlugins().stream(), MODDED_PLUGINS.stream()).toList();
     }
 }
