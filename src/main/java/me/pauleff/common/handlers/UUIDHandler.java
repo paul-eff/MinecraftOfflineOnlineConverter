@@ -1,5 +1,6 @@
 package me.pauleff.common.handlers;
 
+import me.pauleff.converter.UUIDType;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+
+import static me.pauleff.converter.UUIDType.*;
 
 /**
  * Handles UUID-related actions, including conversions between online and offline UUIDs.
@@ -119,9 +122,9 @@ public class UUIDHandler
     public static UUIDType getUUIDType(UUID uuid)
     {
         int v = uuid.version();
-        if (v == 4) return UUIDType.ONLINE;
-        if (v == 3) return UUIDType.OFFLINE;
-        return UUIDType.INVALID;
+        if (v == 4) return ONLINE;
+        if (v == 3) return OFFLINE;
+        return INVALID;
     }
 
     public static boolean isValidUUID(String uuidString)
@@ -133,18 +136,11 @@ public class UUIDHandler
         try
         {
             UUID uuid = UUID.fromString(uuidString);
-            return getUUIDType(uuid) != UUIDType.INVALID;
+            return getUUIDType(uuid) != INVALID;
         } catch (IllegalArgumentException e)
         {
             // This catches BOTH "Invalid UUID string" and "NumberFormatException"
             return false;
         }
-    }
-
-    public enum UUIDType
-    {
-        ONLINE,   // Version 4
-        OFFLINE,  // Version 3
-        INVALID   // Anything else
     }
 }

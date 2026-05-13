@@ -65,7 +65,7 @@ public class Main
                 mfd = new MinecraftFlavorDetection(path);
                 ConversionTarget conversionTarget = mode.equals("-online") ? ConversionTarget.ONLINE : ConversionTarget.OFFLINE;
                 PluginContext ctx = new PluginContext(path, path.resolve("world"), conversionTarget);
-                PluginRegistry registry = new PluginRegistry(PluginRegistry.defaultPlugins());
+                PluginRegistry registry = new PluginRegistry(PluginRegistry.vanillaPlugins());
                 PluginOrchestrator orchestrator = new PluginOrchestrator(registry);
                 orchestrator.run(ctx);
                 LOGGER.info(ctx.toString());
