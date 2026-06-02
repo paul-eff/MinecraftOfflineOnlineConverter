@@ -1,5 +1,6 @@
 package me.pauleff.converter.plugins;
 
+import me.pauleff.common.exceptions.UnknownWorldFolderStructureException;
 import me.pauleff.converter.api.MOOCPlugin;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
@@ -50,12 +51,14 @@ public class DetectWorldFolderStructure implements MOOCPlugin
     {
         if (hasSingleWorldFolder(ctx))
         {
-            if (hasDIMFoldersInWorldFolder(ctx) && !hasMinecraftDimensionsFolderInWorldFolder(ctx))
+            if (hasDIMFoldersInWorldFolder(ctx))
             {
                 ctx.setWorldFolderStructure(SINGLE);
-            } else
+            } else if (hasMinecraftDimensionsFolderInWorldFolder(ctx))
             {
                 ctx.setWorldFolderStructure(SINGLE_2026);
+            } else {
+                throw new UnknownWorldFolderStructureException();
             }
         } else
         {
