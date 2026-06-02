@@ -6,10 +6,8 @@ import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class ConvertVanillaServer implements MOOCPlugin
 {
@@ -33,16 +31,8 @@ public class ConvertVanillaServer implements MOOCPlugin
     @Override
     public List<Path> setTargets(PluginContext ctx)
     {
-        try (Stream<Path> worldFolderStream = Files.walk(ctx.worldFolder()))
-        {
-            return worldFolderStream
-                    .filter(path -> !path.equals(ctx.worldFolder()))
-                    .toList();
-        } catch (IOException e)
-        {
-            logger().warn("Could not collect vanilla world targets from {}", ctx.worldFolder().normalize(), e);
-            return List.of();
-        }
+        List<Path> worldDimensionRootFolders = ctx.worldFolderStructure().dimensionRootFolders(ctx.serverFolder(), ctx.worldFolder());
+        return returnAllFilesInFolders(worldDimensionRootFolders);
     }
 
     /**
