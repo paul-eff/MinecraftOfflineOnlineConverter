@@ -1,5 +1,11 @@
 package me.pauleff.converter;
 
+import me.pauleff.converter.api.MOOCPlugin;
+
+import java.util.List;
+
+import static me.pauleff.converter.PluginRegistry.*;
+
 /**
  * Enum representing different Minecraft server types.
  * Needed, as the different types heavily impact how and where files are saved.
@@ -15,6 +21,15 @@ public enum ServerType
     ServerType(String description)
     {
         this.description = description;
+    }
+
+    public List<MOOCPlugin> toPluginList() {
+        return switch (this)
+        {
+            case VANILLA -> vanillaPlugins();
+            case BUKKIT -> bukkitPlugins();
+            case MODDED -> moddedPlugins();
+        };
     }
 
     @Override
