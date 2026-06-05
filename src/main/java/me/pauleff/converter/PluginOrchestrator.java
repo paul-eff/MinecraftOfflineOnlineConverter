@@ -21,9 +21,9 @@ public final class PluginOrchestrator
 
     private final PluginRegistry registry;
 
-    public PluginOrchestrator(PluginRegistry registry)
+    public PluginOrchestrator(ServerType serverType)
     {
-        this.registry = Objects.requireNonNull(registry, "Registry can't be null.");
+        this.registry = new PluginRegistry(serverType.toPluginList());
     }
 
     public void run(PluginContext ctx)
