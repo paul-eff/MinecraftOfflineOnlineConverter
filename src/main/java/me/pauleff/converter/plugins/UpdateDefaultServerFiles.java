@@ -26,15 +26,7 @@ public class UpdateDefaultServerFiles implements MOOCPlugin
         return META;
     }
 
-    /**
-     * Paths relative to e.g. {@link PluginContext#serverFolder()} and which will be
-     * the target of this plugin's conversion.
-     *
-     * @param ctx {@link PluginContext} holding information on folders and
-     *            conversion target.
-     * @return {@link List} of {@link Path}s to convert; non-null; may be empty
-     */
-    @Override
+        @Override
     public List<Path> setTargets(PluginContext ctx)
     {
         List<String> fileNames = List.of(
@@ -50,13 +42,7 @@ public class UpdateDefaultServerFiles implements MOOCPlugin
                 .toList();
     }
 
-    /**
-     * Do work only on {@code resolvedExistingTargets} (absolute, existing).
-     *
-     * @param ctx                     {@link PluginContext} holding information on folders and conversion target.
-     * @param resolvedExistingTargets {@link List} of {@link Path}s to convert or further work on.
-     */
-    @Override
+        @Override
     public void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException
     {
         resolvedExistingTargets.forEach(path -> {

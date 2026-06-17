@@ -9,12 +9,6 @@ import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-/**
- * Immutable plugin lists for the two-phase pipeline: discovery plugins populate
- * {@link me.pauleff.converter.api.PluginContext}, then conversion plugins run for the detected
- * {@link ServerType}. Within each list, plugins are ordered by {@link PluginMetadata#priority()}
- * (lower runs first), then by registration order when priorities tie.
- */
 public record PluginRegistry(List<MOOCPlugin> discoveryPlugins, List<MOOCPlugin> conversionPlugins)
 {
     /**
@@ -52,10 +46,7 @@ public record PluginRegistry(List<MOOCPlugin> discoveryPlugins, List<MOOCPlugin>
         return new PluginRegistry(DEFAULT_PLUGINS, CONVERSION_PLUGINS);
     }
 
-    /**
-     * Stable sort: ascending {@link PluginMetadata#priority()}, then original list index.
-     */
-    private static List<MOOCPlugin> sortByPriorityThenIndex(List<MOOCPlugin> plugins)
+        private static List<MOOCPlugin> sortByPriorityThenIndex(List<MOOCPlugin> plugins)
     {
         int n = plugins.size();
         if (n <= 1)

@@ -18,10 +18,6 @@ import java.util.Map;
 
 import static java.lang.System.exit;
 
-/**
- * Entry point for MinecraftOfflineOnlineConverter.
- * Handles argument parsing, initializes components, and starts the conversion process.
- */
 public class Main
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
@@ -30,14 +26,7 @@ public class Main
     private static ConverterV2 converter;
     private static MinecraftFlavorDetection mfd;
 
-    /**
-     * Main method - entry point of the application.
-     * Parses arguments, initializes converter, and executes the conversion.
-     *
-     * @param args The command-line arguments.
-     * @throws Exception If any error occurs during execution.
-     */
-    static void main(String[] args) throws Exception
+        static void main(String[] args) throws Exception
     {
         long startTime = System.nanoTime();
         ArgumentParser argumentParser = new ArgumentParser("MinecraftOfflineOnlineConverter", VERSION);
@@ -76,16 +65,16 @@ public class Main
                 config = new Config(converter.serverFolder);
             }
         } catch (Exception e)
-        {//Display help message if the user didn't set something right
+        {
             argumentParser.printHelp();
             exit(0);
         }
 
-        // Detect Minecraft server flavor
+        
         MinecraftFlavor mcFlavor = mfd.detectMinecraftFlavor();
         LOGGER.info("This is a {} Minecraft Server!", mcFlavor);
 
-        //Update server.properties
+        
         Path serverProperties = converter.serverFolder.resolve("server.properties");
         String oldWorldPath = FileHandler.readWorldNameFromProperties(serverProperties, false);
 
@@ -107,7 +96,7 @@ public class Main
 
         if (parsedArgs.shouldConvert())
         {
-            // Start conversion process
+            
             converter.convert(parsedArgs.toOnlineMode().orElseThrow(), mcFlavor);
         }
         double elapsedSeconds = (System.nanoTime() - startTime) / 1_000_000_000.0;

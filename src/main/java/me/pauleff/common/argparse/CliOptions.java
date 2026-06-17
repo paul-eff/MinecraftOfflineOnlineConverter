@@ -3,9 +3,6 @@ package me.pauleff.common.argparse;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-/**
- * Defines the command-line options for MinecraftOfflineOnlineConverter.
- */
 public final class CliOptions
 {
     private CliOptions()

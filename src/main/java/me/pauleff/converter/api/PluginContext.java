@@ -51,20 +51,14 @@ public final class PluginContext
         this.uuidMap = uuidMap;
     }
 
-    /**
-     * Adds or overwrites a mapping in {@linkplain PluginContext#uuidMap}.
-     */
-    public void putUuidMapping(UUID from, UUID to)
+        public void putUuidMapping(UUID from, UUID to)
     {
         uuidMap.put(
                 Objects.requireNonNull(from, "Original UUID to put into map can't be null."),
                 Objects.requireNonNull(to, "New UUID to put into map can't be null."));
     }
 
-    /**
-     * Target UUID for {@code from}, or {@code null} if absent.
-     */
-    public UUID getTargetUuid(UUID from)
+        public UUID getTargetUuid(UUID from)
     {
         return uuidMap.get(Objects.requireNonNull(from, "Original UUID to put into map can't be null."));
     }

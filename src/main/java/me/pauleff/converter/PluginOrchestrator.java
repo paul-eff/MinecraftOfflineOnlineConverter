@@ -13,10 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Runs plugins in two phases: discovery plugins populate {@link PluginContext}, then conversion
- * plugins run for the detected {@link ServerType}.
- */
 public final class PluginOrchestrator
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(PluginOrchestrator.class);

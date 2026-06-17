@@ -6,11 +6,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Enum representing different Minecraft flavors.
- * Flavors are different types of Minecraft installations, such as Vanilla, Paper, Forge, ...
- * Each flavor has a description and a method to get relevant files.
- */
 public enum MinecraftFlavor
 {
     VANILLA("Vanilla"),
@@ -19,34 +14,18 @@ public enum MinecraftFlavor
 
     private final String description;
 
-    /**
-     * Constructor for MinecraftFlavor enum.
-     *
-     * @param description The description of the Minecraft flavor.
-     */
-    MinecraftFlavor(String description)
+        MinecraftFlavor(String description)
     {
         this.description = description;
     }
 
-    /**
-     * Returns the description of the Minecraft flavor.
-     *
-     * @return The description of the Minecraft flavor.
-     */
-    @Override
+        @Override
     public String toString()
     {
         return description;
     }
 
-    /**
-     * Returns an array of file paths relevant to the specified Minecraft flavor.
-     *
-     * @param worldDirectory The directory to the Minecraft world.
-     * @return An array of file paths relevant to the specified Minecraft flavor.
-     */
-    public String[] getFiles(Path worldDirectory, boolean justWorld)
+        public String[] getFiles(Path worldDirectory, boolean justWorld)
     {
         ArrayList<String> filesAndFolders = new ArrayList<>();
         /*
@@ -62,18 +41,18 @@ public enum MinecraftFlavor
         defaultDirectories.add("./" + worldDirectory + "/playerdata");
         defaultDirectories.add("./" + worldDirectory + "/advancements");
         defaultDirectories.add("./" + worldDirectory + "/stats");
-        // Get the content of the default directories
+        
         for (String path : defaultDirectories)
         {
             filesAndFolders.addAll(Main.config.getFolderContent(path));
         }
-        // If mooc-config.yml exists, add the paths from it
+        
         if (Main.config.isFileSet())
         {
             List<String> pathList = Main.config.getPaths();
             if (!pathList.isEmpty()) filesAndFolders.addAll(pathList);
         }
-        // At last, add all flavor-specific paths
+        
         switch (this)
         {
             // TODO: Find more flavor specific directories

@@ -12,22 +12,11 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Utility class for handling file operations efficiently.
- * Provides methods for renaming, listing, reading, and writing files.
- */
 public class FileHandler
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileHandler.class);
 
-    /**
-     * Renames a file and keep source file extension.
-     *
-     * @param sourceFile  Current file path.
-     * @param newFileName New file name.
-     * @throws IOException If renaming is unsuccessful.
-     */
-    public static void renameFile(Path sourceFile, String newFileName) throws IOException
+        public static void renameFile(Path sourceFile, String newFileName) throws IOException
     {
         Path parentDir = sourceFile.getParent();
         String originalFileName = sourceFile.getFileName().toString();
@@ -51,13 +40,7 @@ public class FileHandler
         LOGGER.debug("Renamed file\n\tFROM: '{}'\n\tTO: '{}'", sourceFile.normalize(), target.normalize());
     }
 
-    /**
-     * Loads an array of players from a usercache.json file.
-     *
-     * @param pathToUsercache Path to usercache.json.
-     * @return JSONArray containing the user cache data.
-     */
-    public static JSONArray loadArrayFromUsercache(Path pathToUsercache)
+        public static JSONArray loadArrayFromUsercache(Path pathToUsercache)
     {
         try
         {
@@ -71,14 +54,7 @@ public class FileHandler
         }
     }
 
-    /**
-     * Reads the world name from a server.properties file.
-     *
-     * @param pathToProperties Path to server.properties.
-     * @param logFound         If true, logs the resolved world name at INFO (use once per run to avoid duplicate lines).
-     * @return Extracted world name or default "world" if not found.
-     */
-    public static String readWorldNameFromProperties(Path pathToProperties, boolean logFound)
+        public static String readWorldNameFromProperties(Path pathToProperties, boolean logFound)
     {
         try (BufferedReader br = new BufferedReader(new FileReader(pathToProperties.toFile())))
         {
@@ -99,14 +75,7 @@ public class FileHandler
         }
     }
 
-    /**
-     * Writes or updates a key-value pair in the server.properties file.
-     *
-     * @param pathToProperties Path to server.properties.
-     * @param key              Property key.
-     * @param value            Property value.
-     */
-    public static void writeToProperties(Path pathToProperties, String key, String value)
+        public static void writeToProperties(Path pathToProperties, String key, String value)
     {
         try
         {
@@ -122,15 +91,7 @@ public class FileHandler
         }
     }
 
-    /**
-     * Determines if a file is a text file or a binary file.
-     *
-     * @param pathToFile Path to the file.
-     * @return true if the file is a text file, false otherwise.
-     * @throws IOException              If an I/O error occurs.
-     * @throws IllegalArgumentException If the file is invalid.
-     */
-    public static boolean isTextBasedFile(Path pathToFile) throws IOException
+        public static boolean isTextBasedFile(Path pathToFile) throws IOException
     {
         File file = pathToFile.toFile();
         if (!file.isFile())
