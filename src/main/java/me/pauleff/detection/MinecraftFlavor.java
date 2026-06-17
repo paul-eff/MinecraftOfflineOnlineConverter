@@ -14,18 +14,18 @@ public enum MinecraftFlavor
 
     private final String description;
 
-        MinecraftFlavor(String description)
+    MinecraftFlavor(String description)
     {
         this.description = description;
     }
 
-        @Override
+    @Override
     public String toString()
     {
         return description;
     }
 
-        public String[] getFiles(Path worldDirectory, boolean justWorld)
+    public String[] getFiles(Path worldDirectory, boolean justWorld)
     {
         ArrayList<String> filesAndFolders = new ArrayList<>();
         /*
@@ -41,18 +41,18 @@ public enum MinecraftFlavor
         defaultDirectories.add("./" + worldDirectory + "/playerdata");
         defaultDirectories.add("./" + worldDirectory + "/advancements");
         defaultDirectories.add("./" + worldDirectory + "/stats");
-        
+
         for (String path : defaultDirectories)
         {
             filesAndFolders.addAll(Main.config.getFolderContent(path));
         }
-        
+
         if (Main.config.isFileSet())
         {
             List<String> pathList = Main.config.getPaths();
             if (!pathList.isEmpty()) filesAndFolders.addAll(pathList);
         }
-        
+
         switch (this)
         {
             // TODO: Find more flavor specific directories

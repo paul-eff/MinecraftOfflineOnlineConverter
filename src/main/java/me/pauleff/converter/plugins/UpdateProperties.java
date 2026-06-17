@@ -24,14 +24,14 @@ public class UpdateProperties implements MOOCPlugin
         return META;
     }
 
-        @Override
+    @Override
     public List<Path> setTargets(PluginContext ctx)
     {
         return List.of(
                 ctx.serverFolder().resolve("server.properties"));
     }
 
-        @Override
+    @Override
     public void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException
     {
         resolvedExistingTargets.forEach(path -> {

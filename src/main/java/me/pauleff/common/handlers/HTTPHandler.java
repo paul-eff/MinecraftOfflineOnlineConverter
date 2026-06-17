@@ -14,18 +14,18 @@ public class HTTPHandler
     private static final Logger LOGGER = LoggerFactory.getLogger(HTTPHandler.class);
     private String url;
 
-        public HTTPHandler()
+    public HTTPHandler()
     {
         this.url = "";
     }
 
-        public void set(String newUrl)
+    public void set(String newUrl)
     {
         this.url = newUrl;
         LOGGER.debug("URL set to: {}", newUrl);
     }
 
-        public String get() throws IOException
+    public String get() throws IOException
     {
         if (this.url == null || this.url.isEmpty())
         {

@@ -28,13 +28,13 @@ public class DetectWorldFolderStructure implements MOOCPlugin
         return META;
     }
 
-        @Override
+    @Override
     public List<Path> setTargets(PluginContext ctx)
     {
         return List.of(ctx.serverFolder());
     }
 
-        @Override
+    @Override
     public void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException
     {
         if (hasSingleWorldFolder(ctx))
@@ -45,7 +45,8 @@ public class DetectWorldFolderStructure implements MOOCPlugin
             } else if (hasMinecraftDimensionsFolderInWorldFolder(ctx))
             {
                 ctx.setWorldFolderStructure(SINGLE_2026);
-            } else {
+            } else
+            {
                 throw new UnknownWorldFolderStructureException();
             }
         } else

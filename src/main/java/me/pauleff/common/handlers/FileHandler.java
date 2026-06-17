@@ -16,7 +16,7 @@ public class FileHandler
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileHandler.class);
 
-        public static void renameFile(Path sourceFile, String newFileName) throws IOException
+    public static void renameFile(Path sourceFile, String newFileName) throws IOException
     {
         Path parentDir = sourceFile.getParent();
         String originalFileName = sourceFile.getFileName().toString();
@@ -40,7 +40,7 @@ public class FileHandler
         LOGGER.debug("Renamed file\n\tFROM: '{}'\n\tTO: '{}'", sourceFile.normalize(), target.normalize());
     }
 
-        public static JSONArray loadArrayFromUsercache(Path pathToUsercache)
+    public static JSONArray loadArrayFromUsercache(Path pathToUsercache)
     {
         try
         {
@@ -54,7 +54,7 @@ public class FileHandler
         }
     }
 
-        public static String readWorldNameFromProperties(Path pathToProperties, boolean logFound)
+    public static String readWorldNameFromProperties(Path pathToProperties, boolean logFound)
     {
         try (BufferedReader br = new BufferedReader(new FileReader(pathToProperties.toFile())))
         {
@@ -75,7 +75,7 @@ public class FileHandler
         }
     }
 
-        public static void writeToProperties(Path pathToProperties, String key, String value)
+    public static void writeToProperties(Path pathToProperties, String key, String value)
     {
         try
         {
@@ -91,7 +91,7 @@ public class FileHandler
         }
     }
 
-        public static boolean isTextBasedFile(Path pathToFile) throws IOException
+    public static boolean isTextBasedFile(Path pathToFile) throws IOException
     {
         File file = pathToFile.toFile();
         if (!file.isFile())

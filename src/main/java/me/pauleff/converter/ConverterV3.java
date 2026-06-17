@@ -8,7 +8,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import static java.nio.file.Files.isRegularFile;
 import static java.util.Objects.requireNonNull;
@@ -79,7 +82,8 @@ public class ConverterV3
                 if (isRegularFile(currentPath) && isTextBasedFile(currentPath))
                 {
                     // TODO 13.05.2026: Unnecessary double call of isValidUUID. Find nicer implementation.
-                    if (!isValidUUID(fileName)) {
+                    if (!isValidUUID(fileName))
+                    {
                         discoveredValidFiles++;
                     }
                     if (replaceUuidReferencesInTextFile(currentPath))

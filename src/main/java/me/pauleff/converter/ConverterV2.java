@@ -41,12 +41,12 @@ public class ConverterV2
     public Path worldFolder;
     private int lastUsercacheEntryCount;
 
-        public ConverterV2() throws PathNotValidException
+    public ConverterV2() throws PathNotValidException
     {
         this(Path.of("./").toAbsolutePath().normalize());
     }
 
-        public ConverterV2(Path serverFolderPath) throws PathNotValidException
+    public ConverterV2(Path serverFolderPath) throws PathNotValidException
     {
         this.serverFolder = serverFolderPath;
 
@@ -65,7 +65,7 @@ public class ConverterV2
         }
     }
 
-        public void setWorldFolder(String worldName) throws PathNotValidException
+    public void setWorldFolder(String worldName) throws PathNotValidException
     {
         this.worldFolder = this.serverFolder.resolve(worldName);
         if (!Files.exists(this.worldFolder))
@@ -74,7 +74,7 @@ public class ConverterV2
         }
     }
 
-        private void fetchUsercache(boolean toOnlineMode)
+    private void fetchUsercache(boolean toOnlineMode)
     {
         Path usercache = this.serverFolder.resolve("usercache.json");
         JSONArray knownPlayers = FileHandler.loadArrayFromUsercache(usercache);
@@ -117,7 +117,7 @@ public class ConverterV2
         }
     }
 
-        private boolean preCheck(boolean toOnlineMode)
+    private boolean preCheck(boolean toOnlineMode)
     {
         if (!toOnlineMode)
         {
@@ -142,7 +142,7 @@ public class ConverterV2
         return true;
     }
 
-        public void copyPlayerData(String sourceWorld, MinecraftFlavor flavor) throws IOException
+    public void copyPlayerData(String sourceWorld, MinecraftFlavor flavor) throws IOException
     {
         Path _relativeSource = Paths.get(sourceWorld);
         if (_relativeSource.isAbsolute())
@@ -221,7 +221,7 @@ public class ConverterV2
         LOGGER.info("Copied {} files to {}", movedFiles, destWorldFolder.normalize());
     }
 
-        public void convert(boolean toOnlineMode, MinecraftFlavor flavor) throws IOException
+    public void convert(boolean toOnlineMode, MinecraftFlavor flavor) throws IOException
     {
         if (!preCheck(toOnlineMode)) return;
         FileHandler.writeToProperties(serverProperties, "online-mode", Boolean.toString(toOnlineMode));

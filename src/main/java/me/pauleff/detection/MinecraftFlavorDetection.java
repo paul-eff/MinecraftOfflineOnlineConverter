@@ -10,7 +10,7 @@ public class MinecraftFlavorDetection
 {
     private final Path baseDirectory;
 
-        public MinecraftFlavorDetection(Path baseDirectory) throws PathNotValidException
+    public MinecraftFlavorDetection(Path baseDirectory) throws PathNotValidException
     {
         if (Files.isDirectory(baseDirectory))
         {
@@ -21,7 +21,7 @@ public class MinecraftFlavorDetection
         }
     }
 
-        public MinecraftFlavorDetection() throws PathNotValidException
+    public MinecraftFlavorDetection() throws PathNotValidException
     {
         Path path = Path.of("./");
         if (Files.isDirectory(path))
@@ -33,7 +33,7 @@ public class MinecraftFlavorDetection
         }
     }
 
-        public MinecraftFlavor detectMinecraftFlavor()
+    public MinecraftFlavor detectMinecraftFlavor()
     {
         if (isVanilla())
         {
@@ -47,7 +47,7 @@ public class MinecraftFlavorDetection
         }
     }
 
-        private boolean isVanilla()
+    private boolean isVanilla()
     {
         boolean isModded = isModded();
         boolean isBukkit = isLightlyModded();
@@ -56,7 +56,7 @@ public class MinecraftFlavorDetection
         return (!(isModded || isBukkit) && vanillaStyleWorldFolder);
     }
 
-        private boolean isLightlyModded()
+    private boolean isLightlyModded()
     {
         boolean isModded = isModded();
         boolean hasPlugins = hasFolder("plugins");
@@ -65,13 +65,13 @@ public class MinecraftFlavorDetection
         return (!isModded && hasPlugins && hasBukkitYml);
     }
 
-        private boolean isModded()
+    private boolean isModded()
     {
         // TODO: More detection criteria here...
         return hasFolder("mods");
     }
 
-        private boolean vanillaWorld()
+    private boolean vanillaWorld()
     {
         File[] subdirectories = baseDirectory.toFile().listFiles(File::isDirectory);
 
@@ -87,13 +87,13 @@ public class MinecraftFlavorDetection
         return true;
     }
 
-        private boolean hasFolder(String folderName)
+    private boolean hasFolder(String folderName)
     {
         Path directoryPath = baseDirectory.resolve(folderName);
         return Files.isDirectory(directoryPath);
     }
 
-        private boolean hasFile(String fileName)
+    private boolean hasFile(String fileName)
     {
         Path filePath = baseDirectory.resolve(fileName);
         return Files.isRegularFile(filePath);

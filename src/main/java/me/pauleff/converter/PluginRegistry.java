@@ -2,7 +2,6 @@ package me.pauleff.converter;
 
 import me.pauleff.converter.api.MOOCPlugin;
 import me.pauleff.converter.api.PluginMetadata;
-import me.pauleff.converter.api.MultiServerPlugin;
 import me.pauleff.converter.plugins.*;
 
 import java.util.*;
@@ -47,7 +46,7 @@ public record PluginRegistry(List<MOOCPlugin> discoveryPlugins, List<MOOCPlugin>
         return new PluginRegistry(DEFAULT_PLUGINS, CONVERSION_PLUGINS);
     }
 
-        private static List<MOOCPlugin> sortByPriorityThenIndex(List<MOOCPlugin> plugins)
+    private static List<MOOCPlugin> sortByPriorityThenIndex(List<MOOCPlugin> plugins)
     {
         int n = plugins.size();
         if (n <= 1)

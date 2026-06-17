@@ -9,7 +9,7 @@ public record Player(String name, UUID newUUID)
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(Player.class);
 
-        public Player
+    public Player
     {
         if (name == null || name.isEmpty())
         {
@@ -25,13 +25,13 @@ public record Player(String name, UUID newUUID)
         }
     }
 
-        @Override
+    @Override
     public String name()
     {
         return name;
     }
 
-        @Override
+    @Override
     public UUID newUUID()
     {
         return newUUID;
