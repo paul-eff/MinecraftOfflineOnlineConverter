@@ -2,6 +2,7 @@ package me.pauleff.converter;
 
 import me.pauleff.converter.api.MOOCPlugin;
 import me.pauleff.converter.api.PluginMetadata;
+import me.pauleff.converter.api.MultiServerPlugin;
 import me.pauleff.converter.plugins.*;
 
 import java.util.*;
@@ -9,13 +10,15 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
- * Immutable {@link MOOCPlugin} list. Plugins are ordered by {@link PluginMetadata#priority()} (lower
- * runs first), then by registration order in the input list when priorities tie.
+ * Immutable plugin lists for the two-phase pipeline: discovery plugins populate
+ * {@link me.pauleff.converter.api.PluginContext}, then conversion plugins run for the detected
+ * {@link ServerType}. Within each list, plugins are ordered by {@link PluginMetadata#priority()}
+ * (lower runs first), then by registration order when priorities tie.
  */
-public record PluginRegistry(List<MOOCPlugin> plugins)
+public record PluginRegistry(List<MOOCPlugin> discoveryPlugins, List<MOOCPlugin> conversionPlugins)
 {
     /**
-     * Plugins that run for every {@link ServerType}.
+     * !!! Only add plugins to this list if it can and should run for ANY server type !!!
      */
     private static final List<MOOCPlugin> DEFAULT_PLUGINS = List.of(
             new DetectServerType(),
@@ -27,35 +30,26 @@ public record PluginRegistry(List<MOOCPlugin> plugins)
     );
 
     /**
-     * Plugins for {@link ServerType#VANILLA} only.
+     * Add all your plugins (implementing the {@link MultiServerPlugin} interface) to this
      */
-    private static final List<MOOCPlugin> VANILLA_PLUGINS = List.of(
-            new ConvertVanillaServer()
-    );
-
-    /**
-     * Plugins for {@link ServerType#BUKKIT} only (e.g. Paper, Spigot).
-     */
-    private static final List<MOOCPlugin> BUKKIT_PLUGINS = List.of(
-            new ConvertPluginServer()
-    );
-
-    /**
-     * Plugins for {@link ServerType#MODDED} only (e.g. Forge, Fabric).
-     */
-    private static final List<MOOCPlugin> MODDED_PLUGINS = List.of(
+    private static final List<MOOCPlugin> CONVERSION_PLUGINS = List.of(
+            new ConvertVanillaServer(),
+            new ConvertBukkitServer(),
             new ConvertModdedServer()
     );
 
-    /**
-     * @throws NullPointerException     if {@code plugins}, any entry, or {@code metadata()} is null
-     * @throws IllegalArgumentException on duplicate {@link PluginMetadata#id()}
-     */
-    public PluginRegistry(List<MOOCPlugin> plugins)
+    public PluginRegistry
     {
-        Objects.requireNonNull(plugins, "Plugins List can't be null.");
-        assertUniquePluginIds(plugins);
-        this.plugins = List.copyOf(sortByPriorityThenIndex(plugins));
+        Objects.requireNonNull(discoveryPlugins, "Discovery plugins list can't be null.");
+        Objects.requireNonNull(conversionPlugins, "Conversion plugins list can't be null.");
+        assertUniquePluginIds(Stream.concat(discoveryPlugins.stream(), conversionPlugins.stream()).toList());
+        discoveryPlugins = List.copyOf(sortByPriorityThenIndex(discoveryPlugins));
+        conversionPlugins = List.copyOf(sortByPriorityThenIndex(conversionPlugins));
+    }
+
+    public static PluginRegistry standard()
+    {
+        return new PluginRegistry(DEFAULT_PLUGINS, CONVERSION_PLUGINS);
     }
 
     /**
@@ -92,37 +86,5 @@ public record PluginRegistry(List<MOOCPlugin> plugins)
                 );
             }
         }
-    }
-
-    /**
-     * Unmodifiable; plugins for all {@link ServerType}s.
-     */
-    public static List<MOOCPlugin> defaultPlugins()
-    {
-        return DEFAULT_PLUGINS;
-    }
-
-    /**
-     * Unmodifiable; {@link ServerType#VANILLA}-specific plugins.
-     */
-    public static List<MOOCPlugin> vanillaPlugins()
-    {
-        return Stream.concat(defaultPlugins().stream(), VANILLA_PLUGINS.stream()).toList();
-    }
-
-    /**
-     * Unmodifiable; {@link ServerType#BUKKIT}-specific plugins.
-     */
-    public static List<MOOCPlugin> bukkitPlugins()
-    {
-        return Stream.concat(defaultPlugins().stream(), BUKKIT_PLUGINS.stream()).toList();
-    }
-
-    /**
-     * Unmodifiable; {@link ServerType#MODDED}-specific plugins.
-     */
-    public static List<MOOCPlugin> moddedPlugins()
-    {
-        return Stream.concat(defaultPlugins().stream(), MODDED_PLUGINS.stream()).toList();
     }
 }

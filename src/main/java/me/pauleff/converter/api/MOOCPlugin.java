@@ -15,7 +15,8 @@ import java.util.stream.Stream;
  * Template interface used when creating a custom plugin for MOOC.
  * The {@link PluginMetadata} defines identity and {@linkplain PluginMetadata#priority() execution priority}
  * ({@value PluginMetadata#MIN_PRIORITY}–{@value PluginMetadata#MAX_PRIORITY}, lower runs first). In a
- * {@link PluginRegistry}, ties break by registration order.
+ * {@link PluginRegistry}, ties break by registration order. Server-type-specific plugins implement
+ * {@link MultiServerPlugin} and run in the second orchestration phase.
  */
 public interface MOOCPlugin
 {
@@ -47,10 +48,7 @@ public interface MOOCPlugin
     /**
      * {@code false} skips this plugin for {@code ctx}; default {@code true}.
      */
-    default boolean isEnabled(PluginContext ctx)
-    {
-        return true;
-    }
+    boolean isEnabled(PluginContext ctx);
 
     /**
      * Builds a List of all files to look at and convert dependent on the given root folders to look at.

@@ -1,7 +1,7 @@
 package me.pauleff.converter.plugins;
 
 import me.pauleff.converter.ConverterV3;
-import me.pauleff.converter.api.MOOCPlugin;
+import me.pauleff.converter.api.ModdedServerPlugin;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
 
@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-public class ConvertModdedServer implements MOOCPlugin
+public class ConvertModdedServer implements ModdedServerPlugin
 {
     private static final PluginMetadata META = PluginMetadata.of(
             "modded-world",

@@ -4,6 +4,7 @@ import me.pauleff.converter.api.MOOCPlugin;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,24 +14,48 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * For each {@link MOOCPlugin}: resolve {@linkplain MOOCPlugin#setTargets(PluginContext) targets},
- * do some checks and then apply conversion.
+ * Runs plugins in two phases: discovery plugins populate {@link PluginContext}, then conversion
+ * plugins run for the detected {@link ServerType}.
  */
 public final class PluginOrchestrator
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginOrchestrator.class);
 
     private final PluginRegistry registry;
 
-    public PluginOrchestrator(ServerType serverType)
+    public PluginOrchestrator()
     {
-        this.registry = new PluginRegistry(serverType.toPluginList());
+        this(PluginRegistry.standard());
+    }
+
+    public PluginOrchestrator(PluginRegistry registry)
+    {
+        this.registry = Objects.requireNonNull(registry, "Registry can't be null.");
     }
 
     public void run(PluginContext ctx)
     {
         Objects.requireNonNull(ctx, "Context can't be null.");
+        runPhase(ctx, registry.discoveryPlugins());
+
+        ServerType serverType = Objects.requireNonNull(
+                ctx.serverType(),
+                "Server type can't be null");
+
+        boolean hasMatchingConversionPlugin = registry.conversionPlugins().stream()
+                .anyMatch(plugin -> plugin.isEnabled(ctx));
+        if (!hasMatchingConversionPlugin)
+        {
+            LOGGER.warn("No plugin list found for server type {}", serverType.name());
+        }
+
+        runPhase(ctx, registry.conversionPlugins());
+    }
+
+    private void runPhase(PluginContext ctx, List<MOOCPlugin> plugins)
+    {
         Path serverRoot = ctx.serverFolder();
-        for (MOOCPlugin plugin : registry.plugins())
+        for (MOOCPlugin plugin : plugins)
         {
             PluginMetadata meta = Objects.requireNonNull(plugin.metadata(), "Plugin metadata can't be null.");
             String pluginId = meta.id();

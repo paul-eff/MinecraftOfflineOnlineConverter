@@ -18,7 +18,6 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 import static java.lang.System.exit;
-import static me.pauleff.converter.ServerType.VANILLA;
 
 /**
  * Entry point for MinecraftOfflineOnlineConverter.
@@ -59,7 +58,7 @@ public class Main
                 Path path = Paths.get("/Users/paulferlitz/Desktop/Server/Testing_Servers/Vanilla");
                 ConversionTarget conversionTarget = parsedArgs.toOnlineMode().orElse(false) ? ConversionTarget.ONLINE : ConversionTarget.OFFLINE;
                 PluginContext ctx = new PluginContext(path, path.resolve("world"), conversionTarget);
-                PluginOrchestrator orchestrator = new PluginOrchestrator(VANILLA);
+                PluginOrchestrator orchestrator = new PluginOrchestrator();
                 orchestrator.run(ctx);
                 LOGGER.info(ctx.toString());
                 return;
