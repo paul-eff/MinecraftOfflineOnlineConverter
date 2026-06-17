@@ -27,10 +27,6 @@ import static me.pauleff.common.handlers.UUIDHandler.getUUIDType;
 import static me.pauleff.converter.UUIDType.OFFLINE;
 import static me.pauleff.converter.UUIDType.ONLINE;
 
-/**
- * Handles the conversion of Minecraft server player data between online and offline modes.
- * This includes renaming files and replacing UUIDs in various server files.
- */
 public class ConverterV2
 {
 
@@ -45,22 +41,12 @@ public class ConverterV2
     public Path worldFolder;
     private int lastUsercacheEntryCount;
 
-    /**
-     * Default constructor using the current directory as the server folder.
-     *
-     * @throws PathNotValidException if the world folder cannot be resolved.
-     */
-    public ConverterV2() throws PathNotValidException
+        public ConverterV2() throws PathNotValidException
     {
         this(Path.of("./").toAbsolutePath().normalize());
     }
 
-    /**
-     * Constructor allowing a custom server folder path.
-     *
-     * @param serverFolderPath The path to the Minecraft server directory.
-     */
-    public ConverterV2(Path serverFolderPath) throws PathNotValidException
+        public ConverterV2(Path serverFolderPath) throws PathNotValidException
     {
         this.serverFolder = serverFolderPath;
 
@@ -79,10 +65,7 @@ public class ConverterV2
         }
     }
 
-    /**
-     * Resolves {@link #worldFolder} from the world directory name (as in {@code server.properties} {@code level-name}).
-     */
-    public void setWorldFolder(String worldName) throws PathNotValidException
+        public void setWorldFolder(String worldName) throws PathNotValidException
     {
         this.worldFolder = this.serverFolder.resolve(worldName);
         if (!Files.exists(this.worldFolder))
@@ -91,12 +74,7 @@ public class ConverterV2
         }
     }
 
-    /**
-     * Fetches all known players from usercache.json and stores them in a map.
-     *
-     * @param toOnlineMode Specifies if the server should be converted to offline or online mode.
-     */
-    private void fetchUsercache(boolean toOnlineMode)
+        private void fetchUsercache(boolean toOnlineMode)
     {
         Path usercache = this.serverFolder.resolve("usercache.json");
         JSONArray knownPlayers = FileHandler.loadArrayFromUsercache(usercache);
@@ -139,13 +117,7 @@ public class ConverterV2
         }
     }
 
-    /**
-     * Performs a pre-check before conversion to ensure valid player data is available.
-     *
-     * @param toOnlineMode Conversion mode ("-online" or "-offline").
-     * @return True if conversion can proceed, false otherwise.
-     */
-    private boolean preCheck(boolean toOnlineMode)
+        private boolean preCheck(boolean toOnlineMode)
     {
         if (!toOnlineMode)
         {
@@ -170,14 +142,7 @@ public class ConverterV2
         return true;
     }
 
-    /**
-     * Copies all player data from the source world to the destination world
-     *
-     * @param sourceWorld The source world
-     * @param flavor      The Minecraft server type, defining file locations.
-     * @throws IOException if file operations fail.
-     */
-    public void copyPlayerData(String sourceWorld, MinecraftFlavor flavor) throws IOException
+        public void copyPlayerData(String sourceWorld, MinecraftFlavor flavor) throws IOException
     {
         Path _relativeSource = Paths.get(sourceWorld);
         if (_relativeSource.isAbsolute())
@@ -256,14 +221,7 @@ public class ConverterV2
         LOGGER.info("Copied {} files to {}", movedFiles, destWorldFolder.normalize());
     }
 
-    /**
-     * Converts all player-related files and UUIDs to match the selected mode.
-     *
-     * @param toOnlineMode Conversion mode ("-online" or "-offline").
-     * @param flavor       The Minecraft server type, defining file locations.
-     * @throws IOException if file operations fail.
-     */
-    public void convert(boolean toOnlineMode, MinecraftFlavor flavor) throws IOException
+        public void convert(boolean toOnlineMode, MinecraftFlavor flavor) throws IOException
     {
         if (!preCheck(toOnlineMode)) return;
         FileHandler.writeToProperties(serverProperties, "online-mode", Boolean.toString(toOnlineMode));

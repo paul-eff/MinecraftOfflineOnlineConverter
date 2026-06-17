@@ -1,9 +1,5 @@
 package me.pauleff.converter;
 
-/**
- * Enum representing different Minecraft server types.
- * Needed, as the different types heavily impact how and where files are saved.
- */
 public enum ServerType
 {
     VANILLA("Default vanilla Minecraft server"),

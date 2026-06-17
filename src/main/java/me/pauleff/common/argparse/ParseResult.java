@@ -1,9 +1,5 @@
 package me.pauleff.common.argparse;
 
-/**
- * Outcome of parsing command-line arguments.
- * A non-negative {@link #exitCode()} indicates the application should terminate.
- */
 public final class ParseResult
 {
     private final ParsedArguments arguments;

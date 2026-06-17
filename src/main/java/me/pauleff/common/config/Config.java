@@ -13,10 +13,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Class for parsing custom paths from a YAML configuration file.
- * Handles recursive directory listing and file filtering.
- */
 public class Config
 {
     public static final String CONFIG_NAME = "mooc-config.yml";
@@ -28,13 +24,7 @@ public class Config
     public List<String> playerdataWorldBlacklist = new ArrayList<>();
     public List<String> playerDataTagsToKeep = new ArrayList<>();
 
-    /**
-     * Constructor for CustomPathParser.
-     * Initializes the base directory and checks for the existence of the {@value #CONFIG_NAME} file.
-     *
-     * @throws InvalidPathException if the provided path is invalid.
-     */
-    public Config(Path baseDirectory)
+        public Config(Path baseDirectory)
     {
         this.baseDirectory = baseDirectory;
         pathList = new ArrayList<>();
@@ -105,24 +95,13 @@ public class Config
         return pathList;
     }
 
-    /**
-     * Checks whether the file is set.
-     *
-     * @return True if the YAML file exists, otherwise false.
-     */
-    public boolean isFileSet()
+        public boolean isFileSet()
     {
         return this.pathFile != null;
     }
 
 
-    /**
-     * Recursively retrieves file paths from a base folder.
-     *
-     * @param baseFolder The folder to scan.
-     * @return A list of file paths within the folder and subfolders.
-     */
-    public List<String> getPathsRecursively(String baseFolder)
+        public List<String> getPathsRecursively(String baseFolder)
     {
         // TODO: Return an array of paths or files, not strings
         Path path = this.baseDirectory.resolve(baseFolder);
@@ -139,13 +118,7 @@ public class Config
         }
     }
 
-    /**
-     * Retrieves file paths from a non-recursive folder.
-     *
-     * @param baseFolder The folder to scan.
-     * @return A list of file paths inside the folder.
-     */
-    public List<String> getFolderContent(String baseFolder)
+        public List<String> getFolderContent(String baseFolder)
     {
         // TODO: Return an array of paths or files, not strings
         Path path = this.baseDirectory.resolve(baseFolder);

@@ -4,9 +4,6 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Immutable snapshot of parsed command-line arguments.
- */
 public record ParsedArguments(
         boolean verbose,
         boolean devMode,

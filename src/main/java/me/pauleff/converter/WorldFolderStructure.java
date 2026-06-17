@@ -3,10 +3,6 @@ package me.pauleff.converter;
 import java.nio.file.Path;
 import java.util.List;
 
-/**
- * Enum representing different Minecraft world folder structures.
- * Needed, as the folder structure how the world and it's dimensions was saved has changed over the years.
- */
 public enum WorldFolderStructure
 {
     SINGLE("Standard Vanilla structure, single folder containing world, DIM1 and DIM-1"),
