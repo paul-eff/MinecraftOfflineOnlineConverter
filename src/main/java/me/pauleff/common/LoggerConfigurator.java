@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 public class LoggerConfigurator
 {
 
-        public static void configure(boolean verbose)
+    public static void configure(boolean verbose)
     {
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
         context.reset();

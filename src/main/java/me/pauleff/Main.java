@@ -6,7 +6,9 @@ import me.pauleff.common.argparse.ParsedArguments;
 import me.pauleff.common.config.Config;
 import me.pauleff.common.handlers.FileHandler;
 import me.pauleff.common.handlers.UUIDHandler;
-import me.pauleff.converter.*;
+import me.pauleff.converter.ConversionTarget;
+import me.pauleff.converter.ConverterV2;
+import me.pauleff.converter.PluginOrchestrator;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.detection.MinecraftFlavor;
 import me.pauleff.detection.MinecraftFlavorDetection;
@@ -26,7 +28,7 @@ public class Main
     private static ConverterV2 converter;
     private static MinecraftFlavorDetection mfd;
 
-        static void main(String[] args) throws Exception
+    static void main(String[] args) throws Exception
     {
         long startTime = System.nanoTime();
         ArgumentParser argumentParser = new ArgumentParser("MinecraftOfflineOnlineConverter", VERSION);
@@ -71,11 +73,11 @@ public class Main
             exit(0);
         }
 
-        
+
         MinecraftFlavor mcFlavor = mfd.detectMinecraftFlavor();
         LOGGER.info("This is a {} Minecraft Server!", mcFlavor);
 
-        
+
         Path serverProperties = converter.serverFolder.resolve("server.properties");
         String oldWorldPath = FileHandler.readWorldNameFromProperties(serverProperties, false);
 
@@ -92,7 +94,7 @@ public class Main
 
         if (parsedArgs.shouldConvert())
         {
-            
+
             converter.convert(parsedArgs.toOnlineMode().orElseThrow(), mcFlavor);
         }
         double elapsedSeconds = (System.nanoTime() - startTime) / 1_000_000_000.0;

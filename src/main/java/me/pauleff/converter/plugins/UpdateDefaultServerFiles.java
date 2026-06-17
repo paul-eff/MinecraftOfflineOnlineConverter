@@ -26,7 +26,7 @@ public class UpdateDefaultServerFiles implements MOOCPlugin
         return META;
     }
 
-        @Override
+    @Override
     public List<Path> setTargets(PluginContext ctx)
     {
         List<String> fileNames = List.of(
@@ -42,7 +42,7 @@ public class UpdateDefaultServerFiles implements MOOCPlugin
                 .toList();
     }
 
-        @Override
+    @Override
     public void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException
     {
         resolvedExistingTargets.forEach(path -> {

@@ -18,10 +18,10 @@ public final class PluginContext
     private final Path serverFolder;
     private final Path worldFolder;
     private final ConversionTarget conversionTarget;
+    private final Map<UUID, UUID> uuidMap;
     private ServerType serverType;
     private WorldFolderStructure worldFolderStructure;
     private SaveFileFormat saveFileFormat;
-    private final Map<UUID, UUID> uuidMap;
     private ParsedArguments parsedArguments;
 
     public PluginContext(
@@ -53,14 +53,14 @@ public final class PluginContext
         this.uuidMap = uuidMap;
     }
 
-        public void putUuidMapping(UUID from, UUID to)
+    public void putUuidMapping(UUID from, UUID to)
     {
         uuidMap.put(
                 Objects.requireNonNull(from, "Original UUID to put into map can't be null."),
                 Objects.requireNonNull(to, "New UUID to put into map can't be null."));
     }
 
-        public UUID getTargetUuid(UUID from)
+    public UUID getTargetUuid(UUID from)
     {
         return uuidMap.get(Objects.requireNonNull(from, "Original UUID to put into map can't be null."));
     }
@@ -90,7 +90,10 @@ public final class PluginContext
         return worldFolderStructure;
     }
 
-    public SaveFileFormat worldSaveFileFormat() { return saveFileFormat; }
+    public SaveFileFormat worldSaveFileFormat()
+    {
+        return saveFileFormat;
+    }
 
     public Map<UUID, UUID> uuidMap()
     {

@@ -28,13 +28,13 @@ public class DetectSaveFileFormat implements MOOCPlugin
         return META;
     }
 
-        @Override
+    @Override
     public List<Path> setTargets(PluginContext ctx)
     {
         return List.of(ctx.worldFolder());
     }
 
-        @Override
+    @Override
     public void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException
     {
         if (isMCA(ctx))

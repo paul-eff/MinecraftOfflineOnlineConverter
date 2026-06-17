@@ -22,14 +22,14 @@ public class ConvertModdedServer implements ModdedServerPlugin
         return META;
     }
 
-        @Override
+    @Override
     public List<Path> setTargets(PluginContext ctx)
     {
         List<Path> worldDimensionRootFolders = ctx.worldFolderStructure().dimensionRootFolders(ctx.serverFolder(), ctx.worldFolder());
         return returnAllFilesInFolders(worldDimensionRootFolders);
     }
 
-        @Override
+    @Override
     public void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException
     {
         ConverterV3 converterV3 = new ConverterV3(ctx);

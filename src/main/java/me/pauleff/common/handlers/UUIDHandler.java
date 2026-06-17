@@ -106,14 +106,14 @@ public class UUIDHandler
         return base + "minecraft/profile/lookup/" + uuid.toString();
     }
 
-        public static UUID nameToOfflineUUID(String name)
+    public static UUID nameToOfflineUUID(String name)
     {
         UUID uuid = UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(StandardCharsets.UTF_8));
         LOGGER.info("Offline UUID generated for '{}': {}", name, uuid);
         return uuid;
     }
 
-        public static UUID nameToOnlineUUID(String name) throws IOException
+    public static UUID nameToOnlineUUID(String name) throws IOException
     {
         HTTP.set(buildNameToUuidUrl(name));
         String response = HTTP.get();
@@ -169,7 +169,7 @@ public class UUIDHandler
         }
     }
 
-        public static UUIDType getUUIDType(UUID uuid)
+    public static UUIDType getUUIDType(UUID uuid)
     {
         int v = uuid.version();
         if (v == 4) return ONLINE;

@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,7 +23,7 @@ public class Config
     public List<String> playerdataWorldBlacklist = new ArrayList<>();
     public List<String> playerDataTagsToKeep = new ArrayList<>();
 
-        public Config(Path baseDirectory)
+    public Config(Path baseDirectory)
     {
         this.baseDirectory = baseDirectory;
         pathList = new ArrayList<>();
@@ -95,13 +94,13 @@ public class Config
         return pathList;
     }
 
-        public boolean isFileSet()
+    public boolean isFileSet()
     {
         return this.pathFile != null;
     }
 
 
-        public List<String> getPathsRecursively(String baseFolder)
+    public List<String> getPathsRecursively(String baseFolder)
     {
         // TODO: Return an array of paths or files, not strings
         Path path = this.baseDirectory.resolve(baseFolder);
@@ -118,7 +117,7 @@ public class Config
         }
     }
 
-        public List<String> getFolderContent(String baseFolder)
+    public List<String> getFolderContent(String baseFolder)
     {
         // TODO: Return an array of paths or files, not strings
         Path path = this.baseDirectory.resolve(baseFolder);
