@@ -20,11 +20,12 @@ public record PluginRegistry(List<MOOCPlugin> discoveryPlugins, List<MOOCPlugin>
             new DetectSaveFileFormat(),
             new PrefetchUsercache(),
             new UpdateProperties(),
-            new UpdateDefaultServerFiles()
+            new UpdateDefaultServerFiles(),
+            new ApplyCliServerProperties()
     );
 
     /**
-     * Add all your plugins (implementing the {@link MultiServerPlugin} interface) to this
+     * Add all your plugins to this which can run on one or multiple server types.
      */
     private static final List<MOOCPlugin> CONVERSION_PLUGINS = List.of(
             new ConvertVanillaServer(),

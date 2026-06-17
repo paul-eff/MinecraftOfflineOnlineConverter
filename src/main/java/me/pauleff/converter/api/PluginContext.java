@@ -1,5 +1,6 @@
 package me.pauleff.converter.api;
 
+import me.pauleff.common.argparse.ParsedArguments;
 import me.pauleff.converter.ConversionTarget;
 import me.pauleff.converter.SaveFileFormat;
 import me.pauleff.converter.ServerType;
@@ -21,6 +22,7 @@ public final class PluginContext
     private WorldFolderStructure worldFolderStructure;
     private SaveFileFormat saveFileFormat;
     private final Map<UUID, UUID> uuidMap;
+    private ParsedArguments parsedArguments;
 
     public PluginContext(
             Path serverFolder,
@@ -108,6 +110,16 @@ public final class PluginContext
     public void setSaveFileFormat(SaveFileFormat saveFileFormat)
     {
         this.saveFileFormat = saveFileFormat;
+    }
+
+    public ParsedArguments parsedArguments()
+    {
+        return parsedArguments;
+    }
+
+    public void setParsedArguments(ParsedArguments parsedArguments)
+    {
+        this.parsedArguments = Objects.requireNonNull(parsedArguments, "Parsed arguments can't be null.");
     }
 
     @Override

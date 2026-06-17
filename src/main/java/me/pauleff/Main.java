@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
 
 import static java.lang.System.exit;
 
@@ -46,6 +45,7 @@ public class Main
                 Path path = Paths.get("/Users/paulferlitz/Desktop/Server/Testing_Servers/Vanilla");
                 ConversionTarget conversionTarget = parsedArgs.toOnlineMode().orElse(false) ? ConversionTarget.ONLINE : ConversionTarget.OFFLINE;
                 PluginContext ctx = new PluginContext(path, path.resolve("world"), conversionTarget);
+                ctx.setParsedArguments(parsedArgs);
                 PluginOrchestrator orchestrator = new PluginOrchestrator();
                 orchestrator.run(ctx);
                 LOGGER.info(ctx.toString());
@@ -77,11 +77,6 @@ public class Main
         
         Path serverProperties = converter.serverFolder.resolve("server.properties");
         String oldWorldPath = FileHandler.readWorldNameFromProperties(serverProperties, false);
-
-        for (Map.Entry<String, String> m : parsedArgs.serverPropertiesChanges().entrySet())
-        {
-            FileHandler.writeToProperties(serverProperties, m.getKey(), m.getValue());
-        }
 
         String worldName = FileHandler.readWorldNameFromProperties(serverProperties, true);
         converter.setWorldFolder(worldName);

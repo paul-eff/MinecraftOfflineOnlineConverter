@@ -1,6 +1,5 @@
 package me.pauleff.converter.api;
 
-import me.pauleff.converter.PluginRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,16 +19,16 @@ public interface MOOCPlugin
 
     PluginMetadata metadata();
 
-        List<Path> setTargets(PluginContext ctx);
+    List<Path> setTargets(PluginContext ctx);
 
-        void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException;
+    void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException;
 
-        default boolean isEnabled(PluginContext ctx)
+    default boolean isEnabled(PluginContext ctx)
     {
         return true;
     }
 
-        default List<Path> returnAllFilesInFolders(List<Path> worldDimensionRootFolders)
+    default List<Path> returnAllFilesInFolders(List<Path> worldDimensionRootFolders)
     {
         List<Path> targets = new ArrayList<>();
         for (Path rootFolder : worldDimensionRootFolders)
