@@ -1,15 +1,15 @@
 package me.pauleff.converter.plugins;
 
 import me.pauleff.converter.ConverterV3;
-import me.pauleff.converter.api.MOOCPlugin;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
+import me.pauleff.converter.api.VanillaServerPlugin;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-public class ConvertVanillaServer implements MOOCPlugin
+public class ConvertVanillaServer implements VanillaServerPlugin
 {
     private static final PluginMetadata META = PluginMetadata.of(
             "vanilla-world",
