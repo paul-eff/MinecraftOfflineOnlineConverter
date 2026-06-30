@@ -14,7 +14,6 @@ public final class CliOptions
         Options options = new Options();
         options.addOption("h", "help", false, "Display help message");
 
-        options.addOption("d", "dev", false, "Ignores all other inputs and runs whatever is currently in development/alpha");
         options.addOption("p", "path", true, "Specify path to the server folder");
         options.addOption("v", false, "Print version");
         options.addOption("verbose", false, "Enable verbose output");

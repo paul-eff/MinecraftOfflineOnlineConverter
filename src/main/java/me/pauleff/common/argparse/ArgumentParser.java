@@ -59,16 +59,6 @@ public final class ArgumentParser
             {
                 return ParseResult.exit(0);
             }
-            if (cmd.hasOption("d"))
-            {
-                return ParseResult.success(new ParsedArguments(
-                        cmd.hasOption("verbose"),
-                        true,
-                        Optional.empty(),
-                        Optional.empty(),
-                        Optional.empty(),
-                        Map.of()));
-            }
 
             return ParseResult.success(buildArguments(cmd));
         } catch (ParseException e)
@@ -107,7 +97,6 @@ public final class ArgumentParser
 
         return new ParsedArguments(
                 cmd.hasOption("verbose"),
-                false,
                 serverPath,
                 toOnlineMode,
                 copyPlayerDataSourceWorld,
