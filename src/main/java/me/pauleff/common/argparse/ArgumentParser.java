@@ -66,7 +66,6 @@ public final class ArgumentParser
                         true,
                         Optional.empty(),
                         Optional.empty(),
-                        false,
                         Optional.empty(),
                         Map.of()));
             }
@@ -80,7 +79,7 @@ public final class ArgumentParser
         }
     }
 
-    private ParsedArguments buildArguments(CommandLine cmd)
+    private ParsedArguments buildArguments(CommandLine cmd) throws ParseException
     {
         Optional<Boolean> toOnlineMode = Optional.empty();
         if (cmd.hasOption("offline"))
@@ -95,18 +94,23 @@ public final class ArgumentParser
                 ? Optional.of(Paths.get(cmd.getOptionValue("path")))
                 : Optional.empty();
 
-        boolean movePlayerData = cmd.hasOption("c");
-        Optional<String> movePlayerdataSourceDir = movePlayerData
-                ? Optional.ofNullable(cmd.getOptionValue("c"))
-                : Optional.empty();
+        Optional<String> copyPlayerDataSourceWorld = Optional.empty();
+        if (cmd.hasOption("copy"))
+        {
+            String sourceWorld = cmd.getOptionValue("copy");
+            if (sourceWorld == null || sourceWorld.isBlank())
+            {
+                throw new ParseException("Option copy requires a source world name");
+            }
+            copyPlayerDataSourceWorld = Optional.of(sourceWorld);
+        }
 
         return new ParsedArguments(
                 cmd.hasOption("verbose"),
                 false,
                 serverPath,
                 toOnlineMode,
-                movePlayerData,
-                movePlayerdataSourceDir,
+                copyPlayerDataSourceWorld,
                 parseServerPropertiesChanges(cmd));
     }
 

@@ -1,9 +1,7 @@
 package me.pauleff.converter;
 
-import me.pauleff.Main;
 import me.pauleff.common.exceptions.PathNotValidException;
 import me.pauleff.common.handlers.FileHandler;
-import me.pauleff.common.handlers.NBTHandler;
 import me.pauleff.common.handlers.UUIDHandler;
 import me.pauleff.detection.MinecraftFlavor;
 import org.json.JSONArray;
@@ -16,8 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -140,85 +136,6 @@ public class ConverterV2
             return false;
         }
         return true;
-    }
-
-    public void copyPlayerData(String sourceWorld, MinecraftFlavor flavor) throws IOException
-    {
-        Path _relativeSource = Paths.get(sourceWorld);
-        if (_relativeSource.isAbsolute())
-        {
-            _relativeSource = _relativeSource.getRoot().relativize(_relativeSource);
-        }
-        Path sourceWorldFolder = this.serverFolder.resolve(_relativeSource).toAbsolutePath().normalize();
-        Path destWorldFolder = this.worldFolder;
-
-        Path relativeSourceWorldFolder = this.serverFolder.relativize(sourceWorldFolder);
-        Path relativeDestWorldFolder = this.serverFolder.relativize(destWorldFolder);
-
-        if (!destWorldFolder.toFile().exists() || Files.isSameFile(sourceWorldFolder, destWorldFolder))
-        {
-            LOGGER.warn("Could not move player data from {} to {}. Destination folder is invalid", relativeSourceWorldFolder, relativeDestWorldFolder);
-            return;
-        }
-//        System.out.println(Main.config.playerdataWorldBlacklist);
-        if (Main.config.playerdataWorldBlacklist.contains(relativeSourceWorldFolder.toString()) ||
-                Main.config.playerdataWorldBlacklist.contains(relativeDestWorldFolder.toString()))
-        {
-            LOGGER.warn("Could not move player data from {} to {}. Source or destination folder is blacklisted.", relativeSourceWorldFolder, relativeDestWorldFolder);
-            return;
-        }
-
-        LOGGER.info("Copying player data from {} to {}", relativeSourceWorldFolder, relativeDestWorldFolder);
-
-        String[] allFiles = flavor.getFiles(relativeSourceWorldFolder, true);
-        int movedFiles = 0;
-        for (String relativePath : allFiles)
-        {
-            Path currentPath = this.serverFolder.resolve(relativePath).normalize();
-            File currentFile = currentPath.toFile();
-
-            // TODO: IMPORTANT REMOVE AGAIN LATER - STILL WORKING ON MCA SUPPORT!!!!
-            if (currentFile.toString().contains("/region/"))
-            {
-                continue;
-            }
-
-            if (!currentFile.isFile() || IGNORED_FILE_EXTENSIONS.stream().anyMatch(currentFile.getName()::endsWith))
-            {
-                continue;
-            }
-            LOGGER.info("Processing file: {}", currentPath);
-            try
-            {
-                Path tail = sourceWorldFolder.relativize(currentPath);
-                Path finalPath = destWorldFolder.resolve(tail);
-
-                if (currentPath.getParent().getFileName().toString().equals("playerdata"))
-                {
-                    if (NBTHandler.isNBTFile(currentFile))
-                    {
-                        LOGGER.info("Copying NBT file to {}", destWorldFolder.normalize());
-                        NBTHandler.copyPlayerDataNBT(currentPath, finalPath);
-                        movedFiles++;
-                        continue;
-                    }
-                } else
-                {
-                    String fileName = FileHandler.stripFileExtension(currentPath.getFileName().toString());
-                    if (!UUIDHandler.isValidUUID(fileName)) continue;
-                }
-
-                LOGGER.info("Copying file to {}", destWorldFolder.normalize());
-                Files.copy(currentPath, finalPath, StandardCopyOption.REPLACE_EXISTING);
-                movedFiles++;
-            } catch (IllegalArgumentException | IOException e)
-            {
-                // TODO: Message was not very helpful, maybe add more details/context later?
-                LOGGER.debug("Skipping file {} due to an error: {}", currentPath.normalize(), e.getMessage());
-            }
-        }
-
-        LOGGER.info("Copied {} files to {}", movedFiles, destWorldFolder.normalize());
     }
 
     public void convert(boolean toOnlineMode, MinecraftFlavor flavor) throws IOException

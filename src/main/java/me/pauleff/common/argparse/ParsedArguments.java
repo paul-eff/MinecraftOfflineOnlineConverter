@@ -9,8 +9,7 @@ public record ParsedArguments(
         boolean devMode,
         Optional<Path> serverPath,
         Optional<Boolean> toOnlineMode,
-        boolean movePlayerData,
-        Optional<String> movePlayerdataSourceDir,
+        Optional<String> copyPlayerDataSourceWorld,
         Map<String, String> serverPropertiesChanges)
 {
     public boolean hasPath()
@@ -21,5 +20,10 @@ public record ParsedArguments(
     public boolean shouldConvert()
     {
         return toOnlineMode.isPresent();
+    }
+
+    public boolean shouldCopyPlayerData()
+    {
+        return copyPlayerDataSourceWorld.isPresent();
     }
 }

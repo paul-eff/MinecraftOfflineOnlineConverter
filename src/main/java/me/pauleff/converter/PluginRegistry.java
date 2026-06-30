@@ -20,7 +20,8 @@ public record PluginRegistry(List<MOOCPlugin> discoveryPlugins, List<MOOCPlugin>
             new PrefetchUsercache(),
             new UpdateProperties(),
             new UpdateDefaultServerFiles(),
-            new ApplyCliServerProperties()
+            new ApplyCliServerProperties(),
+            new CopyCliPlayerData()
     );
 
     /**
