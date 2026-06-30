@@ -8,6 +8,6 @@ public non-sealed interface ModdedServerPlugin extends MOOCPlugin
     @Override
     default boolean isEnabled(PluginContext ctx)
     {
-        return ServerType.MODDED == ctx.serverType();
+        return ctx.isConversionOperation() && ServerType.MODDED == ctx.serverType();
     }
 }

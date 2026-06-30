@@ -8,6 +8,6 @@ public non-sealed interface BukkitServerPlugin extends MOOCPlugin
     @Override
     default boolean isEnabled(PluginContext ctx)
     {
-        return ServerType.BUKKIT == ctx.serverType();
+        return ctx.isConversionOperation() && ServerType.BUKKIT == ctx.serverType();
     }
 }

@@ -34,6 +34,17 @@ public final class PluginOrchestrator
         Objects.requireNonNull(ctx, "Context can't be null.");
         runPhase(ctx, registry.discoveryPlugins());
 
+        if (!ctx.isConversionOperation())
+        {
+            return;
+        }
+
+        if (ctx.conversionTarget() == ConversionTarget.ONLINE && ctx.uuidMap().isEmpty())
+        {
+            LOGGER.error("No profiles resolved for online conversion. Aborting...");
+            return;
+        }
+
         ServerType serverType = Objects.requireNonNull(
                 ctx.serverType(),
                 "Server type can't be null");

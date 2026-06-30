@@ -34,8 +34,7 @@ public class UpdateDefaultServerFiles implements DefaultPlugin
                 "banned-players.json",
                 "banned-ips.json",
                 "ops.json",
-                "usercache.json",
-                "whitelist.json");
+                "usercache.json");
 
         return fileNames.stream()
                 .map(name -> ctx.serverFolder().resolve(name))

@@ -39,7 +39,7 @@ java -jar MinecraftOfflineOnlineConverter.jar <arguments>
   - `-offline` to convert your server to offline files
   - `-online` to convert your server to online files
 - If necessary `-p "path/to/server/folder/"` (if the jar is not in the server's main folder)
-- `-c` to copy player data from one world to another
+- `-copy` to copy player data from one world to another
 - `-properties` to directly edit values in server.properties
 - `-v` for verbose output
 - `-h` for help
