@@ -79,18 +79,9 @@ public class Main
 
 
         Path serverProperties = converter.serverFolder.resolve("server.properties");
-        String oldWorldPath = FileHandler.readWorldNameFromProperties(serverProperties, false);
 
         String worldName = FileHandler.readWorldNameFromProperties(serverProperties, true);
         converter.setWorldFolder(worldName);
-
-        if (parsedArgs.movePlayerData())
-        {
-            String movePlayerdataSourceDir = parsedArgs.movePlayerdataSourceDir()
-                    .filter(dir -> !dir.isBlank())
-                    .orElse(oldWorldPath);
-            converter.copyPlayerData(movePlayerdataSourceDir, mcFlavor);
-        }
 
         if (parsedArgs.shouldConvert())
         {
