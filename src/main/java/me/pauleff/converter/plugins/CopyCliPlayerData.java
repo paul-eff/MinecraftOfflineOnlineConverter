@@ -6,7 +6,7 @@ import me.pauleff.common.handlers.FileHandler;
 import me.pauleff.common.handlers.NBTHandler;
 import me.pauleff.common.handlers.UUIDHandler;
 import me.pauleff.converter.ServerType;
-import me.pauleff.converter.api.MOOCPlugin;
+import me.pauleff.converter.api.DefaultPlugin;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
 
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-public class CopyCliPlayerData implements MOOCPlugin
+public class CopyCliPlayerData implements DefaultPlugin
 {
     private static final PluginMetadata META = PluginMetadata.of(
             "copy-cli-player-data",

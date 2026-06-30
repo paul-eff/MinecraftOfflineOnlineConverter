@@ -1,6 +1,6 @@
 package me.pauleff.converter.plugins;
 
-import me.pauleff.converter.api.MOOCPlugin;
+import me.pauleff.converter.api.DefaultPlugin;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
 
@@ -11,7 +11,7 @@ import java.util.List;
 
 import static me.pauleff.converter.ServerType.*;
 
-public class DetectServerType implements MOOCPlugin
+public class DetectServerType implements DefaultPlugin
 {
     private static final PluginMetadata META = PluginMetadata.of(
             "detect-server-type",

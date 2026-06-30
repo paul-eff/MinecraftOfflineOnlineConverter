@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public interface MOOCPlugin
+public sealed interface MOOCPlugin permits DefaultPlugin, MultiServerPlugin, VanillaServerPlugin, BukkitServerPlugin, ModdedServerPlugin
 {
     default Logger logger()
     {
@@ -21,12 +21,9 @@ public interface MOOCPlugin
 
     List<Path> setTargets(PluginContext ctx);
 
-    void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException;
+    boolean isEnabled(PluginContext ctx);
 
-    default boolean isEnabled(PluginContext ctx)
-    {
-        return true;
-    }
+    void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException;
 
     default List<Path> returnAllFilesInFolders(List<Path> worldDimensionRootFolders)
     {

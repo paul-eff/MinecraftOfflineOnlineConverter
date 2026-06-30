@@ -3,7 +3,7 @@ package me.pauleff.converter.api;
 import me.pauleff.converter.ServerType;
 
 
-public interface BukkitServerPlugin extends MOOCPlugin
+public non-sealed interface BukkitServerPlugin extends MOOCPlugin
 {
     @Override
     default boolean isEnabled(PluginContext ctx)
