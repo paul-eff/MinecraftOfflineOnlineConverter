@@ -1,6 +1,6 @@
 package me.pauleff.converter.plugins;
 
-import me.pauleff.converter.api.MOOCPlugin;
+import me.pauleff.converter.api.DefaultPlugin;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
 
@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 import static me.pauleff.converter.SaveFileFormat.ANVIL;
 import static me.pauleff.converter.SaveFileFormat.MC_REGION;
 
-public class DetectSaveFileFormat implements MOOCPlugin
+public class DetectSaveFileFormat implements DefaultPlugin
 {
     private static final PluginMetadata META = PluginMetadata.of(
             "detect-world-savefile-format",

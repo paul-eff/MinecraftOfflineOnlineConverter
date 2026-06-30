@@ -2,7 +2,7 @@ package me.pauleff.converter.plugins;
 
 import me.pauleff.common.argparse.ParsedArguments;
 import me.pauleff.common.handlers.FileHandler;
-import me.pauleff.converter.api.MOOCPlugin;
+import me.pauleff.converter.api.DefaultPlugin;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
 
@@ -11,7 +11,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-public class ApplyCliServerProperties implements MOOCPlugin
+public class ApplyCliServerProperties implements DefaultPlugin
 {
     private static final PluginMetadata META = PluginMetadata.of(
             "apply-cli-server-properties",

@@ -2,7 +2,7 @@ package me.pauleff.converter.plugins;
 
 import me.pauleff.common.handlers.UUIDHandler;
 import me.pauleff.converter.ConversionTarget;
-import me.pauleff.converter.api.MOOCPlugin;
+import me.pauleff.converter.api.DefaultPlugin;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
 import org.json.JSONArray;
@@ -16,7 +16,7 @@ import java.util.UUID;
 import static me.pauleff.common.handlers.FileHandler.loadArrayFromUsercache;
 import static me.pauleff.common.handlers.UUIDHandler.nameToOfflineUUID;
 
-public class PrefetchUsercache implements MOOCPlugin
+public class PrefetchUsercache implements DefaultPlugin
 {
     private static final PluginMetadata META = PluginMetadata.of(
             "prefetch-usercache",

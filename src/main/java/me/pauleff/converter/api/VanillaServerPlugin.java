@@ -3,7 +3,7 @@ package me.pauleff.converter.api;
 import me.pauleff.converter.ServerType;
 
 
-public interface VanillaServerPlugin extends MOOCPlugin
+public non-sealed interface VanillaServerPlugin extends MOOCPlugin
 {
     @Override
     default boolean isEnabled(PluginContext ctx)

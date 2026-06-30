@@ -4,7 +4,7 @@ import me.pauleff.converter.ServerType;
 
 import java.util.List;
 
-public interface MultiServerPlugin extends MOOCPlugin
+public non-sealed interface MultiServerPlugin extends MOOCPlugin
 {
     List<ServerType> getCompatibleServerTypes();
 

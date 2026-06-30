@@ -2,7 +2,7 @@ package me.pauleff.converter.plugins;
 
 import me.pauleff.common.handlers.FileHandler;
 import me.pauleff.converter.ConversionTarget;
-import me.pauleff.converter.api.MOOCPlugin;
+import me.pauleff.converter.api.DefaultPlugin;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
 
@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-public class UpdateProperties implements MOOCPlugin
+public class UpdateProperties implements DefaultPlugin
 {
     private static final PluginMetadata META = PluginMetadata.of(
             "update-properties",

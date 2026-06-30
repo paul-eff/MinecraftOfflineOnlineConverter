@@ -1,6 +1,6 @@
 package me.pauleff.converter.api;
 
-public interface DefaultPlugin extends MOOCPlugin
+public non-sealed interface DefaultPlugin extends MOOCPlugin
 {
     @Override
     default boolean isEnabled(PluginContext ctx)
