@@ -6,7 +6,6 @@ import java.util.Optional;
 
 public record ParsedArguments(
         boolean verbose,
-        boolean devMode,
         Optional<Path> serverPath,
         Optional<Boolean> toOnlineMode,
         Optional<String> copyPlayerDataSourceWorld,
@@ -17,7 +16,7 @@ public record ParsedArguments(
         return serverPath.isPresent();
     }
 
-    public boolean shouldConvert()
+    public boolean isConversionOperation()
     {
         return toOnlineMode.isPresent();
     }

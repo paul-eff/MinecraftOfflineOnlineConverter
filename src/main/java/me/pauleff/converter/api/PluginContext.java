@@ -1,11 +1,16 @@
 package me.pauleff.converter.api;
 
 import me.pauleff.common.argparse.ParsedArguments;
+import me.pauleff.common.exceptions.PathNotValidException;
+import me.pauleff.common.handlers.FileHandler;
 import me.pauleff.converter.ConversionTarget;
 import me.pauleff.converter.SaveFileFormat;
 import me.pauleff.converter.ServerType;
 import me.pauleff.converter.WorldFolderStructure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +20,8 @@ import java.util.UUID;
 
 public final class PluginContext
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginContext.class);
+
     private final Path serverFolder;
     private final Path worldFolder;
     private final ConversionTarget conversionTarget;
@@ -120,9 +127,53 @@ public final class PluginContext
         return parsedArguments;
     }
 
+    public boolean isConversionOperation()
+    {
+        return parsedArguments != null && parsedArguments.isConversionOperation();
+    }
+
     public void setParsedArguments(ParsedArguments parsedArguments)
     {
         this.parsedArguments = Objects.requireNonNull(parsedArguments, "Parsed arguments can't be null.");
+    }
+
+    public static PluginContext from(ParsedArguments parsedArgs) throws PathNotValidException
+    {
+        Objects.requireNonNull(parsedArgs, "Parsed arguments can't be null.");
+
+        Path serverFolder = parsedArgs.serverPath()
+                .orElse(Path.of("."))
+                .toAbsolutePath()
+                .normalize();
+
+        if (!Files.exists(serverFolder))
+        {
+            throw new PathNotValidException("Server folder not found", serverFolder);
+        }
+        LOGGER.info("Server folder set to: {}", serverFolder);
+
+        Path serverProperties = serverFolder.resolve("server.properties");
+        if (!Files.exists(serverProperties))
+        {
+            throw new PathNotValidException(
+                    "Could not find server.properties",
+                    serverProperties.toAbsolutePath().normalize());
+        }
+
+        String worldName = FileHandler.readWorldNameFromProperties(serverProperties, true);
+        Path worldFolder = serverFolder.resolve(worldName);
+        if (!Files.exists(worldFolder))
+        {
+            throw new PathNotValidException(worldFolder.toAbsolutePath().normalize());
+        }
+
+        ConversionTarget conversionTarget = parsedArgs.toOnlineMode()
+                .map(online -> online ? ConversionTarget.ONLINE : ConversionTarget.OFFLINE)
+                .orElse(ConversionTarget.OFFLINE);
+
+        PluginContext ctx = new PluginContext(serverFolder, worldFolder, conversionTarget);
+        ctx.setParsedArguments(parsedArgs);
+        return ctx;
     }
 
     @Override

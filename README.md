@@ -40,7 +40,7 @@ java -jar MinecraftOfflineOnlineConverter.jar <arguments>
   - `-offline` to convert your server to offline files
   - `-online` to convert your server to online files
 - If necessary `-p "path/to/server/folder/"` (if the jar is not in the server's main folder)
-- `-c` or `-copy` to copy player data from one world to another
+- `-copy` to copy player data from one world to another
 - `-properties` to directly edit values in server.properties
 - `-customApiBaseUrl "https://myskinserver.com"` custom API base URL for online UUID/name lookups (Mojang API path
   schema was to be used [read more here](https://minecraft.wiki/w/Mojang_API)). Useful for custom auth/skin servers
