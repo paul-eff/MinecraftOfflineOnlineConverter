@@ -4,6 +4,7 @@ import me.pauleff.common.argparse.ArgumentParser;
 import me.pauleff.common.argparse.ParseResult;
 import me.pauleff.common.argparse.ParsedArguments;
 import me.pauleff.common.exceptions.PathNotValidException;
+import me.pauleff.common.exceptions.UnknownWorldFolderStructureException;
 import me.pauleff.common.handlers.FileHandler;
 import me.pauleff.common.handlers.UUIDHandler;
 import me.pauleff.converter.ConversionTarget;
@@ -46,7 +47,7 @@ public class Main
         {
             PluginContext ctx = PluginContext.from(parsedArgs);
             new PluginOrchestrator().run(ctx);
-        } catch (PathNotValidException e)
+        } catch (PathNotValidException | UnknownWorldFolderStructureException e)
         {
             LOGGER.error(e.getMessage());
             argumentParser.printHelp();

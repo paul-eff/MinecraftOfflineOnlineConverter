@@ -1,5 +1,6 @@
 package me.pauleff.converter;
 
+import me.pauleff.common.exceptions.UnknownWorldFolderStructureException;
 import me.pauleff.converter.api.MOOCPlugin;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
@@ -106,6 +107,9 @@ public final class PluginOrchestrator
                 }
                 pluginLog.debug("Targets: {}", resolvedExisting);
                 plugin.run(ctx, List.copyOf(resolvedExisting));
+            } catch (UnknownWorldFolderStructureException e)
+            {
+                throw e;
             } catch (IOException | RuntimeException e)
             {
                 pluginLog.error("Plugin failed: {}", e.getMessage(), e);
