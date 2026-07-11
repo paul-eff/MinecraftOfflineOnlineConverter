@@ -3,7 +3,6 @@ package me.pauleff;
 import me.pauleff.common.argparse.ArgumentParser;
 import me.pauleff.common.argparse.ParseResult;
 import me.pauleff.common.argparse.ParsedArguments;
-import me.pauleff.common.config.Config;
 import me.pauleff.common.exceptions.PathNotValidException;
 import me.pauleff.common.handlers.FileHandler;
 import me.pauleff.common.handlers.UUIDHandler;
@@ -19,8 +18,7 @@ import static java.lang.System.exit;
 public class Main
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
-    private static final String VERSION = "3.1.2";
-    public static Config config;
+    private static final String VERSION = "26.1";
 
     static void main(String[] args) throws Exception
     {
@@ -47,7 +45,6 @@ public class Main
         try
         {
             PluginContext ctx = PluginContext.from(parsedArgs);
-            config = new Config(ctx.serverFolder());
             new PluginOrchestrator().run(ctx);
         } catch (PathNotValidException e)
         {

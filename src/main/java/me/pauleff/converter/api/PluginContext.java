@@ -60,6 +60,45 @@ public final class PluginContext
         this.uuidMap = uuidMap;
     }
 
+    public static PluginContext from(ParsedArguments parsedArgs) throws PathNotValidException
+    {
+        Objects.requireNonNull(parsedArgs, "Parsed arguments can't be null.");
+
+        Path serverFolder = parsedArgs.serverPath()
+                .orElse(Path.of("."))
+                .toAbsolutePath()
+                .normalize();
+
+        if (!Files.exists(serverFolder))
+        {
+            throw new PathNotValidException("Server folder not found", serverFolder);
+        }
+        LOGGER.info("Server folder set to: {}", serverFolder);
+
+        Path serverProperties = serverFolder.resolve("server.properties");
+        if (!Files.exists(serverProperties))
+        {
+            throw new PathNotValidException(
+                    "Could not find server.properties",
+                    serverProperties.toAbsolutePath().normalize());
+        }
+
+        String worldName = FileHandler.readWorldNameFromProperties(serverProperties, true);
+        Path worldFolder = serverFolder.resolve(worldName);
+        if (!Files.exists(worldFolder))
+        {
+            throw new PathNotValidException(worldFolder.toAbsolutePath().normalize());
+        }
+
+        ConversionTarget conversionTarget = parsedArgs.toOnlineMode()
+                .map(online -> online ? ConversionTarget.ONLINE : ConversionTarget.OFFLINE)
+                .orElse(ConversionTarget.OFFLINE);
+
+        PluginContext ctx = new PluginContext(serverFolder, worldFolder, conversionTarget);
+        ctx.setParsedArguments(parsedArgs);
+        return ctx;
+    }
+
     public void putUuidMapping(UUID from, UUID to)
     {
         uuidMap.put(
@@ -135,45 +174,6 @@ public final class PluginContext
     public void setParsedArguments(ParsedArguments parsedArguments)
     {
         this.parsedArguments = Objects.requireNonNull(parsedArguments, "Parsed arguments can't be null.");
-    }
-
-    public static PluginContext from(ParsedArguments parsedArgs) throws PathNotValidException
-    {
-        Objects.requireNonNull(parsedArgs, "Parsed arguments can't be null.");
-
-        Path serverFolder = parsedArgs.serverPath()
-                .orElse(Path.of("."))
-                .toAbsolutePath()
-                .normalize();
-
-        if (!Files.exists(serverFolder))
-        {
-            throw new PathNotValidException("Server folder not found", serverFolder);
-        }
-        LOGGER.info("Server folder set to: {}", serverFolder);
-
-        Path serverProperties = serverFolder.resolve("server.properties");
-        if (!Files.exists(serverProperties))
-        {
-            throw new PathNotValidException(
-                    "Could not find server.properties",
-                    serverProperties.toAbsolutePath().normalize());
-        }
-
-        String worldName = FileHandler.readWorldNameFromProperties(serverProperties, true);
-        Path worldFolder = serverFolder.resolve(worldName);
-        if (!Files.exists(worldFolder))
-        {
-            throw new PathNotValidException(worldFolder.toAbsolutePath().normalize());
-        }
-
-        ConversionTarget conversionTarget = parsedArgs.toOnlineMode()
-                .map(online -> online ? ConversionTarget.ONLINE : ConversionTarget.OFFLINE)
-                .orElse(ConversionTarget.OFFLINE);
-
-        PluginContext ctx = new PluginContext(serverFolder, worldFolder, conversionTarget);
-        ctx.setParsedArguments(parsedArgs);
-        return ctx;
     }
 
     @Override
