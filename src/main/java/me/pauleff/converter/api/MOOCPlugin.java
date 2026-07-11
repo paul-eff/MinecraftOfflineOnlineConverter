@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public sealed interface MOOCPlugin permits DefaultPlugin, MultiServerPlugin, VanillaServerPlugin, BukkitServerPlugin, ModdedServerPlugin
+public sealed interface MOOCPlugin permits DefaultPlugin, MultiServerPlugin, ServerTypePlugin
 {
     default Logger logger()
     {
@@ -39,6 +39,7 @@ public sealed interface MOOCPlugin permits DefaultPlugin, MultiServerPlugin, Van
             {
                 worldFolderStream
                         .filter(path -> !path.equals(rootFolder))
+                        .filter(Files::isRegularFile)
                         .forEach(targets::add);
             } catch (IOException e)
             {

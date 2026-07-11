@@ -1,20 +1,27 @@
 package me.pauleff.converter.plugins;
 
 import me.pauleff.converter.ConverterV3;
-import me.pauleff.converter.api.BukkitServerPlugin;
+import me.pauleff.converter.ServerType;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
+import me.pauleff.converter.api.ServerTypePlugin;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-public class ConvertBukkitServer implements BukkitServerPlugin
+public class ConvertBukkitServer implements ServerTypePlugin
 {
     private static final PluginMetadata META = PluginMetadata.of(
             "bukkit-world",
             "Bukkit World",
             "Conversion of basic world directories/files from a Bukkit Minecraft server (Bukkit, Paper, ...).");
+
+    @Override
+    public ServerType compatibleServerType()
+    {
+        return ServerType.BUKKIT;
+    }
 
     @Override
     public PluginMetadata metadata()

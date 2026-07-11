@@ -44,7 +44,7 @@ public class DetectSaveFileFormat implements DefaultPlugin
         {
             ctx.setSaveFileFormat(MC_REGION);
         }
-        logger().info("Detected save file format: {}", ctx.worldSaveFileFormat().name());
+        logger().info("Detected save file format: {}", ctx.saveFileFormat().name());
     }
 
     private boolean isMCR(PluginContext ctx) throws IOException

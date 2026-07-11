@@ -1,20 +1,27 @@
 package me.pauleff.converter.plugins;
 
 import me.pauleff.converter.ConverterV3;
-import me.pauleff.converter.api.ModdedServerPlugin;
+import me.pauleff.converter.ServerType;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
+import me.pauleff.converter.api.ServerTypePlugin;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-public class ConvertModdedServer implements ModdedServerPlugin
+public class ConvertModdedServer implements ServerTypePlugin
 {
     private static final PluginMetadata META = PluginMetadata.of(
             "modded-world",
             "Modded World",
             "Conversion of basic world directories/files from a modded Minecraft server (Forge, Fabric, ...).");
+
+    @Override
+    public ServerType compatibleServerType()
+    {
+        return ServerType.MODDED;
+    }
 
     @Override
     public PluginMetadata metadata()

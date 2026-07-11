@@ -6,11 +6,14 @@ import java.util.List;
 
 public non-sealed interface MultiServerPlugin extends MOOCPlugin
 {
-    List<ServerType> getCompatibleServerTypes();
+    List<ServerType> compatibleServerTypes();
 
     @Override
     default boolean isEnabled(PluginContext ctx)
     {
-        return getCompatibleServerTypes().contains(ctx.serverType());
+        ServerType serverType = ctx.serverType();
+        return ctx.isConversionOperation()
+                && serverType != null
+                && compatibleServerTypes().contains(serverType);
     }
 }

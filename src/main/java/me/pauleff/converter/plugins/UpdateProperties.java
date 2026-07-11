@@ -40,9 +40,10 @@ public class UpdateProperties implements DefaultPlugin
     @Override
     public void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException
     {
-        resolvedExistingTargets.forEach(path -> {
+        for (Path path : resolvedExistingTargets)
+        {
             boolean newPropertyValue = ctx.conversionTarget().equals(ConversionTarget.ONLINE);
             FileHandler.writeToProperties(path, "online-mode", String.valueOf(newPropertyValue));
-        });
+        }
     }
 }

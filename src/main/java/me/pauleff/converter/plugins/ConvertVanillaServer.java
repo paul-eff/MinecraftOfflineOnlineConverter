@@ -1,20 +1,27 @@
 package me.pauleff.converter.plugins;
 
 import me.pauleff.converter.ConverterV3;
+import me.pauleff.converter.ServerType;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
-import me.pauleff.converter.api.VanillaServerPlugin;
+import me.pauleff.converter.api.ServerTypePlugin;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-public class ConvertVanillaServer implements VanillaServerPlugin
+public class ConvertVanillaServer implements ServerTypePlugin
 {
     private static final PluginMetadata META = PluginMetadata.of(
             "vanilla-world",
             "Vanilla World",
             "Conversion of basic world directories/files from a vanilla Minecraft server.");
+
+    @Override
+    public ServerType compatibleServerType()
+    {
+        return ServerType.VANILLA;
+    }
 
     @Override
     public PluginMetadata metadata()

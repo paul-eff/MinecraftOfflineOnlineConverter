@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-
 public final class PluginContext
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(PluginContext.class);
@@ -26,10 +25,10 @@ public final class PluginContext
     private final Path worldFolder;
     private final ConversionTarget conversionTarget;
     private final Map<UUID, UUID> uuidMap;
+    private final ParsedArguments parsedArguments;
     private ServerType serverType;
     private WorldFolderStructure worldFolderStructure;
     private SaveFileFormat saveFileFormat;
-    private final ParsedArguments parsedArguments;
 
     private PluginContext(
             Path serverFolder,
@@ -118,7 +117,7 @@ public final class PluginContext
         return worldFolderStructure;
     }
 
-    public SaveFileFormat worldSaveFileFormat()
+    public SaveFileFormat saveFileFormat()
     {
         return saveFileFormat;
     }
