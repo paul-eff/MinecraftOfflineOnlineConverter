@@ -1,8 +1,8 @@
-# MinecraftOfflineOnlineConverter v3.1.2
+# MinecraftOfflineOnlineConverter v26.2
 <p align="center">
-  <img src="https://img.shields.io/badge/version-3.1.2-blue">
-  <img src="https://img.shields.io/badge/minecraft-1.21.11-green">
-  <img src="https://img.shields.io/badge/java-21-red">
+  <img src="https://img.shields.io/badge/version-26.2-blue">
+  <img src="https://img.shields.io/badge/minecraft-26.2-green">
+  <img src="https://img.shields.io/badge/java-26-red">
 </p>
 
 Ever started playing on one of your Minecraft servers and a few hours later that one friend that didn't buy the game wants to join?
@@ -12,9 +12,6 @@ This happened to me way to often, and now I automated the whole process.
 The Java applicatin will convert all player related files to be offline or online compatible.
 
 # Supporting
-
-> [!WARNING]  
-> As of **Minecraft version 26.1** there were some changes to world folder structure! This means **I currently can't guarantee that the plugin will work as intended**. I am on it, but this can take a bit. Cheers!
 
 Currently I tested and can confirm support for Vanilla, Bukkit, Paper and Purpur servers.
 Every Minecraft version since and including 1.17.1 is confirmed to work. Earlier versions I can't guarantee.

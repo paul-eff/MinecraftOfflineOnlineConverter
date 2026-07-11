@@ -22,10 +22,6 @@ public final class Main
     private static final String APP_NAME = "MinecraftOfflineOnlineConverter";
     private static final String VERSION = "26.1";
 
-    private Main()
-    {
-    }
-
     static void main(String[] args)
     {
         long startTime = System.nanoTime();
