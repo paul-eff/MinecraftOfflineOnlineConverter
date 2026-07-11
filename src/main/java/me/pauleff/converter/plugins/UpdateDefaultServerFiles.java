@@ -27,6 +27,12 @@ public class UpdateDefaultServerFiles implements DefaultPlugin
     }
 
     @Override
+    public boolean isEnabled(PluginContext ctx)
+    {
+        return ctx.isConversionOperation();
+    }
+
+    @Override
     public List<Path> setTargets(PluginContext ctx)
     {
         List<String> fileNames = List.of(

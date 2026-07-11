@@ -1,7 +1,5 @@
 package me.pauleff.converter.plugins;
 
-import me.pauleff.Main;
-import me.pauleff.common.argparse.ParsedArguments;
 import me.pauleff.common.handlers.FileHandler;
 import me.pauleff.common.handlers.NBTHandler;
 import me.pauleff.common.handlers.UUIDHandler;
@@ -16,9 +14,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public class CopyCliPlayerData implements DefaultPlugin
 {
@@ -33,6 +33,8 @@ public class CopyCliPlayerData implements DefaultPlugin
             "md", "snbt", "nbt", "zip", "cache", "png", "jpeg", "js", "DS_Store"
     );
 
+    private static final List<String> PLAYER_DATA_SUBFOLDERS = List.of("playerdata", "advancements", "stats");
+
     @Override
     public PluginMetadata metadata()
     {
@@ -42,8 +44,7 @@ public class CopyCliPlayerData implements DefaultPlugin
     @Override
     public boolean isEnabled(PluginContext ctx)
     {
-        ParsedArguments parsedArguments = ctx.parsedArguments();
-        return parsedArguments != null && parsedArguments.shouldCopyPlayerData();
+        return ctx.parsedArguments().shouldCopyPlayerData();
     }
 
     @Override
@@ -72,37 +73,23 @@ public class CopyCliPlayerData implements DefaultPlugin
         copyPlayerData(
                 resolvedExistingTargets.get(0),
                 resolvedExistingTargets.get(1),
-                ctx.serverFolder(),
                 Objects.requireNonNull(ctx.serverType(), "Server type must be detected before copying player data."));
     }
 
-    private void copyPlayerData(Path sourceWorldFolder, Path destWorldFolder, Path serverFolder, ServerType serverType) throws IOException
+    private void copyPlayerData(Path sourceWorldFolder, Path destWorldFolder, ServerType serverType) throws IOException
     {
-        Path relativeSourceWorldFolder = serverFolder.relativize(sourceWorldFolder);
-        Path relativeDestWorldFolder = serverFolder.relativize(destWorldFolder);
-
         if (Files.isSameFile(sourceWorldFolder, destWorldFolder))
         {
             logger().warn("Could not move player data from {} to {}. Source and destination are the same folder",
-                    relativeSourceWorldFolder, relativeDestWorldFolder);
+                    sourceWorldFolder.normalize(), destWorldFolder.normalize());
             return;
         }
 
-        if (Main.config.playerdataWorldBlacklist.contains(relativeSourceWorldFolder.toString()) ||
-                Main.config.playerdataWorldBlacklist.contains(relativeDestWorldFolder.toString()))
-        {
-            logger().warn("Could not move player data from {} to {}. Source or destination folder is blacklisted.",
-                    relativeSourceWorldFolder, relativeDestWorldFolder);
-            return;
-        }
+        logger().info("Copying player data from {} to {}", sourceWorldFolder.normalize(), destWorldFolder.normalize());
 
-        logger().info("Copying player data from {} to {}", relativeSourceWorldFolder, relativeDestWorldFolder);
-
-        String[] allFiles = serverType.getFiles(relativeSourceWorldFolder, true);
         int movedFiles = 0;
-        for (String relativePath : allFiles)
+        for (Path currentPath : collectPlayerDataFiles(sourceWorldFolder, serverType))
         {
-            Path currentPath = serverFolder.resolve(relativePath).normalize();
             File currentFile = currentPath.toFile();
 
             // TODO: IMPORTANT REMOVE AGAIN LATER - STILL WORKING ON MCA SUPPORT!!!!
@@ -146,5 +133,30 @@ public class CopyCliPlayerData implements DefaultPlugin
         }
 
         logger().info("Copied {} files to {}", movedFiles, destWorldFolder.normalize());
+    }
+
+    private List<Path> collectPlayerDataFiles(Path sourceWorldFolder, ServerType serverType) throws IOException
+    {
+        Set<Path> files = new LinkedHashSet<>();
+        for (String subfolder : PLAYER_DATA_SUBFOLDERS)
+        {
+            Path dir = sourceWorldFolder.resolve(subfolder);
+            if (!Files.isDirectory(dir))
+            {
+                continue;
+            }
+            try (Stream<Path> stream = Files.list(dir))
+            {
+                stream.filter(Files::isRegularFile).map(Path::normalize).forEach(files::add);
+            }
+        }
+        if (serverType == ServerType.VANILLA)
+        {
+            try (Stream<Path> stream = Files.walk(sourceWorldFolder))
+            {
+                stream.filter(Files::isRegularFile).map(Path::normalize).forEach(files::add);
+            }
+        }
+        return List.copyOf(files);
     }
 }

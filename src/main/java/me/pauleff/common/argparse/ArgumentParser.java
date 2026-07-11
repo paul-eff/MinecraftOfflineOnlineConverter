@@ -21,6 +21,7 @@ public final class ArgumentParser
     private final String version;
     private final Options options;
     private final HelpFormatter formatter;
+    private final CommandLineParser parser;
 
     public ArgumentParser(String appName, String version)
     {
@@ -28,11 +29,7 @@ public final class ArgumentParser
         this.version = version;
         this.options = CliOptions.create();
         this.formatter = new HelpFormatter();
-    }
-
-    public HelpFormatter formatter()
-    {
-        return formatter;
+        this.parser = new DefaultParser();
     }
 
     public void printHelp()
@@ -44,7 +41,7 @@ public final class ArgumentParser
     {
         try
         {
-            CommandLine cmd = new DefaultParser().parse(options, args);
+            CommandLine cmd = parser.parse(options, args);
             LoggerConfigurator.configure(cmd.hasOption("verbose"));
 
             if (cmd.hasOption("h"))
@@ -96,7 +93,6 @@ public final class ArgumentParser
         }
 
         return new ParsedArguments(
-                cmd.hasOption("verbose"),
                 serverPath,
                 toOnlineMode,
                 copyPlayerDataSourceWorld,
@@ -114,15 +110,7 @@ public final class ArgumentParser
         Map<String, String> changes = new HashMap<>();
         for (String key : properties.stringPropertyNames())
         {
-            String value = properties.getProperty(key);
-            if (value != null)
-            {
-                changes.put(key, value);
-            } else
-            {
-                LOGGER.error("Missing value for key '{}'", key);
-                break;
-            }
+            changes.put(key, properties.getProperty(key));
         }
         return Map.copyOf(changes);
     }

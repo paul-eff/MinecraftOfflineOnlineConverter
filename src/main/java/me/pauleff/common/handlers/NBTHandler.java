@@ -1,6 +1,5 @@
 package me.pauleff.common.handlers;
 
-import me.pauleff.Main;
 import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.io.NamedTag;
 import net.querz.nbt.tag.CompoundTag;
@@ -19,10 +18,10 @@ public class NBTHandler
             "Rotation",
             "Dimension",
             //Flying, and gamemode data
-//            "abilities.flying",
-//            "abilities.mayfly",
-//            "abilities.invulnerable",
-//            "playerGameType",
+            //"abilities.flying",
+            //"abilities.mayfly",
+            //"abilities.invulnerable",
+            //"playerGameType",
             //Spawn Data
             "SpawnX",
             "SpawnY",
@@ -61,18 +60,9 @@ public class NBTHandler
                 CompoundTag destCompound = (CompoundTag) destRoot.getTag();
 
                 //We use dot notation to specify nested tags
-                if (!Main.config.playerDataTagsToKeep.isEmpty())
+                for (String path : DEFAULT_TAGS_TO_KEEP)
                 {
-                    for (String path : Main.config.playerDataTagsToKeep)
-                    {
-                        preserveTag(sourceCompound, destCompound, path);
-                    }
-                } else
-                {
-                    for (String path : DEFAULT_TAGS_TO_KEEP)
-                    {
-                        preserveTag(sourceCompound, destCompound, path);
-                    }
+                    preserveTag(sourceCompound, destCompound, path);
                 }
             }
 

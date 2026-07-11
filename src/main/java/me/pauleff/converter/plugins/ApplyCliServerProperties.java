@@ -1,6 +1,5 @@
 package me.pauleff.converter.plugins;
 
-import me.pauleff.common.argparse.ParsedArguments;
 import me.pauleff.common.handlers.FileHandler;
 import me.pauleff.converter.api.DefaultPlugin;
 import me.pauleff.converter.api.PluginContext;
@@ -28,8 +27,7 @@ public class ApplyCliServerProperties implements DefaultPlugin
     @Override
     public boolean isEnabled(PluginContext ctx)
     {
-        ParsedArguments parsedArguments = ctx.parsedArguments();
-        return parsedArguments != null && !parsedArguments.serverPropertiesChanges().isEmpty();
+        return !ctx.parsedArguments().serverPropertiesChanges().isEmpty();
     }
 
     @Override

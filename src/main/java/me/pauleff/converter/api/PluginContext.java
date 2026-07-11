@@ -29,35 +29,19 @@ public final class PluginContext
     private ServerType serverType;
     private WorldFolderStructure worldFolderStructure;
     private SaveFileFormat saveFileFormat;
-    private ParsedArguments parsedArguments;
+    private final ParsedArguments parsedArguments;
 
-    public PluginContext(
-            Path serverFolder,
-            Path worldFolder,
-            ConversionTarget conversionTarget)
-    {
-        this.serverFolder = Objects.requireNonNull(serverFolder, "Server folder path can't be null.");
-        this.worldFolder = Objects.requireNonNull(worldFolder, "World folder path can't be null.");
-        this.conversionTarget = Objects.requireNonNull(conversionTarget, "Target to convert to must be set.");
-        this.uuidMap = new HashMap<>();
-    }
-
-    public PluginContext(
+    private PluginContext(
             Path serverFolder,
             Path worldFolder,
             ConversionTarget conversionTarget,
-            ServerType serverType,
-            WorldFolderStructure worldFolderStructure,
-            SaveFileFormat saveFileFormat,
-            Map<UUID, UUID> uuidMap)
+            ParsedArguments parsedArguments)
     {
         this.serverFolder = Objects.requireNonNull(serverFolder, "Server folder path can't be null.");
         this.worldFolder = Objects.requireNonNull(worldFolder, "World folder path can't be null.");
         this.conversionTarget = Objects.requireNonNull(conversionTarget, "Target to convert to must be set.");
-        this.serverType = serverType;
-        this.worldFolderStructure = worldFolderStructure;
-        this.saveFileFormat = saveFileFormat;
-        this.uuidMap = uuidMap;
+        this.parsedArguments = Objects.requireNonNull(parsedArguments, "Parsed arguments can't be null.");
+        this.uuidMap = new HashMap<>();
     }
 
     public static PluginContext from(ParsedArguments parsedArgs) throws PathNotValidException
@@ -94,9 +78,7 @@ public final class PluginContext
                 .map(online -> online ? ConversionTarget.ONLINE : ConversionTarget.OFFLINE)
                 .orElse(ConversionTarget.OFFLINE);
 
-        PluginContext ctx = new PluginContext(serverFolder, worldFolder, conversionTarget);
-        ctx.setParsedArguments(parsedArgs);
-        return ctx;
+        return new PluginContext(serverFolder, worldFolder, conversionTarget, parsedArgs);
     }
 
     public void putUuidMapping(UUID from, UUID to)
@@ -168,12 +150,7 @@ public final class PluginContext
 
     public boolean isConversionOperation()
     {
-        return parsedArguments != null && parsedArguments.isConversionOperation();
-    }
-
-    public void setParsedArguments(ParsedArguments parsedArguments)
-    {
-        this.parsedArguments = Objects.requireNonNull(parsedArguments, "Parsed arguments can't be null.");
+        return parsedArguments.isConversionOperation();
     }
 
     @Override

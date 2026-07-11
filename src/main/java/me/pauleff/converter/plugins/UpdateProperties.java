@@ -25,6 +25,12 @@ public class UpdateProperties implements DefaultPlugin
     }
 
     @Override
+    public boolean isEnabled(PluginContext ctx)
+    {
+        return ctx.isConversionOperation();
+    }
+
+    @Override
     public List<Path> setTargets(PluginContext ctx)
     {
         return List.of(
