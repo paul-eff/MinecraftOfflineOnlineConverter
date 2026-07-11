@@ -4,31 +4,31 @@ import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class FileHandler
+public final class FileHandler
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileHandler.class);
+
+    private FileHandler()
+    {
+    }
 
     public static void renameFile(Path sourceFile, String newFileName) throws IOException
     {
         Path parentDir = sourceFile.getParent();
         String originalFileName = sourceFile.getFileName().toString();
-        String extension;
-
-        // Extract the extension from the original file if it exists
         int dotIndex = originalFileName.lastIndexOf('.');
         if (dotIndex > 0)
         {
-            extension = originalFileName.substring(dotIndex);
-
-            // Avoid double extension if newFileName already has the extension
+            String extension = originalFileName.substring(dotIndex);
             if (!newFileName.endsWith(extension))
             {
                 newFileName = newFileName + extension;
@@ -45,7 +45,7 @@ public class FileHandler
         try
         {
             String jsonString = Files.readString(pathToUsercache, StandardCharsets.UTF_8);
-            LOGGER.info("Loaded usercache.json file successfully.");
+            LOGGER.debug("Loaded usercache.json from {}", pathToUsercache.normalize());
             return new JSONArray(jsonString);
         } catch (IOException e)
         {
@@ -54,19 +54,16 @@ public class FileHandler
         }
     }
 
-    public static String readWorldNameFromProperties(Path pathToProperties, boolean logFound)
+    public static String readWorldNameFromProperties(Path pathToProperties)
     {
-        try (BufferedReader br = new BufferedReader(new FileReader(pathToProperties.toFile())))
+        try
         {
-            String worldName = br.lines()
+            String worldName = Files.lines(pathToProperties, StandardCharsets.UTF_8)
                     .filter(line -> line.startsWith("level-name="))
                     .map(line -> line.substring("level-name=".length()))
                     .findFirst()
                     .orElse("world");
-            if (logFound)
-            {
-                LOGGER.info("Found world name: '{}'", worldName);
-            }
+            LOGGER.debug("Found world name: '{}'", worldName);
             return worldName;
         } catch (IOException e)
         {
@@ -75,30 +72,37 @@ public class FileHandler
         }
     }
 
-    public static void writeToProperties(Path pathToProperties, String key, String value)
+    public static void writeToProperties(Path pathToProperties, String key, String value) throws IOException
     {
-        try
+        List<String> lines = Files.readAllLines(pathToProperties, StandardCharsets.UTF_8);
+        List<String> modifiedLines = new ArrayList<>(lines.size() + 1);
+        boolean found = false;
+        for (String line : lines)
         {
-            List<String> lines = Files.readAllLines(pathToProperties, StandardCharsets.UTF_8);
-            List<String> modifiedLines = lines.stream()
-                    .map(line -> line.startsWith(key + "=") ? key + "=" + value : line)
-                    .collect(Collectors.toList());
-            Files.write(pathToProperties, modifiedLines, StandardCharsets.UTF_8);
-            LOGGER.info("Updated property '{}' to value '{}'", key, value);
-        } catch (IOException e)
-        {
-            LOGGER.error("Could not update property '{}' to value '{}' in server.properties at path: {}", key, value, pathToProperties.normalize(), e);
+            if (line.startsWith(key + "="))
+            {
+                modifiedLines.add(key + "=" + value);
+                found = true;
+            } else
+            {
+                modifiedLines.add(line);
+            }
         }
+        if (!found)
+        {
+            modifiedLines.add(key + "=" + value);
+        }
+        Files.write(pathToProperties, modifiedLines, StandardCharsets.UTF_8);
+        LOGGER.info("Updated property '{}' to value '{}'", key, value);
     }
 
     public static boolean isTextBasedFile(Path pathToFile) throws IOException
     {
-        File file = pathToFile.toFile();
-        if (!file.isFile())
+        if (!Files.isRegularFile(pathToFile))
         {
             throw new IllegalArgumentException("Path must be a valid file.");
         }
-        try (RandomAccessFile raf = new RandomAccessFile(file, "r"))
+        try (RandomAccessFile raf = new RandomAccessFile(pathToFile.toFile(), "r"))
         {
             int numberOfNonTextChars = 0;
             while (raf.getFilePointer() < raf.length())
@@ -124,10 +128,7 @@ public class FileHandler
 
     public static String stripFileExtension(String fileName)
     {
-        if (fileName.contains("."))
-        { //strip file extension
-            return fileName.substring(0, fileName.lastIndexOf('.')).trim();
-        }
-        return fileName;
+        int dotIndex = fileName.lastIndexOf('.');
+        return dotIndex > 0 ? fileName.substring(0, dotIndex).trim() : fileName;
     }
 }

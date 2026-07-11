@@ -67,7 +67,7 @@ public final class PluginContext
                     serverProperties.toAbsolutePath().normalize());
         }
 
-        String worldName = FileHandler.readWorldNameFromProperties(serverProperties, true);
+        String worldName = FileHandler.readWorldNameFromProperties(serverProperties);
         Path worldFolder = serverFolder.resolve(worldName);
         if (!Files.exists(worldFolder))
         {

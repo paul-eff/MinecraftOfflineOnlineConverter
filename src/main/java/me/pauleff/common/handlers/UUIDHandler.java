@@ -11,7 +11,7 @@ import java.util.UUID;
 
 import static me.pauleff.converter.UUIDType.*;
 
-public class UUIDHandler
+public final class UUIDHandler
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(UUIDHandler.class);
     private static final HTTPHandler HTTP = new HTTPHandler();
@@ -147,26 +147,16 @@ public class UUIDHandler
             return null;
         }
 
-        try
+        JSONObject json = new JSONObject(response);
+        String name = json.optString("name", "");
+        if (name.isEmpty())
         {
-            JSONObject json = new JSONObject(response);
-
-            String name = json.optString("name", "");
-
-            if (name.isEmpty())
-            {
-                LOGGER.warn("Response for UUID '{}' did not contain a name.", uuid);
-                return null;
-            }
-
-            LOGGER.info("Successfully retrieved name: {} for UUID: {}", name, uuid);
-            return name;
-
-        } catch (Exception e)
-        {
-            LOGGER.error("Failed to parse Mojang API response for UUID: {}", uuid, e);
+            LOGGER.warn("Response for UUID '{}' did not contain a name.", uuid);
             return null;
         }
+
+        LOGGER.info("Successfully retrieved name: {} for UUID: {}", name, uuid);
+        return name;
     }
 
     public static UUIDType getUUIDType(UUID uuid)
@@ -185,8 +175,7 @@ public class UUIDHandler
         }
         try
         {
-            UUID uuid = UUID.fromString(uuidString);
-            return getUUIDType(uuid) != INVALID;
+            return getUUIDType(UUID.fromString(uuidString)) != INVALID;
         } catch (IllegalArgumentException e)
         {
             return false;

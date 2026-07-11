@@ -3,74 +3,44 @@ package me.pauleff.common.handlers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 
-public class HTTPHandler
+public final class HTTPHandler
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(HTTPHandler.class);
-    private String url;
+    private static final HttpClient CLIENT = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(5))
+            .build();
 
-    public HTTPHandler()
+    private HTTPHandler()
     {
-        this.url = "";
     }
 
-    public void set(String newUrl)
+    public static String get(String url) throws IOException
     {
-        this.url = newUrl;
-        LOGGER.debug("URL set to: {}", newUrl);
-    }
-
-    public String get() throws IOException
-    {
-        if (this.url == null || this.url.isEmpty())
-        {
-            LOGGER.error("No URL set for HTTP request.");
-            return null;
-        }
-        HttpURLConnection con = null;
-        StringBuilder content = new StringBuilder();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .timeout(Duration.ofSeconds(10))
+                .GET()
+                .build();
         try
         {
-            URL urlObj = new URL(this.url);
-            con = (HttpURLConnection) urlObj.openConnection();
-            con.setRequestMethod("GET");
-            con.setConnectTimeout(5000);
-            con.setReadTimeout(5000);
-            con.setInstanceFollowRedirects(false);
-            int responseCode = con.getResponseCode();
-            String responseMessage = con.getResponseMessage();
-            if (responseCode == 200)
+            HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200)
             {
-                try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream())))
-                {
-                    String inputLine;
-                    while ((inputLine = in.readLine()) != null)
-                    {
-                        content.append(inputLine);
-                    }
-                }
-                LOGGER.debug("HTTP GET successful ({}): {}", responseCode, responseMessage);
-                return content.toString();
-            } else
-            {
-                LOGGER.debug("HTTP GET failed ({}): {}", responseCode, responseMessage);
-                return null;
+                LOGGER.debug("HTTP GET successful ({}): {}", response.statusCode(), url);
+                return response.body();
             }
-        } catch (IOException e)
+            LOGGER.debug("HTTP GET failed ({}): {}", response.statusCode(), url);
+            return null;
+        } catch (InterruptedException e)
         {
-            LOGGER.error("HTTP connection failed: {}", e.getMessage());
-            throw e;
-        } finally
-        {
-            if (con != null)
-            {
-                con.disconnect();
-            }
+            throw new IOException("HTTP request interrupted: " + url, e);
         }
     }
 }
