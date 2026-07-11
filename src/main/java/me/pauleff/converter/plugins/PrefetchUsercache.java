@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static me.pauleff.common.handlers.FileHandler.loadArrayFromUsercache;
-import static me.pauleff.common.handlers.UUIDHandler.nameToOfflineUUID;
 
 public class PrefetchUsercache implements DefaultPlugin
 {
@@ -45,40 +44,48 @@ public class PrefetchUsercache implements DefaultPlugin
     @Override
     public void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException
     {
-        resolvedExistingTargets.forEach(path -> {
-            JSONArray knownPlayers = loadArrayFromUsercache(path);
+        for (Path path : resolvedExistingTargets)
+        {
+            prefetchFromUsercache(path, ctx);
+        }
+    }
 
-            for (Object obj : knownPlayers)
+    private void prefetchFromUsercache(Path path, PluginContext ctx)
+    {
+        JSONArray knownPlayers = loadArrayFromUsercache(path);
+
+        for (Object obj : knownPlayers)
+        {
+            if (!(obj instanceof JSONObject knownPlayer))
             {
-                if (!(obj instanceof JSONObject knownPlayer)) continue;
-
-                try
-                {
-                    String playerName = knownPlayer.getString("name");
-                    UUID playerUUID = UUID.fromString(knownPlayer.getString("uuid"));
-
-                    if (ctx.conversionTarget().equals(ConversionTarget.ONLINE))
-                    {
-                        UUID onlineUUID = UUIDHandler.nameToOnlineUUID(playerName);
-
-                        if (onlineUUID == null)
-                        {
-                            logger().warn("Skipping '{}' — no online UUID found (Mojang API).", playerName);
-                            continue;
-                        }
-                        ctx.putUuidMapping(playerUUID, onlineUUID);
-                        logger().info("Prefetched {} -> {}", playerName, onlineUUID);
-                    } else
-                    {
-                        UUID offlineUUID = nameToOfflineUUID(playerName);
-                        ctx.putUuidMapping(playerUUID, offlineUUID);
-                        logger().info("Prefetched {} -> {}", playerName, offlineUUID);
-                    }
-                } catch (IOException e)
-                {
-                    logger().warn("There was an error whilst fetching information from the Mojang API.", e);
-                }
+                continue;
             }
-        });
+
+            try
+            {
+                String playerName = knownPlayer.getString("name");
+                UUID playerUUID = UUID.fromString(knownPlayer.getString("uuid"));
+
+                if (ctx.conversionTarget() == ConversionTarget.ONLINE)
+                {
+                    UUID onlineUUID = UUIDHandler.nameToOnlineUUID(playerName);
+                    if (onlineUUID == null)
+                    {
+                        logger().warn("Skipping '{}' — no online UUID found (Mojang API).", playerName);
+                        continue;
+                    }
+                    ctx.putUuidMapping(playerUUID, onlineUUID);
+                    logger().info("Prefetched {} -> {}", playerName, onlineUUID);
+                } else
+                {
+                    UUID offlineUUID = UUIDHandler.nameToOfflineUUID(playerName);
+                    ctx.putUuidMapping(playerUUID, offlineUUID);
+                    logger().info("Prefetched {} -> {}", playerName, offlineUUID);
+                }
+            } catch (IOException e)
+            {
+                logger().warn("There was an error whilst fetching information from the Mojang API.", e);
+            }
+        }
     }
 }

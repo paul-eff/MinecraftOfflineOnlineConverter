@@ -8,7 +8,6 @@ import me.pauleff.converter.api.DefaultPlugin;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -90,27 +89,24 @@ public class CopyCliPlayerData implements DefaultPlugin
         int movedFiles = 0;
         for (Path currentPath : collectPlayerDataFiles(sourceWorldFolder, serverType))
         {
-            File currentFile = currentPath.toFile();
-
             // TODO: IMPORTANT REMOVE AGAIN LATER - STILL WORKING ON MCA SUPPORT!!!!
-            if (currentFile.toString().contains("/region/"))
+            if (currentPath.toString().replace('\\', '/').contains("/region/"))
             {
                 continue;
             }
 
-            if (!currentFile.isFile() || IGNORED_FILE_EXTENSIONS.stream().anyMatch(currentFile.getName()::endsWith))
+            if (!Files.isRegularFile(currentPath) || hasIgnoredExtension(currentPath))
             {
                 continue;
             }
             logger().info("Processing file: {}", currentPath);
             try
             {
-                Path tail = sourceWorldFolder.relativize(currentPath);
-                Path finalPath = destWorldFolder.resolve(tail);
+                Path finalPath = destWorldFolder.resolve(sourceWorldFolder.relativize(currentPath));
 
-                if (currentPath.getParent().getFileName().toString().equals("playerdata"))
+                if (isPlayerDataFile(currentPath))
                 {
-                    if (NBTHandler.isNBTFile(currentFile))
+                    if (NBTHandler.isNBTFile(currentPath.toFile()))
                     {
                         logger().info("Copying NBT file to {}", destWorldFolder.normalize());
                         NBTHandler.copyPlayerDataNBT(currentPath, finalPath);
@@ -120,7 +116,10 @@ public class CopyCliPlayerData implements DefaultPlugin
                 } else
                 {
                     String fileName = FileHandler.stripFileExtension(currentPath.getFileName().toString());
-                    if (!UUIDHandler.isValidUUID(fileName)) continue;
+                    if (!UUIDHandler.isValidUUID(fileName))
+                    {
+                        continue;
+                    }
                 }
 
                 logger().info("Copying file to {}", destWorldFolder.normalize());
@@ -158,5 +157,17 @@ public class CopyCliPlayerData implements DefaultPlugin
             }
         }
         return List.copyOf(files);
+    }
+
+    private static boolean isPlayerDataFile(Path path)
+    {
+        Path parent = path.getParent();
+        return parent != null && "playerdata".equals(parent.getFileName().toString());
+    }
+
+    private static boolean hasIgnoredExtension(Path path)
+    {
+        String fileName = path.getFileName().toString();
+        return IGNORED_FILE_EXTENSIONS.stream().anyMatch(fileName::endsWith);
     }
 }

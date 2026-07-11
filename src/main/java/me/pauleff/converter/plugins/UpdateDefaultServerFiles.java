@@ -5,12 +5,11 @@ import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
-
-import static java.nio.file.Files.readString;
-import static java.nio.file.Files.writeString;
 
 public class UpdateDefaultServerFiles implements DefaultPlugin
 {
@@ -19,6 +18,13 @@ public class UpdateDefaultServerFiles implements DefaultPlugin
             "Update default server files",
             "Rewrites UUIDs in root server files (whitelist, bans, ops, etc.).",
             3);
+
+    private static final List<String> SERVER_FILE_NAMES = List.of(
+            "whitelist.json",
+            "banned-players.json",
+            "banned-ips.json",
+            "ops.json",
+            "usercache.json");
 
     @Override
     public PluginMetadata metadata()
@@ -35,14 +41,7 @@ public class UpdateDefaultServerFiles implements DefaultPlugin
     @Override
     public List<Path> setTargets(PluginContext ctx)
     {
-        List<String> fileNames = List.of(
-                "whitelist.json",
-                "banned-players.json",
-                "banned-ips.json",
-                "ops.json",
-                "usercache.json");
-
-        return fileNames.stream()
+        return SERVER_FILE_NAMES.stream()
                 .map(name -> ctx.serverFolder().resolve(name))
                 .toList();
     }
@@ -50,36 +49,27 @@ public class UpdateDefaultServerFiles implements DefaultPlugin
     @Override
     public void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException
     {
-        resolvedExistingTargets.forEach(path -> {
-            try
-            {
-                String fileContent = readString(path);
+        for (Path path : resolvedExistingTargets)
+        {
+            updateUuidReferences(ctx, path);
+        }
+    }
 
-                for (var entry : ctx.uuidMap().entrySet())
-                {
-                    UUID origUUID = entry.getKey();
-                    fileContent = fileContent.replace(origUUID.toString(), ctx.getTargetUuid(origUUID).toString());
-                }
+    private void updateUuidReferences(PluginContext ctx, Path path) throws IOException
+    {
+        String fileContent = Files.readString(path);
 
-                writeString(path, fileContent);
-                Path serverFolder = ctx.serverFolder();
-                Path serverNamePath = serverFolder.getFileName();
-                String serverName = (serverNamePath != null ? serverNamePath : serverFolder)
-                        .toString()
-                        .replace('\\', '/');
-                Path relativeToServer = serverFolder.relativize(path);
-                String relativePart = relativeToServer.toString().replace('\\', '/');
-                if (relativePart.isEmpty())
-                {
-                    logger().info("Updated file: .../{}", serverName);
-                } else
-                {
-                    logger().info("Updated file: .../{}/{}", serverName, relativePart);
-                }
-            } catch (IOException e)
+        for (Map.Entry<UUID, UUID> entry : ctx.uuidMap().entrySet())
+        {
+            UUID targetUuid = ctx.getTargetUuid(entry.getKey());
+            if (targetUuid == null)
             {
-                throw new RuntimeException("Failed to update file: " + path, e);
+                continue;
             }
-        });
+            fileContent = fileContent.replace(entry.getKey().toString(), targetUuid.toString());
+        }
+
+        Files.writeString(path, fileContent);
+        logger().info("Updated file: {}", ctx.serverFolder().relativize(path));
     }
 }

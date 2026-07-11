@@ -37,27 +37,11 @@ public class DetectSaveFileFormat implements DefaultPlugin
     @Override
     public void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException
     {
-        if (isMCA(ctx))
-        {
-            ctx.setSaveFileFormat(ANVIL);
-        } else
-        {
-            ctx.setSaveFileFormat(MC_REGION);
-        }
+        ctx.setSaveFileFormat(hasAnvilRegionFiles(ctx) ? ANVIL : MC_REGION);
         logger().info("Detected save file format: {}", ctx.saveFileFormat().name());
     }
 
-    private boolean isMCR(PluginContext ctx) throws IOException
-    {
-        try (Stream<Path> pathStream = Files.walk(ctx.worldFolder()))
-        {
-            return pathStream.filter(Files::isRegularFile)
-                    .map(path -> path.getFileName().toString().toLowerCase(Locale.ROOT))
-                    .anyMatch(name -> name.endsWith(".mcr"));
-        }
-    }
-
-    private boolean isMCA(PluginContext ctx) throws IOException
+    private boolean hasAnvilRegionFiles(PluginContext ctx) throws IOException
     {
         try (Stream<Path> pathStream = Files.walk(ctx.worldFolder()))
         {
