@@ -16,15 +16,20 @@ import org.slf4j.LoggerFactory;
 
 import static java.lang.System.exit;
 
-public class Main
+public final class Main
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+    private static final String APP_NAME = "MinecraftOfflineOnlineConverter";
     private static final String VERSION = "26.1";
 
-    static void main(String[] args) throws Exception
+    private Main()
+    {
+    }
+
+    static void main(String[] args)
     {
         long startTime = System.nanoTime();
-        ArgumentParser argumentParser = new ArgumentParser("MinecraftOfflineOnlineConverter", VERSION);
+        ArgumentParser argumentParser = new ArgumentParser(APP_NAME, VERSION);
         ParseResult parseResult = argumentParser.parse(args);
         if (parseResult.shouldExit())
         {
@@ -32,15 +37,13 @@ public class Main
         }
 
         ParsedArguments parsedArgs = parseResult.arguments();
-        LOGGER.info("Starting MinecraftOfflineOnlineConverter Version {}", VERSION);
+        LOGGER.info("Starting {} Version {}", APP_NAME, VERSION);
 
         if (!parsedArgs.isConversionOperation()
                 && !parsedArgs.shouldCopyPlayerData()
                 && parsedArgs.serverPropertiesChanges().isEmpty())
         {
-            LOGGER.error("No action specified.");
-            argumentParser.printHelp();
-            exit(1);
+            fail(argumentParser, "No action specified.");
         }
 
         try
@@ -49,11 +52,21 @@ public class Main
             new PluginOrchestrator().run(ctx);
         } catch (PathNotValidException | UnknownWorldFolderStructureException e)
         {
-            LOGGER.error(e.getMessage());
-            argumentParser.printHelp();
-            exit(1);
+            fail(argumentParser, e.getMessage());
         }
 
+        logElapsedTime(startTime);
+    }
+
+    private static void fail(ArgumentParser argumentParser, String message)
+    {
+        LOGGER.error(message);
+        argumentParser.printHelp();
+        exit(1);
+    }
+
+    private static void logElapsedTime(long startTime)
+    {
         double elapsedSeconds = (System.nanoTime() - startTime) / 1_000_000_000.0;
         if (elapsedSeconds > 0.15)
         {

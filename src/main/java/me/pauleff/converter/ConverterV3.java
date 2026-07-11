@@ -19,7 +19,7 @@ import static me.pauleff.common.handlers.FileHandler.isTextBasedFile;
 import static me.pauleff.common.handlers.FileHandler.stripFileExtension;
 import static me.pauleff.common.handlers.UUIDHandler.*;
 
-public class ConverterV3
+public final class ConverterV3
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConverterV3.class);
     private static final Set<String> IGNORED_FILE_EXTENSIONS = Set.of(
@@ -148,7 +148,12 @@ public class ConverterV3
 
         for (Map.Entry<UUID, UUID> entry : ctx.uuidMap().entrySet())
         {
-            updated = updated.replace(entry.getKey().toString(), entry.getValue().toString());
+            UUID targetUuid = ctx.getTargetUuid(entry.getKey());
+            if (targetUuid == null)
+            {
+                continue;
+            }
+            updated = updated.replace(entry.getKey().toString(), targetUuid.toString());
         }
 
         if (updated.equals(content))

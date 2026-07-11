@@ -34,6 +34,18 @@ public class CopyCliPlayerData implements DefaultPlugin
 
     private static final List<String> PLAYER_DATA_SUBFOLDERS = List.of("playerdata", "advancements", "stats");
 
+    private static boolean isPlayerDataFile(Path path)
+    {
+        Path parent = path.getParent();
+        return parent != null && "playerdata".equals(parent.getFileName().toString());
+    }
+
+    private static boolean hasIgnoredExtension(Path path)
+    {
+        String fileName = path.getFileName().toString();
+        return IGNORED_FILE_EXTENSIONS.stream().anyMatch(fileName::endsWith);
+    }
+
     @Override
     public PluginMetadata metadata()
     {
@@ -157,17 +169,5 @@ public class CopyCliPlayerData implements DefaultPlugin
             }
         }
         return List.copyOf(files);
-    }
-
-    private static boolean isPlayerDataFile(Path path)
-    {
-        Path parent = path.getParent();
-        return parent != null && "playerdata".equals(parent.getFileName().toString());
-    }
-
-    private static boolean hasIgnoredExtension(Path path)
-    {
-        String fileName = path.getFileName().toString();
-        return IGNORED_FILE_EXTENSIONS.stream().anyMatch(fileName::endsWith);
     }
 }

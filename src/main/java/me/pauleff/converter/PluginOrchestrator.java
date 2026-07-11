@@ -30,6 +30,13 @@ public final class PluginOrchestrator
         this.registry = Objects.requireNonNull(registry, "Registry can't be null.");
     }
 
+    private static Path resolvePath(Path serverRoot, Path declaredPath)
+    {
+        return declaredPath.isAbsolute()
+                ? declaredPath.normalize()
+                : serverRoot.resolve(declaredPath).normalize();
+    }
+
     public void run(PluginContext ctx)
     {
         Objects.requireNonNull(ctx, "Context can't be null.");
@@ -46,9 +53,7 @@ public final class PluginOrchestrator
             return;
         }
 
-        ServerType serverType = Objects.requireNonNull(
-                ctx.serverType(),
-                "Server type can't be null");
+        ServerType serverType = Objects.requireNonNull(ctx.serverType(), "Server type can't be null");
 
         boolean hasMatchingConversionPlugin = registry.conversionPlugins().stream()
                 .anyMatch(plugin -> plugin.isEnabled(ctx));
@@ -76,13 +81,13 @@ public final class PluginOrchestrator
                     continue;
                 }
                 List<Path> declared = plugin.setTargets(ctx);
-                Objects.requireNonNull(declared, () -> "targetPaths() returned null for plugin " + pluginId);
+                Objects.requireNonNull(declared, () -> "setTargets() returned null for plugin " + pluginId);
 
                 List<Path> resolvedExisting = new ArrayList<>();
                 List<Path> missing = new ArrayList<>();
-                for (Path relative : declared)
+                for (Path declaredPath : declared)
                 {
-                    Path absolute = serverRoot.resolve(relative).normalize();
+                    Path absolute = resolvePath(serverRoot, declaredPath);
                     if (Files.exists(absolute))
                     {
                         resolvedExisting.add(absolute);
