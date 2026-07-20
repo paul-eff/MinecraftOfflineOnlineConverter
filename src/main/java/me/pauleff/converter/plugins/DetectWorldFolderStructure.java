@@ -72,7 +72,7 @@ public class DetectWorldFolderStructure implements DefaultPlugin
         {
             return pathStream.filter(Files::isDirectory)
                     .map(path -> path.getFileName().toString().toLowerCase(Locale.ROOT))
-                    .anyMatch(name -> name.equals("DIM1") || name.equals("DIM-1"));
+                    .anyMatch(name -> name.equals("dim1") || name.equals("dim-1"));
         }
     }
 
