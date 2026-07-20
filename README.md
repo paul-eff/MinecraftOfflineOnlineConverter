@@ -23,6 +23,10 @@ The Java applicatin will convert all player related files to be offline or onlin
 | Fabric      | 1.14            | 26.2            |
 | Spigot      | 1.8             | 26.2            |
 
+Mojang introduced UUIDs in Minecraft 1.7.6 (2014) to allow name changing. Therefor, if your server is older than that,
+you will not need this tool!  
+If you find any bugs or edge cases, please report them to this repo!
+
 # Usage
 
 First look at [Disclaimer](#disclaimer) and make sure you understand the "risks" of using this tool.
