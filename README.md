@@ -13,11 +13,15 @@ The Java applicatin will convert all player related files to be offline or onlin
 
 # Supporting
 
-Currently I tested and can confirm support for Vanilla, Bukkit, Paper and Purpur servers.
-Every Minecraft version since and including 1.17.1 is confirmed to work. Earlier versions I can't guarantee.
-
-Regarding Spigot and Forge servers, I haven't had enough time to fully confirm everything will work 100% of the time.
-But using the new `mooc-config.yml` file, you can specify custom directories to convert.
+| Server Type | Min. MC Version | Max. MC Version |
+|:------------|:----------------|:----------------|
+| Vanilla     | Beta 1.8.1      | 26.2            |
+| Bukkit      | Beta 1.8.1      | 26.2            |
+| Forge       | 1.5.1           | 26.2            |
+| Purpur      | 1.14.1          | 26.2            |
+| Paper       | 1.7.10          | 26.2            |
+| Fabric      | 1.14            | 26.2            |
+| Spigot      | 1.8             | 26.2            |
 
 # Usage
 
@@ -26,16 +30,14 @@ First look at [Disclaimer](#disclaimer) and make sure you understand the "risks"
 - Download the [most current jar](https://github.com/paul-eff/MinecraftOfflineOnlineConverter/releases/latest)
 - Place it in your server's main folder (not mandatory, just makes things easier)
 
-- Optional: Rename `TEMPLATE.mooc-config.yml` to `mooc-config.yml` and use the examples presented to define custom directories you want to convert
-
 - Execute the jar through your terminal with the following command:
 
 ```bash
 java -jar MinecraftOfflineOnlineConverter.jar <arguments>
 ```
-- You will have to pass one of these arguments
-  - `-offline` to convert your server to offline files
-  - `-online` to convert your server to online files
+
+- `-offline` to convert your server to offline files
+- `-online` to convert your server to online files
 - If necessary `-p "path/to/server/folder/"` (if the jar is not in the server's main folder)
 - `-copy` to copy player data from one world to another
 - `-properties` to directly edit values in server.properties
@@ -46,14 +48,14 @@ java -jar MinecraftOfflineOnlineConverter.jar <arguments>
   name is appended. Overrides `-customApiBaseUrl` for this lookup
 - `-retrieveNameUrl "https://myskinserver.com/api/.../"` full UUID to name endpoint URL (domain + path). Only the UUID
   is appended. Overrides `-customApiBaseUrl` for this lookup
-- `-verbose` verbose console output (for debugging and error reporting)
+- `-verbose` for verbose console output (for debugging and error reporting)
 - `-v` print MOOC version
 - `-h` for help
 
 ## Known Issues
 
-- Paper servers (when converted to offline), sometimes create `<Online UUID>.dat.offline-read`) files.
-- No full support for Spigot, Sponge and Forge servers.
+- Paper servers (when converted to offline), sometimes create `<Online UUID>.dat.offline-read`) files
+- No confirmed support for Sponge servers
 
 ## Building
 
