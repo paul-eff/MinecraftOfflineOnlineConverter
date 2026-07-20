@@ -3,21 +3,21 @@ package me.pauleff.converter.plugins;
 import me.pauleff.common.handlers.FileHandler;
 import me.pauleff.common.handlers.NBTHandler;
 import me.pauleff.common.handlers.UUIDHandler;
-import me.pauleff.converter.ServerType;
 import me.pauleff.converter.api.DefaultPlugin;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Stream;
 
 public class CopyCliPlayerData implements DefaultPlugin
 {
@@ -32,12 +32,13 @@ public class CopyCliPlayerData implements DefaultPlugin
             "md", "snbt", "nbt", "zip", "cache", "png", "jpeg", "js", "DS_Store"
     );
 
-    private static final List<String> PLAYER_DATA_SUBFOLDERS = List.of("playerdata", "advancements", "stats");
-
     private static boolean isPlayerDataFile(Path path)
     {
         Path parent = path.getParent();
-        return parent != null && "playerdata".equals(parent.getFileName().toString());
+        Path grandParent = path.getParent().getParent();
+        String parentName = parent.getFileName().toString();
+        String grandParentName = grandParent.getFileName().toString();
+        return "playerdata".equals(parentName) || ("data".equals(parentName) && "players".equals(grandParentName));
     }
 
     private static boolean hasIgnoredExtension(Path path)
@@ -81,13 +82,31 @@ public class CopyCliPlayerData implements DefaultPlugin
             return;
         }
 
-        copyPlayerData(
-                resolvedExistingTargets.get(0),
-                resolvedExistingTargets.get(1),
-                Objects.requireNonNull(ctx.serverType(), "Server type must be detected before copying player data."));
+        logger().warn("""
+                WARNING! Read before proceeding:
+                * You must ensure the source and destination servers are the same version (or at least compatible)
+                * Copying player data between worlds can cause players to spawn inside solid blocks, etc. (player coordinates are copied without checking validity in new world)
+                * Currently this feature only applies to player data, not pets or other events linked to players
+                """);
+        if (!confirmContinue())
+        {
+            logger().info("Player data copy cancelled.");
+            return;
+        }
+
+        copyPlayerData(ctx, resolvedExistingTargets.get(0), resolvedExistingTargets.get(1));
     }
 
-    private void copyPlayerData(Path sourceWorldFolder, Path destWorldFolder, ServerType serverType) throws IOException
+    private boolean confirmContinue() throws IOException
+    {
+        System.out.print("Continue copying player data? [y/N]: ");
+        System.out.flush();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, Charset.defaultCharset()));
+        String answer = reader.readLine();
+        return answer != null && (answer.equalsIgnoreCase("y") || answer.equalsIgnoreCase("yes"));
+    }
+
+    private void copyPlayerData(PluginContext ctx, Path sourceWorldFolder, Path destWorldFolder) throws IOException
     {
         if (Files.isSameFile(sourceWorldFolder, destWorldFolder))
         {
@@ -96,78 +115,75 @@ public class CopyCliPlayerData implements DefaultPlugin
             return;
         }
 
+        Objects.requireNonNull(ctx.worldFolderStructure(), "World folder structure must be detected before copying player data.");
+
+        List<Path> sourceRoots = ctx.worldFolderStructure().dimensionRootFolders(ctx.serverFolder(), sourceWorldFolder);
+        List<Path> destRoots = ctx.worldFolderStructure().dimensionRootFolders(ctx.serverFolder(), destWorldFolder);
+        if (sourceRoots.size() != destRoots.size())
+        {
+            logger().warn("Could not copy player data. Source and destination dimension layouts do not match.");
+            return;
+        }
+
         logger().info("Copying player data from {} to {}", sourceWorldFolder.normalize(), destWorldFolder.normalize());
 
         int movedFiles = 0;
-        for (Path currentPath : collectPlayerDataFiles(sourceWorldFolder, serverType))
+        for (int i = 0; i < sourceRoots.size(); i++)
         {
-            // TODO: IMPORTANT REMOVE AGAIN LATER - STILL WORKING ON MCA SUPPORT!!!!
-            if (currentPath.toString().replace('\\', '/').contains("/region/"))
+            Path sourceRoot = sourceRoots.get(i);
+            Path destRoot = destRoots.get(i);
+            if (!Files.isDirectory(sourceRoot))
             {
+                logger().debug("Skipping missing source dimension folder: {}", sourceRoot.normalize());
+                continue;
+            }
+            if (!Files.isDirectory(destRoot))
+            {
+                logger().debug("Skipping missing destination dimension folder: {}", destRoot.normalize());
                 continue;
             }
 
-            if (!Files.isRegularFile(currentPath) || hasIgnoredExtension(currentPath))
+            for (Path currentPath : returnAllFilesInFolders(List.of(sourceRoot)))
             {
-                continue;
-            }
-            logger().info("Processing file: {}", currentPath);
-            try
-            {
-                Path finalPath = destWorldFolder.resolve(sourceWorldFolder.relativize(currentPath));
-
-                if (isPlayerDataFile(currentPath))
+                if (!Files.isRegularFile(currentPath) || hasIgnoredExtension(currentPath))
                 {
-                    if (NBTHandler.isNBTFile(currentPath.toFile()))
-                    {
-                        logger().info("Copying NBT file to {}", destWorldFolder.normalize());
-                        NBTHandler.copyPlayerDataNBT(currentPath, finalPath);
-                        movedFiles++;
-                        continue;
-                    }
-                } else
-                {
-                    String fileName = FileHandler.stripFileExtension(currentPath.getFileName().toString());
-                    if (!UUIDHandler.isValidUUID(fileName))
-                    {
-                        continue;
-                    }
+                    continue;
                 }
+                logger().info("Processing file: {}", currentPath);
+                try
+                {
+                    Path finalPath = destRoot.resolve(sourceRoot.relativize(currentPath));
 
-                logger().info("Copying file to {}", destWorldFolder.normalize());
-                Files.copy(currentPath, finalPath, StandardCopyOption.REPLACE_EXISTING);
-                movedFiles++;
-            } catch (IllegalArgumentException | IOException e)
-            {
-                logger().debug("Skipping file {} due to an error: {}", currentPath.normalize(), e.getMessage());
+                    if (isPlayerDataFile(currentPath))
+                    {
+                        if (NBTHandler.isNBTFile(currentPath.toFile()))
+                        {
+                            logger().info("Copying NBT file to {}", finalPath.normalize());
+                            Files.createDirectories(finalPath.getParent());
+                            NBTHandler.copyPlayerDataNBT(currentPath, finalPath);
+                            movedFiles++;
+                            continue;
+                        }
+                    } else
+                    {
+                        String fileName = FileHandler.stripFileExtension(currentPath.getFileName().toString());
+                        if (!UUIDHandler.isValidUUID(fileName))
+                        {
+                            continue;
+                        }
+                    }
+
+                    logger().info("Copying file to {}", finalPath.normalize());
+                    Files.createDirectories(finalPath.getParent());
+                    Files.copy(currentPath, finalPath, StandardCopyOption.REPLACE_EXISTING);
+                    movedFiles++;
+                } catch (IllegalArgumentException | IOException e)
+                {
+                    logger().debug("Skipping file {} due to an error: {}", currentPath.normalize(), e.getMessage());
+                }
             }
         }
 
         logger().info("Copied {} files to {}", movedFiles, destWorldFolder.normalize());
-    }
-
-    private List<Path> collectPlayerDataFiles(Path sourceWorldFolder, ServerType serverType) throws IOException
-    {
-        Set<Path> files = new LinkedHashSet<>();
-        for (String subfolder : PLAYER_DATA_SUBFOLDERS)
-        {
-            Path dir = sourceWorldFolder.resolve(subfolder);
-            if (!Files.isDirectory(dir))
-            {
-                continue;
-            }
-            try (Stream<Path> stream = Files.list(dir))
-            {
-                stream.filter(Files::isRegularFile).map(Path::normalize).forEach(files::add);
-            }
-        }
-        if (serverType == ServerType.VANILLA)
-        {
-            try (Stream<Path> stream = Files.walk(sourceWorldFolder))
-            {
-                stream.filter(Files::isRegularFile).map(Path::normalize).forEach(files::add);
-            }
-        }
-        return List.copyOf(files);
     }
 }
