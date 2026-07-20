@@ -81,13 +81,9 @@ public final class ConverterV3
 
                 if (isRegularFile(currentPath) && isTextBasedFile(currentPath))
                 {
-                    // TODO 13.05.2026: Unnecessary double call of isValidUUID. Find nicer implementation.
-                    if (!isValidUUID(fileName))
-                    {
-                        discoveredValidFiles++;
-                    }
                     if (replaceUuidReferencesInTextFile(currentPath))
                     {
+                        discoveredValidFiles++;
                         updatedTextFiles++;
                     }
                 }

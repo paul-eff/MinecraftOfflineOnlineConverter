@@ -10,7 +10,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 
 
 public final class ArgumentParser
@@ -106,11 +105,12 @@ public final class ArgumentParser
             return Map.of();
         }
 
-        Properties properties = cmd.getOptionProperties("properties");
+        // Pair flattened [key, value, ...] from getOptionValues; getOptionProperties only keeps the first pair.
+        String[] values = cmd.getOptionValues("properties");
         Map<String, String> changes = new HashMap<>();
-        for (String key : properties.stringPropertyNames())
+        for (int i = 0; i + 1 < values.length; i += 2)
         {
-            changes.put(key, properties.getProperty(key));
+            changes.put(values[i], values[i + 1]);
         }
         return Map.copyOf(changes);
     }
