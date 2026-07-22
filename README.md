@@ -1,8 +1,8 @@
-# MinecraftOfflineOnlineConverter v26.2
+# MinecraftOfflineOnlineConverter v26.1
 <p align="center">
-  <img src="https://img.shields.io/badge/version-26.2-blue">
-  <img src="https://img.shields.io/badge/minecraft-26.2-green">
-  <img src="https://img.shields.io/badge/java-26-red">
+  <img src="https://img.shields.io/badge/version-26.1-blue" alt="App version 26.1">
+  <img src="https://img.shields.io/badge/minecraft-26.2-green" alt="Minecraft version 26.2">
+  <img src="https://img.shields.io/badge/java-26-red" alt="Java version 26">
 </p>
 
 Ever started playing on one of your Minecraft servers and a few hours later that one friend that didn't buy the game wants to join?
@@ -17,10 +17,9 @@ The Java applicatin will convert all player related files to be offline or onlin
 |:------------|:----------------|:----------------|
 | Vanilla     | Beta 1.8.1      | 26.2            |
 | Bukkit      | Beta 1.8.1      | 26.2            |
-| Forge       | 1.5.1           | 26.2            |
-| Purpur      | 1.14.1          | 26.2            |
-| Paper       | 1.7.10          | 26.2            |
+| Forge       | 1.7.10          | 26.2            |
 | Fabric      | 1.14            | 26.2            |
+| Paper       | 1.7.10          | 26.2            |
 | Spigot      | 1.8             | 26.2            |
 
 Mojang introduced UUIDs in Minecraft 1.7.6 (2014) to allow name changing. Therefor, if your server is older than that,
