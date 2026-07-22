@@ -24,7 +24,8 @@ public class UpdateDefaultServerFiles implements DefaultPlugin
             "banned-players.json",
             "banned-ips.json",
             "ops.json",
-            "usercache.json");
+            "usercache.json",
+            "usernamecache.json");
 
     @Override
     public PluginMetadata metadata()
