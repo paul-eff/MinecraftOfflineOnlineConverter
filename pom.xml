@@ -7,7 +7,7 @@
     <!-- Project coordinates -->
     <groupId>me.pauleff</groupId>
     <artifactId>MinecraftOfflineOnlineConverter</artifactId>
-    <version>3.1.1</version>
+    <version>3.1.2</version>
 
     <!-- Project's packaging type -->
     <packaging>jar</packaging>

@@ -17,7 +17,96 @@ import java.util.UUID;
 public class UUIDHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(UUIDHandler.class);
     private static final HTTPHandler HTTP = new HTTPHandler();
-    private static final String apiBasePath = "https://api.mojang.com/";
+    private static final String DEFAULT_NAME_API_BASE = "https://api.mojang.com/";
+    private static final String DEFAULT_UUID_API_BASE = "https://api.minecraftservices.com/";
+    private static String customApiBaseUrl = null;
+    private static String retrieveUUIDUrl = null;
+    private static String retrieveNameUrl = null;
+
+    /**
+     * Sets a custom API base URL (domain only). Mojang-style paths and the name/UUID
+     * are appended when resolving. Overridden per-endpoint by
+     * {@link #setRetrieveUUIDUrl(String)} / {@link #setRetrieveNameUrl(String)}.
+     *
+     * @param url The custom API base URL, or null to reset to defaults.
+     */
+    public static void setCustomApiBaseUrl(String url)
+    {
+        customApiBaseUrl = normalizeApiUrl(url);
+        if (customApiBaseUrl != null)
+        {
+            LOGGER.info("Using custom base URL for online UUID/player name resolution: {}", customApiBaseUrl);
+        }
+    }
+
+    /**
+     * Sets the full endpoint URL (domain + path) for name→UUID lookups.
+     * Only the player name is appended. When set, overrides {@link #setCustomApiBaseUrl(String)}.
+     *
+     * @param url The retrieve-UUID endpoint URL, or null to clear.
+     */
+    public static void setRetrieveUUIDUrl(String url)
+    {
+        retrieveUUIDUrl = normalizeApiUrl(url);
+        if (retrieveUUIDUrl != null)
+        {
+            LOGGER.info("Using custom URL for retrieving online UUIDs: {}", retrieveUUIDUrl);
+        }
+    }
+
+    /**
+     * Sets the full endpoint URL (domain + path) for UUID→name lookups.
+     * Only the UUID is appended. When set, overrides {@link #setCustomApiBaseUrl(String)}.
+     *
+     * @param url The retrieve-name endpoint URL, or null to clear.
+     */
+    public static void setRetrieveNameUrl(String url)
+    {
+        retrieveNameUrl = normalizeApiUrl(url);
+        if (retrieveNameUrl != null)
+        {
+            LOGGER.info("Using custom URL for retrieving online player names: {}", retrieveNameUrl);
+        }
+    }
+
+    private static String normalizeApiUrl(String url)
+    {
+        if (url == null || url.isBlank())
+        {
+            return null;
+        }
+        return url.endsWith("/") ? url : url + "/";
+    }
+
+    /**
+     * Builds the name→UUID request URL.
+     * {@code retrieveUUIDUrl} is a full endpoint (append name only);
+     * {@code customApiBaseUrl} is a base (append Mojang path + name).
+     */
+    private static String buildNameToUuidUrl(String name)
+    {
+        if (retrieveUUIDUrl != null)
+        {
+            return retrieveUUIDUrl + name;
+        }
+        String base = customApiBaseUrl != null ? customApiBaseUrl : DEFAULT_NAME_API_BASE;
+        return base + "users/profiles/minecraft/" + name;
+    }
+
+    /**
+     * Builds the UUID→name request URL.
+     * {@code retrieveNameUrl} is a full endpoint (append UUID only);
+     * {@code customApiBaseUrl} is a base (append Mojang path + UUID).
+     */
+    private static String buildUuidToNameUrl(UUID uuid)
+    {
+        if (retrieveNameUrl != null)
+        {
+            return retrieveNameUrl + uuid.toString();
+        }
+        String base = customApiBaseUrl != null ? customApiBaseUrl : DEFAULT_UUID_API_BASE;
+        return base + "minecraft/profile/lookup/" + uuid.toString();
+    }
 
     /**
      * Converts a player name to an offline UUID.
@@ -33,14 +122,15 @@ public class UUIDHandler {
     }
 
     /**
-     * Converts a player name to an online UUID by querying Mojang's API.
+     * Converts a player name to an online UUID by querying Mojang's API
+     * (or a custom API if configured via {@link #setRetrieveUUIDUrl(String)} / {@link #setCustomApiBaseUrl(String)}).
      *
      * @param name The player's name.
      * @return The resulting {@link UUID}.
      * @throws IOException If a connection issue occurs.
      */
     public static UUID onlineNameToUUID(String name) throws IOException {
-        HTTP.set(apiBasePath + "users/profiles/minecraft/" + name);
+        HTTP.set(buildNameToUuidUrl(name));
         String response = HTTP.get();
 
         if (response == null || response.isEmpty()) {
@@ -62,20 +152,18 @@ public class UUIDHandler {
     }
 
     /**
-     * Retrieves a player's name from their online {@link UUID} using Mojang's Session Server.
-     * * @param uuid The player's {@link UUID}.
+     * Retrieves a player's name from their online {@link UUID} using Mojang's API
+     * (or a custom API if configured via {@link #setRetrieveNameUrl(String)} / {@link #setCustomApiBaseUrl(String)}).
      *
+     * @param uuid The player's {@link UUID}.
      * @return The player's name, or null if the player is not found/offline.
      * @throws IOException If a connection or rate-limiting issue occurs.
      */
     public static String onlineUUIDToName(UUID uuid) throws IOException {
-        // 1. Use the Session Server (requires dashes, which uuid.toString() provides)
-        String url = "https://sessionserver.mojang.com/session/minecraft/profile/" + uuid.toString();
-
-        HTTP.set(url);
+        HTTP.set(buildUuidToNameUrl(uuid));
         String response = HTTP.get();
 
-        // 2. Check for empty response (Mojang returns 204 No Content for unknown UUIDs)
+        // 2. Check for empty response
         if (response == null || response.isEmpty()) {
             LOGGER.warn("No profile found for UUID '{}'. This may be an offline/cracked UUID.", uuid);
             return null;

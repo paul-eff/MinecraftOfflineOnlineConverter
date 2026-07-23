@@ -1,8 +1,9 @@
 package me.pauleff;
 
+import me.pauleff.common.LoggerConfigurator;
 import me.pauleff.common.config.Config;
 import me.pauleff.common.handlers.FileHandler;
-import me.pauleff.common.LoggerConfigurator;
+import me.pauleff.common.handlers.UUIDHandler;
 import me.pauleff.converter.ConverterV2;
 import me.pauleff.detection.MinecraftFlavor;
 import me.pauleff.detection.MinecraftFlavorDetection;
@@ -26,7 +27,7 @@ import static java.lang.System.exit;
  */
 public class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
-    private static final String VERSION = "3.1.1";
+    private static final String VERSION = "3.1.2";
     private static CommandLine cmd;
     private static final HashMap<String, String> serverPropertiesChanges = new HashMap<>();
     private static String mode = "N/A";
@@ -127,6 +128,28 @@ public class Main {
                 .build();
         properties.setDescription("Edit values in server.properties; (i.e., -properties key1=value1 key2=value2)");
         options.addOption(properties);
+
+        Option customApiBaseUrl = Option.builder("customApiBaseUrl")
+                .desc("Custom API base URL (domain); Mojang paths + name/UUID are appended (e.g. \"https://myskinserver.com\")")
+                .optionalArg(true)
+                .hasArg()
+                .build();
+        options.addOption(customApiBaseUrl);
+
+        Option retrieveUUIDUrl = Option.builder("retrieveUUIDUrl")
+                .desc("Full name to UUID endpoint URL (domain + path). Only the player name is appended. Overrides -customApiBaseUrl")
+                .optionalArg(true)
+                .hasArg()
+                .build();
+        options.addOption(retrieveUUIDUrl);
+
+        Option retrieveNameUrl = Option.builder("retrieveNameUrl")
+                .desc("Full UUID to name endpoint URL (domain + path). Only the UUID is appended. Overrides -customApiBaseUrl")
+                .optionalArg(true)
+                .hasArg()
+                .build();
+        options.addOption(retrieveNameUrl);
+
         return options;
     }
 
@@ -176,6 +199,44 @@ public class Main {
                         LOGGER.error("Missing value for key '{}'", key);
                         break;
                     }
+                }
+            }
+
+            if (getArgs().hasOption("customApiBaseUrl"))
+            {
+                String customApiBaseUrl = getArgs().getOptionValue("customApiBaseUrl");
+                if (customApiBaseUrl != null && !customApiBaseUrl.isBlank())
+                {
+                    UUIDHandler.setCustomApiBaseUrl(customApiBaseUrl);
+                } else
+                {
+                    LOGGER.warn("Option -customApiBaseUrl was set without a URL. Using Mojang defaults.");
+                }
+            }
+
+            // Per-endpoint URLs override customApiBaseUrl when set
+            if (getArgs().hasOption("retrieveUUIDUrl"))
+            {
+                String retrieveUUIDUrl = getArgs().getOptionValue("retrieveUUIDUrl");
+                if (retrieveUUIDUrl != null && !retrieveUUIDUrl.isBlank())
+                {
+                    UUIDHandler.setRetrieveUUIDUrl(retrieveUUIDUrl);
+                } else
+                {
+                    LOGGER.warn("Option -retrieveUUIDUrl was set without a URL. Ignoring.");
+                }
+            }
+
+            // Per-endpoint URLs override customApiBaseUrl when set
+            if (getArgs().hasOption("retrieveNameUrl"))
+            {
+                String retrieveNameUrl = getArgs().getOptionValue("retrieveNameUrl");
+                if (retrieveNameUrl != null && !retrieveNameUrl.isBlank())
+                {
+                    UUIDHandler.setRetrieveNameUrl(retrieveNameUrl);
+                } else
+                {
+                    LOGGER.warn("Option -retrieveNameUrl was set without a URL. Ignoring.");
                 }
             }
         } catch (ParseException e) {

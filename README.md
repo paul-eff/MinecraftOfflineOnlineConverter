@@ -1,6 +1,6 @@
-# MinecraftOfflineOnlineConverter v3.1.1
+# MinecraftOfflineOnlineConverter v3.1.2
 <p align="center">
-  <img src="https://img.shields.io/badge/version-3.1.1-blue">
+  <img src="https://img.shields.io/badge/version-3.1.2-blue">
   <img src="https://img.shields.io/badge/minecraft-1.21.11-green">
   <img src="https://img.shields.io/badge/java-21-red">
 </p>
@@ -32,7 +32,8 @@ First look at [Disclaimer](#disclaimer) and make sure you understand the "risks"
 - Optional: Rename `TEMPLATE.mooc-config.yml` to `mooc-config.yml` and use the examples presented to define custom directories you want to convert
 
 - Execute the jar through your terminal with the following command:
-```java
+
+```bash
 java -jar MinecraftOfflineOnlineConverter.jar <arguments>
 ```
 - You will have to pass one of these arguments
@@ -41,6 +42,13 @@ java -jar MinecraftOfflineOnlineConverter.jar <arguments>
 - If necessary `-p "path/to/server/folder/"` (if the jar is not in the server's main folder)
 - `-c` or `-copy` to copy player data from one world to another
 - `-properties` to directly edit values in server.properties
+- `-customApiBaseUrl "https://myskinserver.com"` custom API base URL for online UUID/name lookups (Mojang API path
+  schema was to be used [read more here](https://minecraft.wiki/w/Mojang_API)). Useful for custom auth/skin servers
+  like [Blessing Skin](https://github.com/bs-community)
+- `-retrieveUUIDUrl "https://myskinserver.com/api/.../"` full name to UUID endpoint URL (domain + path). Only the player
+  name is appended. Overrides `-customApiBaseUrl` for this lookup
+- `-retrieveNameUrl "https://myskinserver.com/api/.../"` full UUID to name endpoint URL (domain + path). Only the UUID
+  is appended. Overrides `-customApiBaseUrl` for this lookup
 - `-verbose` verbose console output (for debugging and error reporting)
 - `-v` print MOOC version
 - `-h` for help
@@ -53,7 +61,8 @@ java -jar MinecraftOfflineOnlineConverter.jar <arguments>
 ## Building
 
 Execute the command 
-```zsh
+
+```bash
 mvn clean compile assembly:single
 ```
 to build a JAR file of the project with all dependencies.
