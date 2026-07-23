@@ -1,6 +1,7 @@
 package me.pauleff.common.argparse;
 
 import me.pauleff.common.LoggerConfigurator;
+import me.pauleff.common.handlers.UUIDHandler;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,11 +92,52 @@ public final class ArgumentParser
             copyPlayerDataSourceWorld = Optional.of(sourceWorld);
         }
 
+        applyCustomApiOptions(cmd);
+
         return new ParsedArguments(
                 serverPath,
                 toOnlineMode,
                 copyPlayerDataSourceWorld,
                 parseServerPropertiesChanges(cmd));
+    }
+
+    private void applyCustomApiOptions(CommandLine cmd)
+    {
+        if (cmd.hasOption("customApiBaseUrl"))
+        {
+            String customApiBaseUrl = cmd.getOptionValue("customApiBaseUrl");
+            if (customApiBaseUrl != null && !customApiBaseUrl.isBlank())
+            {
+                UUIDHandler.setCustomApiBaseUrl(customApiBaseUrl);
+            } else
+            {
+                LOGGER.warn("Option -customApiBaseUrl was set without a URL. Using Mojang defaults.");
+            }
+        }
+
+        if (cmd.hasOption("retrieveUUIDUrl"))
+        {
+            String retrieveUUIDUrl = cmd.getOptionValue("retrieveUUIDUrl");
+            if (retrieveUUIDUrl != null && !retrieveUUIDUrl.isBlank())
+            {
+                UUIDHandler.setRetrieveUUIDUrl(retrieveUUIDUrl);
+            } else
+            {
+                LOGGER.warn("Option -retrieveUUIDUrl was set without a URL. Ignoring.");
+            }
+        }
+
+        if (cmd.hasOption("retrieveNameUrl"))
+        {
+            String retrieveNameUrl = cmd.getOptionValue("retrieveNameUrl");
+            if (retrieveNameUrl != null && !retrieveNameUrl.isBlank())
+            {
+                UUIDHandler.setRetrieveNameUrl(retrieveNameUrl);
+            } else
+            {
+                LOGGER.warn("Option -retrieveNameUrl was set without a URL. Ignoring.");
+            }
+        }
     }
 
     private Map<String, String> parseServerPropertiesChanges(CommandLine cmd)
