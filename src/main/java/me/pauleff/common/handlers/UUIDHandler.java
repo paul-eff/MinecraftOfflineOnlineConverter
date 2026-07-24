@@ -11,6 +11,12 @@ import java.util.UUID;
 
 import static me.pauleff.converter.UUIDType.*;
 
+/**
+ * Provides utilities for resolving Minecraft player names and UUIDs in online and offline mode.
+ * <p>
+ * Supports Mojang/Minecraft Services API lookups, optional custom API base URLs, and
+ * classification of UUIDs by version (online vs offline).
+ */
 public final class UUIDHandler
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(UUIDHandler.class);
@@ -20,6 +26,12 @@ public final class UUIDHandler
     private static String retrieveUUIDUrl = null;
     private static String retrieveNameUrl = null;
 
+    /**
+     * Sets a custom base URL used for both name-to-UUID and UUID-to-name lookups when
+     * endpoint-specific URLs are not configured.
+     *
+     * @param url the custom API base URL, or {@code null}/blank to clear it
+     */
     public static void setCustomApiBaseUrl(String url)
     {
         customApiBaseUrl = normalizeApiUrl(url);
@@ -29,6 +41,14 @@ public final class UUIDHandler
         }
     }
 
+    /**
+     * Sets a custom endpoint URL prefix for retrieving an online UUID from a player name.
+     * <p>
+     * When set, this overrides {@link #setCustomApiBaseUrl(String)} and the default Mojang endpoint
+     * for name-to-UUID requests. The player name is appended to the given URL.
+     *
+     * @param url the custom retrieve-UUID URL prefix, or {@code null}/blank to clear it
+     */
     public static void setRetrieveUUIDUrl(String url)
     {
         retrieveUUIDUrl = normalizeApiUrl(url);
@@ -38,6 +58,14 @@ public final class UUIDHandler
         }
     }
 
+    /**
+     * Sets a custom endpoint URL prefix for retrieving a player name from an online UUID.
+     * <p>
+     * When set, this overrides {@link #setCustomApiBaseUrl(String)} and the default Minecraft Services
+     * endpoint for UUID-to-name requests. The UUID string is appended to the given URL.
+     *
+     * @param url the custom retrieve-name URL prefix, or {@code null}/blank to clear it
+     */
     public static void setRetrieveNameUrl(String url)
     {
         retrieveNameUrl = normalizeApiUrl(url);
@@ -47,6 +75,12 @@ public final class UUIDHandler
         }
     }
 
+    /**
+     * Normalizes an API URL by treating blank values as unset and ensuring a trailing slash.
+     *
+     * @param url the URL to normalize
+     * @return the normalized URL ending with {@code /}, or {@code null} if {@code url} is {@code null} or blank
+     */
     private static String normalizeApiUrl(String url)
     {
         if (url == null || url.isBlank())
@@ -56,6 +90,12 @@ public final class UUIDHandler
         return url.endsWith("/") ? url : url + "/";
     }
 
+    /**
+     * Builds the request URL used to resolve a player name to an online UUID.
+     *
+     * @param name the Minecraft player name
+     * @return the fully constructed request URL
+     */
     private static String buildNameToUuidUrl(String name)
     {
         if (retrieveUUIDUrl != null)
@@ -66,6 +106,12 @@ public final class UUIDHandler
         return base + "users/profiles/minecraft/" + name;
     }
 
+    /**
+     * Builds the request URL used to resolve an online UUID to a player name.
+     *
+     * @param uuid the Minecraft player UUID
+     * @return the fully constructed request URL
+     */
     private static String buildUuidToNameUrl(UUID uuid)
     {
         if (retrieveNameUrl != null)
@@ -76,6 +122,15 @@ public final class UUIDHandler
         return base + "minecraft/profile/lookup/" + uuid.toString();
     }
 
+    /**
+     * Generates an offline-mode UUID for the given player name.
+     * <p>
+     * Uses the standard Minecraft offline algorithm:
+     * {@code UUID.nameUUIDFromBytes("OfflinePlayer:" + name)}.
+     *
+     * @param name the Minecraft player name
+     * @return the generated offline UUID
+     */
     public static UUID nameToOfflineUUID(String name)
     {
         UUID uuid = UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(StandardCharsets.UTF_8));
@@ -83,6 +138,13 @@ public final class UUIDHandler
         return uuid;
     }
 
+    /**
+     * Resolves a player name to an online (Mojang) UUID via HTTP API lookup.
+     *
+     * @param name the Minecraft player name
+     * @return the online UUID, or {@code null} if no profile or valid UUID was found
+     * @throws IOException if the HTTP request fails
+     */
     public static UUID nameToOnlineUUID(String name) throws IOException
     {
         String response = HTTPHandler.get(buildNameToUuidUrl(name));
@@ -105,6 +167,13 @@ public final class UUIDHandler
         return UUID.fromString(uuid);
     }
 
+    /**
+     * Resolves an online UUID to a Minecraft player name via HTTP API lookup.
+     *
+     * @param uuid the online Minecraft player UUID
+     * @return the player name, or {@code null} if no profile or name was found
+     * @throws IOException if the HTTP request fails
+     */
     public static String onlineUUIDToName(UUID uuid) throws IOException
     {
         String response = HTTPHandler.get(buildUuidToNameUrl(uuid));
@@ -127,6 +196,14 @@ public final class UUIDHandler
         return name;
     }
 
+    /**
+     * Determines whether a UUID is an online, offline, or invalid Minecraft UUID by version.
+     * <p>
+     * Version {@code 4} is treated as online, version {@code 3} as offline; any other version is invalid.
+     *
+     * @param uuid the UUID to classify
+     * @return the corresponding {@link UUIDType}
+     */
     public static UUIDType getUUIDType(UUID uuid)
     {
         int v = uuid.version();
@@ -135,6 +212,14 @@ public final class UUIDHandler
         return INVALID;
     }
 
+    /**
+     * Checks whether the given string is a well-formed Minecraft online or offline UUID.
+     * <p>
+     * Requires the standard 36-character hyphenated form and a UUID version of {@code 3} or {@code 4}.
+     *
+     * @param uuidString the UUID string to validate
+     * @return {@code true} if the string is a valid online or offline UUID; {@code false} otherwise
+     */
     public static boolean isValidUUID(String uuidString)
     {
         if (uuidString == null || uuidString.length() != 36)

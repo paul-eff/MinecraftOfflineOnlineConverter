@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+/**
+ * Provides utilities for reading, writing, and inspecting Minecraft NBT files.
+ */
 public final class NBTHandler
 {
     private static final String[] DEFAULT_TAGS_TO_KEEP = {
@@ -32,6 +35,16 @@ public final class NBTHandler
     {
     }
 
+    /**
+     * Determines whether a file can be parsed as a valid NBT document.
+     * <p>
+     * Attempts to read the file via {@link NBTUtil#read(File)}, which detects GZIP
+     * and NBT headers. Parse failures (including invalid gzip or tag IDs) are treated
+     * as non-NBT.
+     *
+     * @param file the file to inspect
+     * @return {@code true} if the file parses as NBT; {@code false} otherwise
+     */
     public static boolean isNBTFile(File file)
     {
         try
@@ -47,6 +60,19 @@ public final class NBTHandler
         }
     }
 
+    /**
+     * Writes playerdata from {@code nbtSource} to {@code nbtDest}, preserving selected
+     * tags from the destination when it already exists.
+     * <p>
+     * Loads the source compound, then for each path in the default keep-list copies the
+     * corresponding tag from the destination into the source before writing. Nested paths
+     * use dot notation (e.g. {@code abilities.flying}). The destination is written with
+     * GZIP compression as handled by the Querz NBT library.
+     *
+     * @param nbtSource the path to the source NBT playerdata file
+     * @param nbtDest   the path to write the merged playerdata to
+     * @throws IOException if reading or writing either NBT file fails
+     */
     public static void copyPlayerDataNBT(Path nbtSource, Path nbtDest) throws IOException
     {
         // 1. Load the new data we want to apply (Source)
@@ -68,6 +94,16 @@ public final class NBTHandler
         NBTUtil.write(sourceCompound, nbtDest.toFile());
     }
 
+    /**
+     * Copies a tag from {@code dest} into {@code source} at the given dotted path.
+     * <p>
+     * Intermediate compound tags missing on the source are created as needed. If any
+     * segment of the path is absent on the destination, the method returns without changes.
+     *
+     * @param source the compound receiving the preserved tag
+     * @param dest   the compound providing the tag to keep
+     * @param path   the dotted tag path (e.g. {@code SpawnX} or {@code abilities.flying})
+     */
     private static void preserveTag(CompoundTag source, CompoundTag dest, String path)
     {
         String[] parts = path.split("\\.");

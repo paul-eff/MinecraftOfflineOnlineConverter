@@ -13,6 +13,9 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Provides utilities for reading, writing, renaming, and inspecting Minecraft server files.
+ */
 public final class FileHandler
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileHandler.class);
@@ -21,6 +24,16 @@ public final class FileHandler
     {
     }
 
+    /**
+     * Renames a file, preserving the original extension when the new name does not include one.
+     * <p>
+     * If the source has an extension and {@code newFileName} does not end with that extension,
+     * the extension is appended. An existing file at the target path is replaced.
+     *
+     * @param sourceFile  the file to rename
+     * @param newFileName the desired file name, with or without an extension
+     * @throws IOException if the rename fails
+     */
     public static void renameFile(Path sourceFile, String newFileName) throws IOException
     {
         Path parentDir = sourceFile.getParent();
@@ -40,6 +53,15 @@ public final class FileHandler
         LOGGER.debug("Renamed file\n\tFROM: '{}'\n\tTO: '{}'", sourceFile.normalize(), target.normalize());
     }
 
+    /**
+     * Loads the contents of a {@code usercache.json} file as a {@link JSONArray}.
+     * <p>
+     * On read failure, logs a warning and returns an empty array so callers can continue
+     * without prefetched user data.
+     *
+     * @param pathToUsercache the path to {@code usercache.json}
+     * @return the parsed JSON array, or an empty array if the file could not be read
+     */
     public static JSONArray loadArrayFromUsercache(Path pathToUsercache)
     {
         try
@@ -54,6 +76,14 @@ public final class FileHandler
         }
     }
 
+    /**
+     * Reads the {@code level-name} value from a {@code server.properties} file.
+     * <p>
+     * Returns {@code "world"} if the property is missing or the file cannot be read.
+     *
+     * @param pathToProperties the path to {@code server.properties}
+     * @return the configured world name, or {@code "world"} as a fallback
+     */
     public static String readWorldNameFromProperties(Path pathToProperties)
     {
         try
@@ -72,6 +102,16 @@ public final class FileHandler
         }
     }
 
+    /**
+     * Updates a key-value entry in a properties file, or appends it if the key is not present.
+     * <p>
+     * Matching lines are identified by a {@code key=} prefix. The file is rewritten in place.
+     *
+     * @param pathToProperties the path to the properties file
+     * @param key              the property key to set
+     * @param value            the property value to write
+     * @throws IOException if reading or writing the file fails
+     */
     public static void writeToProperties(Path pathToProperties, String key, String value) throws IOException
     {
         List<String> lines = Files.readAllLines(pathToProperties, StandardCharsets.UTF_8);
@@ -96,6 +136,17 @@ public final class FileHandler
         LOGGER.info("Updated property '{}' to value '{}'", key, value);
     }
 
+    /**
+     * Determines whether a file appears to be text-based rather than binary.
+     * <p>
+     * Scans byte values against printable ASCII, Latin-1, and common control characters,
+     * then applies a heuristic on the ratio of non-text bytes.
+     *
+     * @param pathToFile the path to the file to inspect
+     * @return {@code true} if the file is classified as text-based; {@code false} otherwise
+     * @throws IllegalArgumentException if {@code pathToFile} is not a regular file
+     * @throws IOException              if the file cannot be read
+     */
     public static boolean isTextBasedFile(Path pathToFile) throws IOException
     {
         if (!Files.isRegularFile(pathToFile))
@@ -126,6 +177,15 @@ public final class FileHandler
         }
     }
 
+    /**
+     * Strips the file extension from a file name.
+     * <p>
+     * Uses the last {@code '.'} as the extension separator. Names without a qualifying
+     * extension are returned unchanged (aside from trimming around a found extension).
+     *
+     * @param fileName the file name to process
+     * @return the file name without its extension, or {@code fileName} if no extension is found
+     */
     public static String stripFileExtension(String fileName)
     {
         int dotIndex = fileName.lastIndexOf('.');

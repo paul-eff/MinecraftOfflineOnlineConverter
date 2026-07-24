@@ -10,6 +10,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 
+/**
+ * Provides utilities for sending simple HTTP GET requests.
+ */
 public final class HTTPHandler
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(HTTPHandler.class);
@@ -21,6 +24,13 @@ public final class HTTPHandler
     {
     }
 
+    /**
+     * Sends an HTTP GET request to the given URL and returns the response body on success.
+     *
+     * @param url the absolute URL to request
+     * @return the response body if the status code is {@code 200}; {@code null} otherwise
+     * @throws IOException if the request fails or is interrupted
+     */
     public static String get(String url) throws IOException
     {
         HttpRequest request = HttpRequest.newBuilder()
