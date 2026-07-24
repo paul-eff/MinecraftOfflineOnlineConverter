@@ -8,7 +8,10 @@ import me.pauleff.converter.plugins.UpdateDefaultServerFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -42,16 +45,26 @@ public final class PluginOrchestrator
     {
         Objects.requireNonNull(ctx, "Context can't be null.");
         runPhase(ctx, registry.discoveryPlugins());
-        ctx.setUsercacheEmptyBeforeConversion(ctx.uuidMap().isEmpty());
+
+        if (ctx.isConversionOperation())
+        {
+            if (ctx.conversionTarget() == ConversionTarget.ONLINE && ctx.uuidMap().isEmpty())
+            {
+                LOGGER.error("No profiles resolved for online conversion. Aborting...");
+                return;
+            }
+            if (!confirmConversion(ctx))
+            {
+                LOGGER.info("Conversion cancelled.");
+                return;
+            }
+            LOGGER.info("Conversion confirmed. Proceeding...");
+        }
+
+        runPhase(ctx, registry.miscPlugins());
 
         if (!ctx.isConversionOperation())
         {
-            return;
-        }
-
-        if (ctx.conversionTarget() == ConversionTarget.ONLINE && ctx.uuidMap().isEmpty())
-        {
-            LOGGER.error("No profiles resolved for online conversion. Aborting...");
             return;
         }
 
@@ -64,14 +77,45 @@ public final class PluginOrchestrator
             LOGGER.warn("No plugin list found for server type {}", serverType.name());
         }
 
+        int uuidMapSizeBeforeConversion = ctx.uuidMap().size();
         runPhase(ctx, registry.conversionPlugins());
         /*
-         * A good measure run as there can be cases where usercache.json is not being populated by Minecraft.
-         * In this case we hope to discover some UUIDs during conversion to finalize the default files.
+         * If conversion discovered additional UUID mappings (e.g. empty usercache.json),
+         * re-run default server file updates with the newly found mappings.
          */
-        if (ctx.usercacheEmptyBeforeConversion())
+        if (ctx.uuidMap().size() > uuidMapSizeBeforeConversion)
         {
+            LOGGER.info("The number of detected profiles has increased during the conversion run. Reapplying to the server's default files.");
             runPlugin(ctx, new UpdateDefaultServerFiles());
+        }
+    }
+
+    private boolean confirmConversion(PluginContext ctx)
+    {
+        ConversionTarget target = ctx.conversionTarget();
+        ConversionTarget source = target == ConversionTarget.ONLINE
+                ? ConversionTarget.OFFLINE
+                : ConversionTarget.ONLINE;
+
+        LOGGER.warn("""
+                WARNING! Read before proceeding:
+                
+                Please confirm everything above was detected correctly.
+                Make a backup of your server files before continuing.
+                Conversion will modify files in place and cannot be undone without a backup.
+                """);
+
+        try
+        {
+            System.out.print("Start conversion? [y/N]: ");
+            System.out.flush();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, Charset.defaultCharset()));
+            String answer = reader.readLine();
+            return answer != null && (answer.equalsIgnoreCase("y") || answer.equalsIgnoreCase("yes"));
+        } catch (IOException e)
+        {
+            LOGGER.error("Failed to read confirmation input: {}", e.getMessage());
+            return false;
         }
     }
 

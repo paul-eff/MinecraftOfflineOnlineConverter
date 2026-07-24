@@ -20,7 +20,6 @@ public final class Main
 
     static void main(String[] args)
     {
-        long startTime = System.nanoTime();
         ArgumentParser argumentParser = new ArgumentParser(APP_NAME, VERSION);
         ParseResult parseResult = argumentParser.parse(args);
         if (parseResult.shouldExit())
@@ -46,8 +45,6 @@ public final class Main
         {
             fail(argumentParser, e.getMessage());
         }
-
-        logElapsedTime(startTime);
     }
 
     private static void fail(ArgumentParser argumentParser, String message)
@@ -55,14 +52,5 @@ public final class Main
         LOGGER.error(message);
         argumentParser.printHelp();
         exit(1);
-    }
-
-    private static void logElapsedTime(long startTime)
-    {
-        double elapsedSeconds = (System.nanoTime() - startTime) / 1_000_000_000.0;
-        if (elapsedSeconds > 0.15)
-        {
-            LOGGER.info("Job finished in {} seconds.", String.format("%.3f", elapsedSeconds));
-        }
     }
 }

@@ -29,7 +29,6 @@ public final class PluginContext
     private ServerType serverType;
     private WorldFolderStructure worldFolderStructure;
     private SaveFileFormat saveFileFormat;
-    private boolean usercacheEmptyBeforeConversion;
 
     private PluginContext(
             Path serverFolder,
@@ -143,16 +142,6 @@ public final class PluginContext
         this.saveFileFormat = saveFileFormat;
     }
 
-    public boolean usercacheEmptyBeforeConversion()
-    {
-        return usercacheEmptyBeforeConversion;
-    }
-
-    public void setUsercacheEmptyBeforeConversion(boolean usercacheEmptyBeforeConversion)
-    {
-        this.usercacheEmptyBeforeConversion = usercacheEmptyBeforeConversion;
-    }
-
     public ParsedArguments parsedArguments()
     {
         return parsedArguments;
@@ -174,7 +163,6 @@ public final class PluginContext
                 ", worldFolderStructure=" + worldFolderStructure.name() +
                 ", saveFileFormat=" + saveFileFormat.name() +
                 ", uuidMap=" + uuidMap +
-                ", usercacheEmptyBeforeConversion=" + usercacheEmptyBeforeConversion +
                 '}';
     }
 }

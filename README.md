@@ -15,15 +15,15 @@ The Java applicatin will convert all player related files to be offline or onlin
 
 | Server Type | Min. MC Version | Max. MC Version |
 |:------------|:----------------|:----------------|
-| Vanilla     | Beta 1.8.1      | 26.2            |
-| Bukkit      | Beta 1.8.1      | 26.2            |
+| Vanilla     | 1.7.6           | 26.2            |
+| Bukkit      | 1.7.6           | 26.2            |
 | Forge       | 1.7.10          | 26.2            |
 | Fabric      | 1.14            | 26.2            |
 | Paper       | 1.7.10          | 26.2            |
 | Spigot      | 1.8             | 26.2            |
 
-Mojang introduced UUIDs in Minecraft 1.7.6 (2014) to allow name changing. Therefor, if your server is older than that,
-you will not need this tool!  
+Mojang introduced UUIDs in Minecraft 1.7.6 (2014). Converting between pre 1.7.6 and post 1.7.6 is currently not being
+pursued and will not be any time soon.  
 If you find any bugs or edge cases, please report them to this repo!
 
 # Usage
@@ -32,7 +32,6 @@ First look at [Disclaimer](#disclaimer) and make sure you understand the "risks"
 
 - Download the [most current jar](https://github.com/paul-eff/MinecraftOfflineOnlineConverter/releases/latest)
 - Place it in your server's main folder (not mandatory, just makes things easier)
-
 - Execute the jar through your terminal with the following command:
 
 ```bash
@@ -59,6 +58,9 @@ java -jar MinecraftOfflineOnlineConverter.jar <arguments>
 
 - Paper servers (when converted to offline), sometimes create `<Online UUID>.dat.offline-read`) files
 - No confirmed support for Sponge servers
+- Entity relations tied to players (e.g. pet ownership) is not
+  transferred. [Here is a workaround](https://www.reddit.com/r/Minecraft/comments/9bmthx/change_pet_ownership_with_command_using_uuid_in/)
+  that works for now
 
 ## Building
 

@@ -8,16 +8,25 @@ import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public record PluginRegistry(List<MOOCPlugin> discoveryPlugins, List<MOOCPlugin> conversionPlugins)
+public record PluginRegistry(
+        List<MOOCPlugin> discoveryPlugins,
+        List<MOOCPlugin> miscPlugins,
+        List<MOOCPlugin> conversionPlugins)
 {
     /**
-     * !!! Only add plugins to this list if it can and should run for ANY server type !!!
+     * Read-only / detection plugins that run for any server type before files are changed.
      */
-    private static final List<MOOCPlugin> DEFAULT_PLUGINS = List.of(
+    private static final List<MOOCPlugin> DISCOVERY_PLUGINS = List.of(
             new DetectServerType(),
             new DetectWorldFolderStructure(),
             new DetectSaveFileFormat(),
-            new PrefetchUsercache(),
+            new PrefetchUsercache()
+    );
+
+    /**
+     * Mutating plugins that can and should run for any server type, after confirmation.
+     */
+    private static final List<MOOCPlugin> MISC_PLUGINS = List.of(
             new UpdateProperties(),
             new UpdateDefaultServerFiles(),
             new ApplyCliServerProperties(),
@@ -36,15 +45,19 @@ public record PluginRegistry(List<MOOCPlugin> discoveryPlugins, List<MOOCPlugin>
     public PluginRegistry
     {
         Objects.requireNonNull(discoveryPlugins, "Discovery plugins list can't be null.");
+        Objects.requireNonNull(miscPlugins, "Misc plugins list can't be null.");
         Objects.requireNonNull(conversionPlugins, "Conversion plugins list can't be null.");
-        assertUniquePluginIds(Stream.concat(discoveryPlugins.stream(), conversionPlugins.stream()).toList());
+        assertUniquePluginIds(Stream.of(discoveryPlugins, miscPlugins, conversionPlugins)
+                .flatMap(Collection::stream)
+                .toList());
         discoveryPlugins = List.copyOf(sortByPriorityThenIndex(discoveryPlugins));
+        miscPlugins = List.copyOf(sortByPriorityThenIndex(miscPlugins));
         conversionPlugins = List.copyOf(sortByPriorityThenIndex(conversionPlugins));
     }
 
     public static PluginRegistry standard()
     {
-        return new PluginRegistry(DEFAULT_PLUGINS, CONVERSION_PLUGINS);
+        return new PluginRegistry(DISCOVERY_PLUGINS, MISC_PLUGINS, CONVERSION_PLUGINS);
     }
 
     private static List<MOOCPlugin> sortByPriorityThenIndex(List<MOOCPlugin> plugins)

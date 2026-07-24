@@ -16,7 +16,7 @@ public class ApplyCliServerProperties implements DefaultPlugin
             "apply-cli-server-properties",
             "Apply CLI Server Properties",
             "Applies key=value pairs from the -properties CLI option to server.properties.",
-            1);
+            4);
 
     @Override
     public PluginMetadata metadata()
