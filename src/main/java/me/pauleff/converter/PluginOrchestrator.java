@@ -141,8 +141,6 @@ public final class PluginOrchestrator
      */
     private boolean confirmConversion(PluginContext ctx)
     {
-        ConversionTarget target = ctx.conversionTarget();
-
         LOGGER.warn("""
                 WARNING! Read before proceeding:
                 
