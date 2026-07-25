@@ -93,9 +93,6 @@ public final class PluginOrchestrator
     private boolean confirmConversion(PluginContext ctx)
     {
         ConversionTarget target = ctx.conversionTarget();
-        ConversionTarget source = target == ConversionTarget.ONLINE
-                ? ConversionTarget.OFFLINE
-                : ConversionTarget.ONLINE;
 
         LOGGER.warn("""
                 WARNING! Read before proceeding:
