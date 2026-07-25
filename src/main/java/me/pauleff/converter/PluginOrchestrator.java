@@ -18,22 +18,49 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Runs registered {@link MOOCPlugin}s against a {@link PluginContext} in phased order.
+ * <p>
+ * Discovery plugins always run first. For conversion operations, the user must confirm
+ * before misc and conversion plugins execute. Paths declared by each plugin are resolved
+ * relative to the server root; only existing targets are passed to {@link MOOCPlugin#run}.
+ *
+ * @see PluginRegistry
+ * @see PluginContext
+ * @see MOOCPlugin
+ */
 public final class PluginOrchestrator
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(PluginOrchestrator.class);
 
     private final PluginRegistry registry;
 
+    /**
+     * Creates an orchestrator that uses {@link PluginRegistry#standard()}.
+     */
     public PluginOrchestrator()
     {
         this(PluginRegistry.standard());
     }
 
+    /**
+     * Creates an orchestrator that uses the given plugin registry.
+     *
+     * @param registry the registry supplying discovery, misc, and conversion plugins
+     * @throws NullPointerException if {@code registry} is {@code null}
+     */
     public PluginOrchestrator(PluginRegistry registry)
     {
         this.registry = Objects.requireNonNull(registry, "Registry can't be null.");
     }
 
+    /**
+     * Resolves a plugin-declared path against the server root when it is relative.
+     *
+     * @param serverRoot   the absolute server root folder
+     * @param declaredPath the path declared by a plugin
+     * @return the normalized absolute path
+     */
     private static Path resolvePath(Path serverRoot, Path declaredPath)
     {
         return declaredPath.isAbsolute()
@@ -41,6 +68,19 @@ public final class PluginOrchestrator
                 : serverRoot.resolve(declaredPath).normalize();
     }
 
+    /**
+     * Executes the full plugin pipeline for the given context.
+     * <p>
+     * Always runs discovery plugins. For conversion operations, aborts when an online
+     * conversion has an empty UUID map or when the user declines confirmation. Misc plugins
+     * then run; conversion plugins run only when a conversion was requested. If conversion
+     * discovers additional UUID mappings, {@link UpdateDefaultServerFiles} is reapplied.
+     *
+     * @param ctx the shared conversion context
+     * @throws NullPointerException                 if {@code ctx} is {@code null}, or if the
+     *                                              server type is unset when conversion plugins run
+     * @throws UnknownWorldFolderStructureException if a plugin reports an unsupported world layout
+     */
     public void run(PluginContext ctx)
     {
         Objects.requireNonNull(ctx, "Context can't be null.");
@@ -90,6 +130,15 @@ public final class PluginOrchestrator
         }
     }
 
+    /**
+     * Prompts the user on standard input to confirm an in-place conversion.
+     * <p>
+     * Accepts {@code y} or {@code yes} (case-insensitive). Any other answer, a failed
+     * read, or EOF declines conversion.
+     *
+     * @param ctx the shared conversion context
+     * @return {@code true} if the user confirmed; {@code false} otherwise
+     */
     private boolean confirmConversion(PluginContext ctx)
     {
         ConversionTarget target = ctx.conversionTarget();
@@ -116,6 +165,12 @@ public final class PluginOrchestrator
         }
     }
 
+    /**
+     * Runs each plugin in the given list against the context.
+     *
+     * @param ctx     the shared conversion context
+     * @param plugins the plugins to run in order
+     */
     private void runPhase(PluginContext ctx, List<MOOCPlugin> plugins)
     {
         for (MOOCPlugin plugin : plugins)
@@ -124,6 +179,19 @@ public final class PluginOrchestrator
         }
     }
 
+    /**
+     * Runs a single plugin when enabled and at least one declared target exists on disk.
+     * <p>
+     * Missing declared paths are logged at debug. {@link IOException} and
+     * {@link RuntimeException} from the plugin are logged without aborting the pipeline;
+     * {@link UnknownWorldFolderStructureException} is rethrown.
+     *
+     * @param ctx    the shared conversion context
+     * @param plugin the plugin to evaluate and possibly run
+     * @throws UnknownWorldFolderStructureException if the plugin reports an unsupported world layout
+     * @throws NullPointerException                 if the plugin's metadata is {@code null}, or if
+     *                                              {@link MOOCPlugin#setTargets} returns {@code null}
+     */
     private void runPlugin(PluginContext ctx, MOOCPlugin plugin)
     {
         Path serverRoot = ctx.serverFolder();

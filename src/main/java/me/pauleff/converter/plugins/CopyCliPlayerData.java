@@ -19,6 +19,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Copies player data from a CLI-specified source world into the current world.
+ * <p>
+ * Enabled when {@code -copy <world-name>} is set. Prompts for confirmation before
+ * copying playerdata and UUID-named files across matching dimension roots.
+ */
 public class CopyCliPlayerData implements DefaultPlugin
 {
     private static final PluginMetadata META = PluginMetadata.of(
@@ -32,6 +38,12 @@ public class CopyCliPlayerData implements DefaultPlugin
             "md", "snbt", "nbt", "zip", "cache", "png", "jpeg", "js", "DS_Store"
     );
 
+    /**
+     * Indicates whether the path is under a {@code playerdata} or {@code players/data} directory.
+     *
+     * @param path the file path to inspect
+     * @return {@code true} if the path looks like player data; {@code false} otherwise
+     */
     private static boolean isPlayerDataFile(Path path)
     {
         Path parent = path.getParent();
@@ -41,24 +53,45 @@ public class CopyCliPlayerData implements DefaultPlugin
         return "playerdata".equals(parentName) || ("data".equals(parentName) && "players".equals(grandParentName));
     }
 
+    /**
+     * Indicates whether the file name ends with an ignored extension.
+     *
+     * @param path the file path to inspect
+     * @return {@code true} if the extension should be skipped; {@code false} otherwise
+     */
     private static boolean hasIgnoredExtension(Path path)
     {
         String fileName = path.getFileName().toString();
         return IGNORED_FILE_EXTENSIONS.stream().anyMatch(fileName::endsWith);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public PluginMetadata metadata()
     {
         return META;
     }
 
+    /**
+     * Returns {@code true} when the {@code -copy} CLI option was provided.
+     *
+     * @param ctx the shared conversion context
+     * @return {@code true} if player-data copying was requested; {@code false} otherwise
+     */
     @Override
     public boolean isEnabled(PluginContext ctx)
     {
         return ctx.parsedArguments().shouldCopyPlayerData();
     }
 
+    /**
+     * Returns the resolved source world folder and the destination world folder.
+     *
+     * @param ctx the shared conversion context
+     * @return a two-element list of source then destination world paths
+     */
     @Override
     public List<Path> setTargets(PluginContext ctx)
     {
@@ -73,6 +106,13 @@ public class CopyCliPlayerData implements DefaultPlugin
                 ctx.worldFolder());
     }
 
+    /**
+     * Prompts for confirmation and copies player data from the source world to the destination.
+     *
+     * @param ctx                     the shared conversion context
+     * @param resolvedExistingTargets expected to contain source and destination world folders
+     * @throws IOException if confirmation I/O or file copying fails
+     */
     @Override
     public void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException
     {
@@ -97,6 +137,12 @@ public class CopyCliPlayerData implements DefaultPlugin
         copyPlayerData(ctx, resolvedExistingTargets.get(0), resolvedExistingTargets.get(1));
     }
 
+    /**
+     * Asks the user on standard input whether to continue with the copy.
+     *
+     * @return {@code true} if the answer is {@code y} or {@code yes}; {@code false} otherwise
+     * @throws IOException if reading from standard input fails
+     */
     private boolean confirmContinue() throws IOException
     {
         System.out.print("Continue copying player data? [y/N]: ");
@@ -106,6 +152,14 @@ public class CopyCliPlayerData implements DefaultPlugin
         return answer != null && (answer.equalsIgnoreCase("y") || answer.equalsIgnoreCase("yes"));
     }
 
+    /**
+     * Copies playerdata and UUID-named files between matching dimension roots of two worlds.
+     *
+     * @param ctx               the shared conversion context (must have a detected world folder structure)
+     * @param sourceWorldFolder the source world root
+     * @param destWorldFolder   the destination world root
+     * @throws IOException if comparing or copying files fails
+     */
     private void copyPlayerData(PluginContext ctx, Path sourceWorldFolder, Path destWorldFolder) throws IOException
     {
         if (Files.isSameFile(sourceWorldFolder, destWorldFolder))

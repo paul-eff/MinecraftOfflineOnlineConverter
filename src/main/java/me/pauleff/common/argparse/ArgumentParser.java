@@ -12,7 +12,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-
+/**
+ * Parses command-line arguments into a {@link ParseResult} for this application.
+ * <p>
+ * Handles help and version requests as terminal exits, configures logging verbosity,
+ * and applies custom UUID API options when present.
+ */
 public final class ArgumentParser
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArgumentParser.class);
@@ -23,6 +28,12 @@ public final class ArgumentParser
     private final HelpFormatter formatter;
     private final CommandLineParser parser;
 
+    /**
+     * Creates a parser for the given application name and version string.
+     *
+     * @param appName the application name shown in help and version output
+     * @param version the application version shown with the {@code -v} flag
+     */
     public ArgumentParser(String appName, String version)
     {
         this.appName = appName;
@@ -32,11 +43,24 @@ public final class ArgumentParser
         this.parser = new DefaultParser();
     }
 
+    /**
+     * Prints usage help for the configured CLI options to standard output.
+     */
     public void printHelp()
     {
         formatter.printHelp(appName, options);
     }
 
+    /**
+     * Parses the given command-line arguments and returns a {@link ParseResult}.
+     * <p>
+     * On success, returns {@link ParseResult#success(ParsedArguments)}. Help or version
+     * requests return {@link ParseResult#exit(int)} with code {@code 0}. Parse failures
+     * print help and return an exit result with code {@code 1}.
+     *
+     * @param args the raw command-line arguments
+     * @return a successful result with {@link ParsedArguments}, or a terminal exit result
+     */
     public ParseResult parse(String[] args)
     {
         try
@@ -66,6 +90,15 @@ public final class ArgumentParser
         }
     }
 
+    /**
+     * Builds {@link ParsedArguments} from a successfully parsed {@link CommandLine}.
+     * <p>
+     * Also applies any custom UUID API options to {@link UUIDHandler}.
+     *
+     * @param cmd the parsed command line
+     * @return the structured arguments for conversion and related operations
+     * @throws ParseException if a required option value is missing or blank
+     */
     private ParsedArguments buildArguments(CommandLine cmd) throws ParseException
     {
         Optional<Boolean> toOnlineMode = Optional.empty();
@@ -101,6 +134,13 @@ public final class ArgumentParser
                 parseServerPropertiesChanges(cmd));
     }
 
+    /**
+     * Applies custom UUID API URL options from the command line to {@link UUIDHandler}.
+     * <p>
+     * Blank values are ignored with a warning; Mojang defaults remain in use when unset.
+     *
+     * @param cmd the parsed command line
+     */
     private void applyCustomApiOptions(CommandLine cmd)
     {
         if (cmd.hasOption("customApiBaseUrl"))
@@ -140,6 +180,12 @@ public final class ArgumentParser
         }
     }
 
+    /**
+     * Parses {@code -properties} key/value pairs into an immutable map of server property changes.
+     *
+     * @param cmd the parsed command line
+     * @return the property changes to apply, or an empty map when the option is absent
+     */
     private Map<String, String> parseServerPropertiesChanges(CommandLine cmd)
     {
         if (!cmd.hasOption("properties"))

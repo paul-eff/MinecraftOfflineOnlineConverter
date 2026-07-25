@@ -19,6 +19,15 @@ import static me.pauleff.common.handlers.FileHandler.isTextBasedFile;
 import static me.pauleff.common.handlers.FileHandler.stripFileExtension;
 import static me.pauleff.common.handlers.UUIDHandler.*;
 
+/**
+ * Converts Minecraft world and player files between online and offline UUID modes.
+ * <p>
+ * Renames files whose base name is a convertible UUID and rewrites UUID string
+ * references inside text-based files, using mappings from the shared {@link PluginContext}.
+ *
+ * @see PluginContext
+ * @see ConversionTarget
+ */
 public final class ConverterV3
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConverterV3.class);
@@ -29,11 +38,27 @@ public final class ConverterV3
 
     private final PluginContext ctx;
 
+    /**
+     * Creates a converter bound to the given plugin context.
+     *
+     * @param ctx the shared conversion context supplying the target mode and UUID map
+     * @throws NullPointerException if {@code ctx} is {@code null}
+     */
     public ConverterV3(PluginContext ctx)
     {
         this.ctx = requireNonNull(ctx, "PluginContext cannot be null");
     }
 
+    /**
+     * Converts the given files according to the context's {@link ConversionTarget}.
+     * <p>
+     * Skips non-regular files and paths with ignored extensions. For each remaining file,
+     * renames UUID-named files when a mapping exists and the UUID version matches the
+     * conversion direction, then replaces mapped UUID strings in text-based content.
+     * Per-file errors are logged and processing continues.
+     *
+     * @param toConvert the candidate file paths to process
+     */
     public void convert(List<Path> toConvert)
     {
         LOGGER.info("Starting world conversion ({} --> {}) on {} files...",
@@ -97,12 +122,30 @@ public final class ConverterV3
         LOGGER.info("Renamed {} UUID file(s) & updated {} file's content(s). Processed {} relevant file(s).", renamedFiles, updatedTextFiles, discoveredValidFiles);
     }
 
+    /**
+     * Indicates whether the source UUID version matches the context's conversion direction.
+     *
+     * @param sourceUuidType the classified type of the source UUID
+     * @return {@code true} if the UUID should be converted for this run; {@code false} otherwise
+     */
     private boolean validConversionDirection(UUIDType sourceUuidType)
     {
         return (ctx.conversionTarget() == ConversionTarget.ONLINE && sourceUuidType == UUIDType.OFFLINE)
                 || (ctx.conversionTarget() == ConversionTarget.OFFLINE && sourceUuidType == UUIDType.ONLINE);
     }
 
+    /**
+     * Resolves the remapped UUID for a source UUID, consulting and possibly extending the context map.
+     * <p>
+     * Returns an existing mapping when present. For online conversion with no mapping, returns
+     * {@code null} (offline UUIDs cannot be inferred without a name source such as usercache).
+     * For offline conversion, looks up the online name and derives an offline UUID, storing the
+     * new mapping on the context.
+     *
+     * @param sourceUuid the UUID found in a file name
+     * @return the target UUID, or {@code null} if no mapping can be determined
+     * @throws IOException if an online name lookup fails
+     */
     private UUID resolveTargetUuid(UUID sourceUuid) throws IOException
     {
         UUID targetUuid = ctx.getTargetUuid(sourceUuid);
@@ -137,6 +180,13 @@ public final class ConverterV3
         return offlineUuid;
     }
 
+    /**
+     * Replaces mapped UUID string occurrences in a text file's content.
+     *
+     * @param textFile the text-based file to update
+     * @return {@code true} if the file content changed; {@code false} otherwise
+     * @throws IOException if reading or writing the file fails
+     */
     private boolean replaceUuidReferencesInTextFile(Path textFile) throws IOException
     {
         String content = Files.readString(textFile);
@@ -162,12 +212,24 @@ public final class ConverterV3
         return true;
     }
 
+    /**
+     * Indicates whether the path's file name ends with an ignored extension.
+     *
+     * @param path the path to check
+     * @return {@code true} if the file should be skipped; {@code false} otherwise
+     */
     private boolean hasIgnoredExtension(Path path)
     {
         String name = path.getFileName().toString();
         return IGNORED_FILE_EXTENSIONS.stream().anyMatch(name::endsWith);
     }
 
+    /**
+     * Returns the file extension including the leading dot, or an empty string if none.
+     *
+     * @param path the path whose file name is inspected
+     * @return the extension substring (e.g. {@code .dat}), or {@code ""} when absent
+     */
     private String getFileExtension(Path path)
     {
         String filename = path.getFileName().toString();

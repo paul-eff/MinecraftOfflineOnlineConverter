@@ -3,12 +3,20 @@ package me.pauleff.common.argparse;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+/**
+ * Defines the CLI options supported by this application.
+ */
 public final class CliOptions
 {
     private CliOptions()
     {
     }
 
+    /**
+     * Builds and returns the configured CLI options for argument parsing.
+     *
+     * @return a non-{@code null} {@link Options} instance containing all supported flags and arguments
+     */
     public static Options create()
     {
         Options options = new Options();

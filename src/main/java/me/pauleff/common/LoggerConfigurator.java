@@ -18,6 +18,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+/**
+ * Configures Logback console and rolling file logging for the application.
+ */
 public final class LoggerConfigurator
 {
     private static final Path LOG_DIR = Path.of("mooc_logs");
@@ -30,6 +33,16 @@ public final class LoggerConfigurator
     {
     }
 
+    /**
+     * Configures the root logger with console and daily rolling file appenders.
+     * <p>
+     * Creates the log directory if needed, resets the Logback context, and attaches
+     * appenders. Verbose mode enables debug-level console output and includes the
+     * logger name in the console pattern.
+     *
+     * @param verbose {@code true} for debug console output with logger names;
+     *                {@code false} for info console output without logger names
+     */
     public static void configure(boolean verbose)
     {
         try
@@ -51,6 +64,14 @@ public final class LoggerConfigurator
         new StatusPrinter2().printInCaseOfErrorsOrWarnings(context);
     }
 
+    /**
+     * Creates a console appender whose threshold and pattern depend on verbosity.
+     *
+     * @param context the Logback logger context
+     * @param verbose {@code true} for debug threshold and verbose pattern;
+     *                {@code false} for info threshold and default pattern
+     * @return a started console appender
+     */
     private static Appender<ILoggingEvent> createConsoleAppender(LoggerContext context, boolean verbose)
     {
         PatternLayoutEncoder encoder = createEncoder(
@@ -70,6 +91,12 @@ public final class LoggerConfigurator
         return appender;
     }
 
+    /**
+     * Creates a rolling file appender that writes daily log files under {@code mooc_logs}.
+     *
+     * @param context the Logback logger context
+     * @return a started rolling file appender
+     */
     private static Appender<ILoggingEvent> createFileAppender(LoggerContext context)
     {
         PatternLayoutEncoder encoder = createEncoder(context, LINE_PATTERN);
@@ -88,6 +115,13 @@ public final class LoggerConfigurator
         return appender;
     }
 
+    /**
+     * Creates and starts a UTF-8 pattern layout encoder for the given pattern.
+     *
+     * @param context the Logback logger context
+     * @param pattern the Logback layout pattern
+     * @return a started pattern layout encoder
+     */
     private static PatternLayoutEncoder createEncoder(LoggerContext context, String pattern)
     {
         PatternLayoutEncoder encoder = new PatternLayoutEncoder();

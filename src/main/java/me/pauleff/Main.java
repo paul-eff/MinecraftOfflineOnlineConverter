@@ -12,12 +12,24 @@ import org.slf4j.LoggerFactory;
 
 import static java.lang.System.exit;
 
+/**
+ * Application entry point that parses CLI arguments and runs the conversion plugins.
+ */
 public final class Main
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
     private static final String APP_NAME = "MinecraftOfflineOnlineConverter";
     private static final String VERSION = "26.1";
 
+    /**
+     * Parses command-line arguments and executes the requested conversion operations.
+     * <p>
+     * Exits early when {@link ParseResult#shouldExit()} is {@code true}. Requires at least
+     * one of conversion, player-data copy, or server-properties changes. On path or world-folder
+     * structure errors, logs the failure, prints help, and exits with code {@code 1}.
+     *
+     * @param args the raw command-line arguments
+     */
     static void main(String[] args)
     {
         ArgumentParser argumentParser = new ArgumentParser(APP_NAME, VERSION);
@@ -47,6 +59,12 @@ public final class Main
         }
     }
 
+    /**
+     * Logs an error, prints CLI help, and terminates the process with exit code {@code 1}.
+     *
+     * @param argumentParser the parser used to print help
+     * @param message        the error message to log
+     */
     private static void fail(ArgumentParser argumentParser, String message)
     {
         LOGGER.error(message);

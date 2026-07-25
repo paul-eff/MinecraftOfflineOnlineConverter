@@ -16,6 +16,12 @@ import java.util.UUID;
 
 import static me.pauleff.common.handlers.FileHandler.loadArrayFromUsercache;
 
+/**
+ * Prefills the context UUID map from {@code usercache.json} for an online/offline conversion.
+ * <p>
+ * Exits early when {@code usercache.json} is missing, which usually indicates a pre-1.7.6 server
+ * that does not need UUID conversion.
+ */
 public class PrefetchUsercache implements DefaultPlugin
 {
     private static final PluginMetadata META = PluginMetadata.of(
@@ -24,18 +30,33 @@ public class PrefetchUsercache implements DefaultPlugin
             "Reads usercache.json and fills UUID mappings for online/offline conversion.",
             2);
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public PluginMetadata metadata()
     {
         return META;
     }
 
+    /**
+     * Returns {@code true} when an online/offline conversion was requested.
+     *
+     * @param ctx the shared conversion context
+     * @return {@code true} if this is a conversion operation; {@code false} otherwise
+     */
     @Override
     public boolean isEnabled(PluginContext ctx)
     {
         return ctx.isConversionOperation();
     }
 
+    /**
+     * Returns {@code usercache.json} under the server folder, or exits if the file is absent.
+     *
+     * @param ctx the shared conversion context
+     * @return a single-element list containing the usercache path
+     */
     @Override
     public List<Path> setTargets(PluginContext ctx)
     {
@@ -57,6 +78,13 @@ public class PrefetchUsercache implements DefaultPlugin
         return List.of(usercachePath);
     }
 
+    /**
+     * Loads known players from each resolved usercache and stores UUID remappings on the context.
+     *
+     * @param ctx                     the shared conversion context
+     * @param resolvedExistingTargets the existing usercache paths to read
+     * @throws IOException if reading a usercache file fails
+     */
     @Override
     public void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException
     {
@@ -66,6 +94,12 @@ public class PrefetchUsercache implements DefaultPlugin
         }
     }
 
+    /**
+     * Reads players from a usercache file and maps each UUID toward the conversion target mode.
+     *
+     * @param path the usercache.json path
+     * @param ctx  the shared conversion context
+     */
     private void prefetchFromUsercache(Path path, PluginContext ctx)
     {
         JSONArray knownPlayers = loadArrayFromUsercache(path);

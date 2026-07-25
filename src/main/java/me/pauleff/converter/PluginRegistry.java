@@ -8,14 +8,24 @@ import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+/**
+ * Holds the ordered plugin lists used for discovery, misc, and conversion phases.
+ * <p>
+ * Construction validates unique plugin ids and sorts each list by
+ * {@link PluginMetadata#priority()} (lower first), preserving registration order
+ * for equal priorities. {@link #standard()} supplies the built-in plugin set.
+ *
+ * @param discoveryPlugins  read-only / detection plugins that run before files are changed
+ * @param miscPlugins       mutating plugins that can run for any server type after confirmation
+ * @param conversionPlugins server-type-specific world conversion plugins
+ * @see PluginOrchestrator
+ * @see MOOCPlugin
+ */
 public record PluginRegistry(
         List<MOOCPlugin> discoveryPlugins,
         List<MOOCPlugin> miscPlugins,
         List<MOOCPlugin> conversionPlugins)
 {
-    /**
-     * Read-only / detection plugins that run for any server type before files are changed.
-     */
     private static final List<MOOCPlugin> DISCOVERY_PLUGINS = List.of(
             new DetectServerType(),
             new DetectWorldFolderStructure(),
@@ -23,9 +33,6 @@ public record PluginRegistry(
             new PrefetchUsercache()
     );
 
-    /**
-     * Mutating plugins that can and should run for any server type, after confirmation.
-     */
     private static final List<MOOCPlugin> MISC_PLUGINS = List.of(
             new UpdateProperties(),
             new UpdateDefaultServerFiles(),
@@ -33,15 +40,19 @@ public record PluginRegistry(
             new CopyCliPlayerData()
     );
 
-    /**
-     * Add all your plugins to this which can run on one or multiple server types.
-     */
     private static final List<MOOCPlugin> CONVERSION_PLUGINS = List.of(
             new ConvertVanillaServer(),
             new ConvertBukkitServer(),
             new ConvertModdedServer()
     );
 
+    /**
+     * Validates non-null plugin lists, rejects duplicate plugin ids, and replaces each
+     * list with an immutable copy sorted by priority then registration order.
+     *
+     * @throws NullPointerException     if any plugin list is {@code null}
+     * @throws IllegalArgumentException if two plugins share the same {@link PluginMetadata#id()}
+     */
     public PluginRegistry
     {
         Objects.requireNonNull(discoveryPlugins, "Discovery plugins list can't be null.");
@@ -55,11 +66,23 @@ public record PluginRegistry(
         conversionPlugins = List.copyOf(sortByPriorityThenIndex(conversionPlugins));
     }
 
+    /**
+     * Returns the built-in registry of discovery, misc, and conversion plugins.
+     *
+     * @return a {@link PluginRegistry} containing the standard plugin set
+     */
     public static PluginRegistry standard()
     {
         return new PluginRegistry(DISCOVERY_PLUGINS, MISC_PLUGINS, CONVERSION_PLUGINS);
     }
 
+    /**
+     * Sorts plugins by ascending {@link PluginMetadata#priority()}, keeping equal-priority
+     * plugins in their original list order.
+     *
+     * @param plugins the plugins to sort
+     * @return a new list ordered by priority then index, or the same list when size is at most one
+     */
     private static List<MOOCPlugin> sortByPriorityThenIndex(List<MOOCPlugin> plugins)
     {
         if (plugins.size() <= 1)
@@ -75,6 +98,13 @@ public record PluginRegistry(
                 .toList();
     }
 
+    /**
+     * Ensures every plugin has a unique {@link PluginMetadata#id()}.
+     *
+     * @param plugins the plugins to check across all phases
+     * @throws NullPointerException     if any plugin's metadata is {@code null}
+     * @throws IllegalArgumentException if a duplicate id is found
+     */
     private static void assertUniquePluginIds(List<MOOCPlugin> plugins)
     {
         Set<String> seen = new HashSet<>();
