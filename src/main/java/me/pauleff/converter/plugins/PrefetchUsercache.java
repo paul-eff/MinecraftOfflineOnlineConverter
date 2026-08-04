@@ -1,6 +1,7 @@
 package me.pauleff.converter.plugins;
 
 import me.pauleff.common.handlers.UUIDHandler;
+import me.pauleff.common.handlers.files.UsercacheFile;
 import me.pauleff.converter.ConversionTarget;
 import me.pauleff.converter.api.DefaultPlugin;
 import me.pauleff.converter.api.PluginContext;
@@ -13,8 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
-
-import static me.pauleff.common.handlers.FileHandler.loadArrayFromUsercache;
 
 /**
  * Prefills the context UUID map from {@code usercache.json} for an online/offline conversion.
@@ -102,7 +101,7 @@ public class PrefetchUsercache implements DefaultPlugin
      */
     private void prefetchFromUsercache(Path path, PluginContext ctx)
     {
-        JSONArray knownPlayers = loadArrayFromUsercache(path);
+        JSONArray knownPlayers = UsercacheFile.loadArray(path);
         int prefetched = 0;
 
         for (Object obj : knownPlayers)

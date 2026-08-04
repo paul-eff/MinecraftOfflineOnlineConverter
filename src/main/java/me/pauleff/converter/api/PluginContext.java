@@ -2,7 +2,7 @@ package me.pauleff.converter.api;
 
 import me.pauleff.common.argparse.ParsedArguments;
 import me.pauleff.common.exceptions.PathNotValidException;
-import me.pauleff.common.handlers.FileHandler;
+import me.pauleff.common.handlers.files.ServerPropertiesFile;
 import me.pauleff.converter.ConversionTarget;
 import me.pauleff.converter.SaveFileFormat;
 import me.pauleff.converter.ServerType;
@@ -95,7 +95,7 @@ public final class PluginContext
                     serverProperties.toAbsolutePath().normalize());
         }
 
-        String worldName = FileHandler.readWorldNameFromProperties(serverProperties);
+        String worldName = ServerPropertiesFile.worldName(serverProperties);
         Path worldFolder = serverFolder.resolve(worldName);
         if (!Files.exists(worldFolder))
         {

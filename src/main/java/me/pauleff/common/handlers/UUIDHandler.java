@@ -26,6 +26,10 @@ public final class UUIDHandler
     private static String retrieveUUIDUrl = null;
     private static String retrieveNameUrl = null;
 
+    private UUIDHandler()
+    {
+    }
+
     /**
      * Sets a custom base URL used for both name-to-UUID and UUID-to-name lookups when
      * endpoint-specific URLs are not configured.

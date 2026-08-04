@@ -1,6 +1,6 @@
 package me.pauleff.converter.plugins;
 
-import me.pauleff.common.handlers.FileHandler;
+import me.pauleff.common.handlers.files.ServerPropertiesFile;
 import me.pauleff.converter.ConversionTarget;
 import me.pauleff.converter.api.DefaultPlugin;
 import me.pauleff.converter.api.PluginContext;
@@ -68,7 +68,7 @@ public class UpdateProperties implements DefaultPlugin
         for (Path path : resolvedExistingTargets)
         {
             boolean newPropertyValue = ctx.conversionTarget().equals(ConversionTarget.ONLINE);
-            FileHandler.writeToProperties(path, "online-mode", String.valueOf(newPropertyValue));
+            ServerPropertiesFile.writeProperty(path, "online-mode", String.valueOf(newPropertyValue));
         }
     }
 }

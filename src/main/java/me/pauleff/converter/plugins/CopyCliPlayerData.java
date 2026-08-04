@@ -1,8 +1,8 @@
 package me.pauleff.converter.plugins;
 
-import me.pauleff.common.handlers.FileHandler;
 import me.pauleff.common.handlers.NBTHandler;
 import me.pauleff.common.handlers.UUIDHandler;
+import me.pauleff.common.handlers.files.FileNames;
 import me.pauleff.converter.api.DefaultPlugin;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
@@ -220,7 +220,7 @@ public class CopyCliPlayerData implements DefaultPlugin
                         }
                     } else
                     {
-                        String fileName = FileHandler.stripFileExtension(currentPath.getFileName().toString());
+                        String fileName = FileNames.stripExtension(currentPath.getFileName().toString());
                         if (!UUIDHandler.isValidUUID(fileName))
                         {
                             continue;

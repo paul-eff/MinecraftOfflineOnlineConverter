@@ -1,6 +1,6 @@
 package me.pauleff.converter.plugins;
 
-import me.pauleff.common.handlers.FileHandler;
+import me.pauleff.common.handlers.files.ServerPropertiesFile;
 import me.pauleff.converter.api.DefaultPlugin;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
@@ -66,9 +66,10 @@ public class ApplyCliServerProperties implements DefaultPlugin
     {
         for (Path path : resolvedExistingTargets)
         {
+            ServerPropertiesFile propertiesFile = ServerPropertiesFile.of(path);
             for (Map.Entry<String, String> entry : ctx.parsedArguments().serverPropertiesChanges().entrySet())
             {
-                FileHandler.writeToProperties(path, entry.getKey(), entry.getValue());
+                propertiesFile.writeProperty(entry.getKey(), entry.getValue());
             }
         }
     }

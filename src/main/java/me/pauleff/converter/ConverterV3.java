@@ -1,6 +1,8 @@
 package me.pauleff.converter;
 
-import me.pauleff.common.handlers.FileHandler;
+import me.pauleff.common.handlers.files.FileNames;
+import me.pauleff.common.handlers.files.FileRenamer;
+import me.pauleff.common.handlers.files.TextFileDetector;
 import me.pauleff.converter.api.PluginContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +17,6 @@ import java.util.UUID;
 
 import static java.nio.file.Files.isRegularFile;
 import static java.util.Objects.requireNonNull;
-import static me.pauleff.common.handlers.FileHandler.isTextBasedFile;
-import static me.pauleff.common.handlers.FileHandler.stripFileExtension;
 import static me.pauleff.common.handlers.UUIDHandler.*;
 
 /**
@@ -80,7 +80,7 @@ public final class ConverterV3
             Path currentPath = originalPath;
             try
             {
-                String fileName = stripFileExtension(currentPath.getFileName().toString());
+                String fileName = FileNames.stripExtension(currentPath.getFileName().toString());
                 if (isValidUUID(fileName))
                 {
                     discoveredValidFiles++;
@@ -95,16 +95,14 @@ public final class ConverterV3
                                     sourceUuid, currentPath.normalize());
                         } else
                         {
-                            String extension = getFileExtension(currentPath);
-                            FileHandler.renameFile(currentPath, targetUuid.toString());
-                            currentPath = currentPath.getParent().resolve(targetUuid + extension);
+                            currentPath = FileRenamer.renamePreservingExtension(currentPath, targetUuid.toString());
                             renamedFiles++;
                             LOGGER.debug("Renamed file UUID {} -> {}", sourceUuid, targetUuid);
                         }
                     }
                 }
 
-                if (isRegularFile(currentPath) && isTextBasedFile(currentPath))
+                if (isRegularFile(currentPath) && TextFileDetector.isTextBased(currentPath))
                 {
                     if (replaceUuidReferencesInTextFile(currentPath))
                     {
@@ -222,18 +220,5 @@ public final class ConverterV3
     {
         String name = path.getFileName().toString();
         return IGNORED_FILE_EXTENSIONS.stream().anyMatch(name::endsWith);
-    }
-
-    /**
-     * Returns the file extension including the leading dot, or an empty string if none.
-     *
-     * @param path the path whose file name is inspected
-     * @return the extension substring (e.g. {@code .dat}), or {@code ""} when absent
-     */
-    private String getFileExtension(Path path)
-    {
-        String filename = path.getFileName().toString();
-        int dot = filename.lastIndexOf('.');
-        return dot >= 0 ? filename.substring(dot) : "";
     }
 }
