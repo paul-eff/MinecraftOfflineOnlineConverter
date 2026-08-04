@@ -24,7 +24,7 @@ public final class CliOptions
 
         options.addOption("p", "path", true, "Specify path to the server folder");
         options.addOption("v", false, "Print version");
-        options.addOption("verbose", false, "Enable verbose output");
+        options.addOption("verbose", false, "Enable verbose (debug) console output");
         options.addOption("offline", false, "Convert server files to offline mode");
         options.addOption("online", false, "Convert server files to online mode");
 

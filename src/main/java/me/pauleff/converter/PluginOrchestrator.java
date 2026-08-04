@@ -180,9 +180,9 @@ public final class PluginOrchestrator
     /**
      * Runs a single plugin when enabled and at least one declared target exists on disk.
      * <p>
-     * Missing declared paths are logged at debug. {@link IOException} and
-     * {@link RuntimeException} from the plugin are logged without aborting the pipeline;
-     * {@link UnknownWorldFolderStructureException} is rethrown.
+     * Plugin lifecycle details (skip reasons, missing paths, start, targets) are logged at debug.
+     * {@link IOException} and {@link RuntimeException} from the plugin are logged without aborting
+     * the pipeline; {@link UnknownWorldFolderStructureException} is rethrown.
      *
      * @param ctx    the shared conversion context
      * @param plugin the plugin to evaluate and possibly run
@@ -225,10 +225,10 @@ public final class PluginOrchestrator
             }
             if (resolvedExisting.isEmpty())
             {
-                pluginLog.info("No existing targets; skipping operate.");
+                pluginLog.warn("No existing targets; skipping operate.");
                 return;
             }
-            pluginLog.info("Running plugin: {} ({})", meta.displayName(), pluginId);
+            pluginLog.debug("Running plugin: {} ({})", meta.displayName(), pluginId);
             if (!meta.description().isBlank())
             {
                 pluginLog.debug("{}", meta.description());

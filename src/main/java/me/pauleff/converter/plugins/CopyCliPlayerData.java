@@ -203,7 +203,7 @@ public class CopyCliPlayerData implements DefaultPlugin
                 {
                     continue;
                 }
-                logger().info("Processing file: {}", currentPath);
+                logger().debug("Processing file: {}", currentPath);
                 try
                 {
                     Path finalPath = destRoot.resolve(sourceRoot.relativize(currentPath));
@@ -212,7 +212,7 @@ public class CopyCliPlayerData implements DefaultPlugin
                     {
                         if (NBTHandler.isNBTFile(currentPath.toFile()))
                         {
-                            logger().info("Copying NBT file to {}", finalPath.normalize());
+                            logger().debug("Copying NBT file to {}", finalPath.normalize());
                             Files.createDirectories(finalPath.getParent());
                             NBTHandler.copyPlayerDataNBT(currentPath, finalPath);
                             movedFiles++;
@@ -227,13 +227,13 @@ public class CopyCliPlayerData implements DefaultPlugin
                         }
                     }
 
-                    logger().info("Copying file to {}", finalPath.normalize());
+                    logger().debug("Copying file to {}", finalPath.normalize());
                     Files.createDirectories(finalPath.getParent());
                     Files.copy(currentPath, finalPath, StandardCopyOption.REPLACE_EXISTING);
                     movedFiles++;
                 } catch (IllegalArgumentException | IOException e)
                 {
-                    logger().debug("Skipping file {} due to an error: {}", currentPath.normalize(), e.getMessage());
+                    logger().warn("Skipping file {} due to an error: {}", currentPath.normalize(), e.getMessage());
                 }
             }
         }

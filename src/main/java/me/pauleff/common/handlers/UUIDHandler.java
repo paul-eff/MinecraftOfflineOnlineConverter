@@ -134,7 +134,7 @@ public final class UUIDHandler
     public static UUID nameToOfflineUUID(String name)
     {
         UUID uuid = UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(StandardCharsets.UTF_8));
-        LOGGER.info("Offline UUID generated for '{}': {}", name, uuid);
+        LOGGER.debug("Offline UUID generated for '{}': {}", name, uuid);
         return uuid;
     }
 
@@ -163,7 +163,7 @@ public final class UUIDHandler
             return null;
         }
 
-        LOGGER.info("Retrieved online UUID for player '{}': {}", name, uuid);
+        LOGGER.debug("Retrieved online UUID for player '{}': {}", name, uuid);
         return UUID.fromString(uuid);
     }
 
@@ -192,7 +192,7 @@ public final class UUIDHandler
             return null;
         }
 
-        LOGGER.info("Successfully retrieved name: {} for UUID: {}", name, uuid);
+        LOGGER.debug("Successfully retrieved name: {} for UUID: {}", name, uuid);
         return name;
     }
 

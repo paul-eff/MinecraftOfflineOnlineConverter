@@ -103,6 +103,7 @@ public class PrefetchUsercache implements DefaultPlugin
     private void prefetchFromUsercache(Path path, PluginContext ctx)
     {
         JSONArray knownPlayers = loadArrayFromUsercache(path);
+        int prefetched = 0;
 
         for (Object obj : knownPlayers)
         {
@@ -126,16 +127,20 @@ public class PrefetchUsercache implements DefaultPlugin
                     }
                     ctx.putUuidMapping(playerUUID, onlineUUID);
                     logger().info("Prefetched {} -> {}", playerName, onlineUUID);
+                    prefetched++;
                 } else
                 {
                     UUID offlineUUID = UUIDHandler.nameToOfflineUUID(playerName);
                     ctx.putUuidMapping(playerUUID, offlineUUID);
                     logger().info("Prefetched {} -> {}", playerName, offlineUUID);
+                    prefetched++;
                 }
             } catch (IOException e)
             {
                 logger().warn("There was an error whilst fetching information from the Mojang API.", e);
             }
         }
+
+        logger().info("Prefetched {} player profile(s) from usercache.", prefetched);
     }
 }

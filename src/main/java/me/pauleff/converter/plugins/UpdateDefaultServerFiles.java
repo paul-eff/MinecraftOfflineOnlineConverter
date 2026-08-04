@@ -75,9 +75,15 @@ public class UpdateDefaultServerFiles implements DefaultPlugin
     @Override
     public void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException
     {
+        int updated = 0;
         for (Path path : resolvedExistingTargets)
         {
             updateUuidReferences(ctx, path);
+            updated++;
+        }
+        if (updated > 0)
+        {
+            logger().info("Updated {} default server file(s).", updated);
         }
     }
 
@@ -103,6 +109,6 @@ public class UpdateDefaultServerFiles implements DefaultPlugin
         }
 
         Files.writeString(path, fileContent);
-        logger().info("Updated file: {}", ctx.serverFolder().relativize(path));
+        logger().debug("Updated file: {}", ctx.serverFolder().relativize(path));
     }
 }
