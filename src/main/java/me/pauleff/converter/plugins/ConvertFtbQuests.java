@@ -3,6 +3,7 @@ package me.pauleff.converter.plugins;
 import me.pauleff.common.handlers.files.FileNames;
 import me.pauleff.common.handlers.files.FileRenamer;
 import me.pauleff.converter.ConversionTarget;
+import me.pauleff.converter.ConverterV3;
 import me.pauleff.converter.ServerType;
 import me.pauleff.converter.UUIDType;
 import me.pauleff.converter.api.MultiServerPlugin;
@@ -23,6 +24,15 @@ import java.util.UUID;
 
 import static me.pauleff.common.handlers.UUIDHandler.*;
 
+/**
+ * Converts FTB Quests progress SNBT files between online and offline player UUIDs.
+ * <p>
+ * Runs for modded servers during an online/offline conversion. Operates on UUID-named
+ * progress files under the world's {@code ftbquests} folder; quest book definition files
+ * are left unchanged.
+ *
+ * @see ConverterV3
+ */
 public class ConvertFtbQuests implements MultiServerPlugin
 {
     private static final PluginMetadata META = PluginMetadata.of(
@@ -31,24 +41,45 @@ public class ConvertFtbQuests implements MultiServerPlugin
             "Converts FTB Quests progress SNBT files (uuid, name, claimed rewards) between online and offline mode.",
             55);
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public PluginMetadata metadata()
     {
         return META;
     }
 
+    /**
+     * Returns {@link ServerType#MODDED} as the only compatible server type.
+     *
+     * @return a single-element list containing {@link ServerType#MODDED}
+     */
     @Override
     public List<ServerType> compatibleServerTypes()
     {
         return List.of(ServerType.MODDED);
     }
 
+    /**
+     * Returns the {@code ftbquests} folder under the world directory.
+     *
+     * @param ctx the shared conversion context
+     * @return a single-element list containing the FTB Quests folder path
+     */
     @Override
     public List<Path> setTargets(PluginContext ctx)
     {
         return List.of(ctx.worldFolder().resolve("ftbquests"));
     }
 
+    /**
+     * Converts UUID-named progress SNBT files under each resolved FTB Quests folder.
+     *
+     * @param ctx                     the shared conversion context
+     * @param resolvedExistingTargets the existing {@code ftbquests} directories to process
+     * @throws IOException if reading or writing progress files fails
+     */
     @Override
     public void run(PluginContext ctx, List<Path> resolvedExistingTargets) throws IOException
     {
@@ -70,6 +101,13 @@ public class ConvertFtbQuests implements MultiServerPlugin
         logger().info("Converted {} FTB Quests progress file(s).", converted);
     }
 
+    /**
+     * Lists {@code .snbt} files directly under {@code folder} whose base name is a valid UUID.
+     *
+     * @param folder the FTB Quests folder to scan
+     * @return the matching progress file paths; never {@code null}
+     * @throws IOException if listing the directory fails
+     */
     private List<Path> listUuidNamedSnbtFiles(Path folder) throws IOException
     {
         List<Path> files = new ArrayList<>();
@@ -91,6 +129,16 @@ public class ConvertFtbQuests implements MultiServerPlugin
         return files;
     }
 
+    /**
+     * Converts a single progress SNBT file when its UUID matches the conversion direction.
+     * <p>
+     * Parse, rename, and write failures are logged and treated as a skip rather than
+     * aborting the plugin.
+     *
+     * @param ctx  the shared conversion context
+     * @param path the progress file to convert
+     * @return {@code true} if the file was converted; {@code false} if it was skipped
+     */
     private boolean convertProgressFile(PluginContext ctx, Path path)
     {
         String baseName = FileNames.stripExtension(path.getFileName().toString());
@@ -135,6 +183,16 @@ public class ConvertFtbQuests implements MultiServerPlugin
         }
     }
 
+    /**
+     * Updates the {@code uuid} and {@code name} string tags to match the target UUID.
+     * <p>
+     * When present, {@code uuid} is written without dashes. When present, {@code name} keeps
+     * the username before {@code #} and appends the first eight characters of the hyphenated
+     * target UUID.
+     *
+     * @param compound   the progress compound tag
+     * @param targetUuid the remapped player UUID
+     */
     private void updateIdentityFields(CompoundTag compound, UUID targetUuid)
     {
         String dashless = targetUuid.toString().replace("-", "");
@@ -155,6 +213,16 @@ public class ConvertFtbQuests implements MultiServerPlugin
         }
     }
 
+    /**
+     * Replaces every mapped UUID string in {@code snbt} with its remapped counterpart.
+     * <p>
+     * Both hyphenated and dashless forms are replaced so nested references remain consistent
+     * with the renamed progress file.
+     *
+     * @param snbt the SNBT text to rewrite
+     * @param ctx  the shared conversion context holding UUID mappings
+     * @return the SNBT text with mapped UUIDs replaced
+     */
     private String replaceMappedUuids(String snbt, PluginContext ctx)
     {
         String updated = snbt;
@@ -174,6 +242,19 @@ public class ConvertFtbQuests implements MultiServerPlugin
         return updated;
     }
 
+    /**
+     * Resolves the remapped UUID for a source UUID, consulting and possibly extending the context map.
+     * <p>
+     * Existing mappings win. Online conversion without a mapping returns {@code null}. Offline
+     * conversion may look up the online name and derive an offline UUID, storing the new mapping
+     * on the context.
+     *
+     * @param ctx        the shared conversion context
+     * @param sourceUuid the UUID found in the progress file name
+     * @return the target UUID, or {@code null} if no mapping can be determined
+     * @throws IOException if an online name lookup fails
+     * @see ConverterV3
+     */
     private UUID resolveTargetUuid(PluginContext ctx, UUID sourceUuid) throws IOException
     {
         UUID targetUuid = ctx.getTargetUuid(sourceUuid);
