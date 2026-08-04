@@ -43,7 +43,8 @@ public record PluginRegistry(
     private static final List<MOOCPlugin> CONVERSION_PLUGINS = List.of(
             new ConvertVanillaServer(),
             new ConvertBukkitServer(),
-            new ConvertModdedServer()
+            new ConvertModdedServer(),
+            new ConvertFtbQuests()
     );
 
     /**
