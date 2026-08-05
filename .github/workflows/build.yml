@@ -128,8 +128,8 @@ jobs:
           if [ "${BRANCH}" = "main" ]; then
             {
               echo "tag=pre-release"
-              echo "title=Pre-release (development build)"
-              echo "blurb=Rolling build from main. Overwritten on each green push."
+              echo "title=Pre-release/development build (main)"
+              echo "blurb=This is a rolling build from main which is overwritten on each green push."
               echo "skip=false"
             } >> "${GITHUB_OUTPUT}"
           else
@@ -141,8 +141,8 @@ jobs:
             fi
             {
               echo "tag=pre/${SAFE}"
-              echo "title=Pre-release: ${BRANCH}"
-              echo "blurb=Branch build. Deleted automatically when the branch is merged/closed or deleted."
+              echo "title=Pre-release/development build (${BRANCH})"
+              echo "blurb=This is a branch build which is overwritten on each green push."
               echo "skip=false"
             } >> "${GITHUB_OUTPUT}"
           fi
@@ -212,11 +212,9 @@ jobs:
           body: |
             Automated **pre-release** from `${{ github.ref_name }}` (`${{ github.sha }}`).
 
-            Artifact: `${{ steps.jar.outputs.name }}`
-
             ${{ steps.meta.outputs.blurb }}
 
-            This is **not** a stable release. Prefer a manually published versioned release for production use.
+            This is **not** a stable release. For production use a full release.
 
             Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           files: ${{ steps.jar.outputs.path }}
