@@ -1,5 +1,6 @@
 plugins {
     java
+    application
     id("com.gradleup.shadow") version "9.6.1"
 }
 
@@ -30,13 +31,31 @@ java {
     }
 }
 
+application {
+    mainClass.set("me.pauleff.Main")
+}
+
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
     options.compilerArgs.add("-parameters")
 }
 
+tasks.withType<AbstractArchiveTask>().configureEach {
+    isPreserveFileTimestamps = false
+    isReproducibleFileOrder = true
+}
+
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.javadoc {
+    options.encoding = "UTF-8"
+    (options as StandardJavadocDocletOptions).apply {
+        addBooleanOption("html5", true)
+        windowTitle("MOOC ${project.version} API")
+        docTitle("Minecraft Offline Online Converter ${project.version}")
+    }
 }
 
 tasks.jar {
@@ -56,7 +75,7 @@ tasks.jar {
 
 tasks.shadowJar {
     archiveClassifier.set("")
-    archiveFileName.set("MinecraftOfflineOnlineConverter-${project.version}-jar-with-dependencies.jar")
+    archiveFileName.set("MinecraftOfflineOnlineConverter-${project.version}.jar")
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
     mergeServiceFiles()
     manifest {
