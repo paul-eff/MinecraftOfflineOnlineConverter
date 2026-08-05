@@ -1,0 +1,129 @@
+name: Build
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 26
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "26"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run tests
+        run: ./gradlew test --no-daemon
+
+  package:
+    name: Package
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 26
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "26"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build shadow JAR
+        run: ./gradlew shadowJar --no-daemon
+
+      - name: Upload shadow JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: mooc-shadow-jar
+          path: build/libs/MinecraftOfflineOnlineConverter-*-jar-with-dependencies.jar
+          if-no-files-found: error
+
+  pre-release:
+    name: Pre-release
+    needs: package
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve pre-release metadata
+        id: meta
+        run: |
+          set -euo pipefail
+          BRANCH="${GITHUB_REF_NAME}"
+          if [ "${BRANCH}" = "main" ]; then
+            {
+              echo "tag=pre-release"
+              echo "title=Pre-release (development build)"
+              echo "blurb=Rolling build from main. Overwritten on each green push."
+              echo "skip=false"
+            } >> "${GITHUB_OUTPUT}"
+          else
+            SAFE="$(printf '%s' "${BRANCH}" | tr '/' '-' | tr -cd 'A-Za-z0-9._-' | cut -c1-80)"
+            if [ -z "${SAFE}" ]; then
+              echo "Branch name sanitized to empty; skipping pre-release."
+              echo "skip=true" >> "${GITHUB_OUTPUT}"
+              exit 0
+            fi
+            {
+              echo "tag=pre/${SAFE}"
+              echo "title=Pre-release: ${BRANCH}"
+              echo "blurb=Branch build. Deleted automatically when the branch is merged/closed or deleted."
+              echo "skip=false"
+            } >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Download shadow JAR
+        if: steps.meta.outputs.skip != 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: mooc-shadow-jar
+          path: dist
+
+      - name: Create or update pre-release
+        if: steps.meta.outputs.skip != 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: ${{ steps.meta.outputs.title }}
+          prerelease: true
+          make_latest: false
+          generate_release_notes: false
+          fail_on_unmatched_files: true
+          body: |
+            Automated **pre-release** from `${{ github.ref_name }}` (`${{ github.sha }}`).
+
+            ${{ steps.meta.outputs.blurb }}
+
+            This is **not** a stable release. Prefer a versioned GitHub Release for production use.
+
+            Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          files: dist/MinecraftOfflineOnlineConverter-*-jar-with-dependencies.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

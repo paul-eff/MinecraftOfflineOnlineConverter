@@ -64,11 +64,12 @@ java -jar MinecraftOfflineOnlineConverter.jar <arguments>
 
 ## Building
 
-Execute the command 
+Execute the command
 ```bash
-./gradlew clean fatJar
+./gradlew clean shadowJar
 ```
-to build a JAR file of the project with all dependencies.
+
+to build a runnable JAR with all dependencies.
 
 # Disclaimer
 

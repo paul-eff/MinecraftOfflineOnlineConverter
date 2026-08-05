@@ -1,5 +1,6 @@
 plugins {
     java
+    id("com.gradleup.shadow") version "9.6.1"
 }
 
 group = "me.pauleff"
@@ -18,6 +19,9 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.9")
     implementation("ch.qos.logback:logback-classic:1.5.32")
     implementation("com.github.Querz:NBT:6.1")
+
+    testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 java {
@@ -31,8 +35,30 @@ tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs.add("-parameters")
 }
 
+tasks.test {
+    useJUnitPlatform()
+}
+
 tasks.jar {
-    archiveFileName.set("MinecraftOfflineOnlineConverter-${project.version}.jar")
+    archiveClassifier.set("thin")
+    archiveFileName.set("MinecraftOfflineOnlineConverter-${project.version}-thin.jar")
+    manifest {
+        attributes(
+            mapOf(
+                "Implementation-Title" to project.name,
+                "Implementation-Version" to project.version.toString(),
+                "Specification-Title" to project.name,
+                "Specification-Version" to project.version.toString(),
+            ),
+        )
+    }
+}
+
+tasks.shadowJar {
+    archiveClassifier.set("")
+    archiveFileName.set("MinecraftOfflineOnlineConverter-${project.version}-jar-with-dependencies.jar")
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    mergeServiceFiles()
     manifest {
         attributes(
             mapOf(
@@ -46,19 +72,6 @@ tasks.jar {
     }
 }
 
-tasks.register<Jar>("fatJar") {
-    group = "build"
-    description = "Builds a fat JAR with all dependencies"
-    archiveFileName.set("MinecraftOfflineOnlineConverter-${project.version}-jar-with-dependencies.jar")
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    manifest {
-        attributes("Main-Class" to "me.pauleff.Main")
-    }
-    from(sourceSets.main.get().output)
-    dependsOn(tasks.classes)
-    from({
-        configurations.runtimeClasspath.get()
-            .filter { it.name.endsWith("jar") }
-            .map { zipTree(it) }
-    })
+tasks.build {
+    dependsOn(tasks.shadowJar)
 }

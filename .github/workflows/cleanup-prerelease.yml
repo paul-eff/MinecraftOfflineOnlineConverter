@@ -1,0 +1,73 @@
+name: Cleanup pre-release
+
+on:
+  pull_request:
+    types: [ closed ]
+  delete:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    name: Delete branch pre-release
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'delete' && github.event.ref_type == 'branch')
+    steps:
+      - name: Resolve tag to delete
+        id: meta
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "delete" ]; then
+            BRANCH="${{ github.event.ref }}"
+          else
+            BRANCH="${{ github.head_ref }}"
+          fi
+
+          if [ -z "${BRANCH}" ] || [ "${BRANCH}" = "main" ]; then
+            echo "skip=true" >> "${GITHUB_OUTPUT}"
+            echo "Nothing to clean up for branch '${BRANCH}'."
+            exit 0
+          fi
+
+          SAFE="$(printf '%s' "${BRANCH}" | tr '/' '-' | tr -cd 'A-Za-z0-9._-' | cut -c1-80)"
+          if [ -z "${SAFE}" ]; then
+            echo "skip=true" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+
+          TAG="pre/${SAFE}"
+          if [ "${TAG}" = "pre-release" ]; then
+            echo "skip=true" >> "${GITHUB_OUTPUT}"
+            echo "Refusing to delete the main rolling pre-release."
+            exit 0
+          fi
+
+          {
+            echo "tag=${TAG}"
+            echo "skip=false"
+          } >> "${GITHUB_OUTPUT}"
+          echo "Will delete pre-release tag: ${TAG}"
+
+      - name: Delete release and tag
+        if: steps.meta.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.meta.outputs.tag }}"
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            gh release delete "${TAG}" --yes --cleanup-tag
+            echo "Deleted release and tag ${TAG}"
+          else
+            ENCODED_TAG="$(python3 -c 'import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=""))' "${TAG}")"
+            if gh api "repos/${GH_REPO}/git/ref/tags/${ENCODED_TAG}" >/dev/null 2>&1; then
+              gh api -X DELETE "repos/${GH_REPO}/git/ref/tags/${ENCODED_TAG}"
+              echo "Deleted leftover tag ${TAG}"
+            else
+              echo "No release or tag named ${TAG}; nothing to do."
+            fi
+          fi
