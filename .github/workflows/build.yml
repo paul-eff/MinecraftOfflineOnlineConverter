@@ -57,7 +57,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mooc-shadow-jar
-          path: build/libs/MinecraftOfflineOnlineConverter.jar
+          path: build/libs/MinecraftOfflineOnlineConverter-*.jar
           if-no-files-found: error
 
   javadoc:
@@ -154,6 +154,50 @@ jobs:
           name: mooc-shadow-jar
           path: dist
 
+      - name: Name pre-release JAR with commit SHA
+        if: steps.meta.outputs.skip != 'true'
+        id: jar
+        run: |
+          set -euo pipefail
+          SHORT_SHA="$(printf '%.7s' "${GITHUB_SHA}")"
+          mapfile -t JARS < <(find dist -maxdepth 1 -type f -name 'MinecraftOfflineOnlineConverter-*.jar' ! -name '*-thin.jar' | sort)
+          if [ "${#JARS[@]}" -ne 1 ]; then
+            echo "Expected exactly one shadow JAR in dist/, found ${#JARS[@]}"
+            ls -la dist || true
+            exit 1
+          fi
+          SRC="${JARS[0]}"
+          DEST="dist/MinecraftOfflineOnlineConverter-${SHORT_SHA}.jar"
+          mv "${SRC}" "${DEST}"
+          {
+            echo "path=${DEST}"
+            echo "name=MinecraftOfflineOnlineConverter-${SHORT_SHA}.jar"
+            echo "short_sha=${SHORT_SHA}"
+          } >> "${GITHUB_OUTPUT}"
+          echo "Pre-release JAR: ${DEST}"
+
+      - name: Remove previous pre-release JAR assets
+        if: steps.meta.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.meta.outputs.tag }}"
+          if ! gh release view "${TAG}" >/dev/null 2>&1; then
+            echo "No existing release ${TAG}; nothing to clean."
+            exit 0
+          fi
+          mapfile -t ASSETS < <(gh release view "${TAG}" --json assets --jq '.assets[].name')
+          for name in "${ASSETS[@]:-}"; do
+            case "${name}" in
+              MinecraftOfflineOnlineConverter*.jar)
+                echo "Deleting old asset: ${name}"
+                gh release delete-asset "${TAG}" "${name}" --yes
+                ;;
+            esac
+          done
+
       - name: Create or update pre-release
         if: steps.meta.outputs.skip != 'true'
         uses: softprops/action-gh-release@v2
@@ -168,11 +212,13 @@ jobs:
           body: |
             Automated **pre-release** from `${{ github.ref_name }}` (`${{ github.sha }}`).
 
+            Artifact: `${{ steps.jar.outputs.name }}`
+
             ${{ steps.meta.outputs.blurb }}
 
-            This is **not** a stable release. Prefer a versioned GitHub Release for production use.
+            This is **not** a stable release. Prefer a manually published versioned release for production use.
 
             Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          files: dist/MinecraftOfflineOnlineConverter.jar
+          files: ${{ steps.jar.outputs.path }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

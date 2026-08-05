@@ -59,8 +59,9 @@ tasks.javadoc {
 }
 
 tasks.jar {
+    archiveBaseName.set("MinecraftOfflineOnlineConverter")
+    archiveVersion.set(project.version.toString())
     archiveClassifier.set("thin")
-    archiveFileName.set("MinecraftOfflineOnlineConverter-${project.version}-thin.jar")
     manifest {
         attributes(
             mapOf(
@@ -74,8 +75,9 @@ tasks.jar {
 }
 
 tasks.shadowJar {
+    archiveBaseName.set("MinecraftOfflineOnlineConverter")
+    archiveVersion.set(project.version.toString())
     archiveClassifier.set("")
-    archiveFileName.set("MinecraftOfflineOnlineConverter-${project.version}.jar")
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
     mergeServiceFiles()
     manifest {
