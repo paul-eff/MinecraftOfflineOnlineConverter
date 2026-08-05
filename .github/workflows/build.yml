@@ -14,70 +14,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    name: Test
+  build:
+    name: Build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Java 26
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "26"
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v4
 
-      - name: Run tests
+      - name: Test
         run: ./gradlew test --no-daemon
 
-  package:
-    name: Package
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Java 26
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "26"
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Build shadow JAR
+      - name: Package
         run: ./gradlew shadowJar --no-daemon
 
-      - name: Upload shadow JAR
-        uses: actions/upload-artifact@v4
-        with:
-          name: mooc-shadow-jar
-          path: build/libs/MinecraftOfflineOnlineConverter-*.jar
-          if-no-files-found: error
-
-  javadoc:
-    name: Javadoc
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Java 26
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "26"
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Generate Javadoc
+      - name: Javadoc
         run: ./gradlew javadoc --no-daemon
 
       - name: Upload Javadoc artifact
@@ -93,9 +51,91 @@ jobs:
         with:
           path: build/docs/javadoc
 
+      - name: Prepare pre-release
+        if: github.event_name == 'push'
+        id: pre
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          BRANCH="${GITHUB_REF_NAME}"
+          SHORT_SHA="$(printf '%.7s' "${GITHUB_SHA}")"
+
+          if [ "${BRANCH}" = "main" ]; then
+            TAG="pre-release"
+            TITLE="Pre-release/development build (main)"
+            BLURB="Rolling build from main; overwritten on each green push."
+          else
+            SAFE="$(printf '%s' "${BRANCH}" | tr '/' '-' | tr -cd 'A-Za-z0-9._-' | cut -c1-80)"
+            if [ -z "${SAFE}" ]; then
+              echo "skip=true" >> "${GITHUB_OUTPUT}"
+              exit 0
+            fi
+            TAG="pre/${SAFE}"
+            TITLE="Pre-release/development build (${BRANCH})"
+            BLURB="Branch build; overwritten on each green push. Removed when the branch is merged/closed or deleted."
+          fi
+
+          mapfile -t JARS < <(find build/libs -maxdepth 1 -type f -name 'MinecraftOfflineOnlineConverter-*.jar' ! -name '*-thin.jar' | sort)
+          if [ "${#JARS[@]}" -ne 1 ]; then
+            echo "Expected exactly one shadow JAR, found ${#JARS[@]}"
+            ls -la build/libs || true
+            exit 1
+          fi
+
+          mkdir -p dist
+          JAR_NAME="MinecraftOfflineOnlineConverter-${SHORT_SHA}.jar"
+          mv "${JARS[0]}" "dist/${JAR_NAME}"
+
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            mapfile -t ASSETS < <(gh release view "${TAG}" --json assets --jq '.assets[].name')
+            for name in "${ASSETS[@]:-}"; do
+              case "${name}" in
+                MinecraftOfflineOnlineConverter*.jar)
+                  gh release delete-asset "${TAG}" "${name}" --yes
+                  ;;
+              esac
+            done
+          fi
+
+          {
+            echo "skip=false"
+            echo "tag=${TAG}"
+            echo "title=${TITLE}"
+            echo "blurb=${BLURB}"
+            echo "jar_path=dist/${JAR_NAME}"
+            echo "jar_name=${JAR_NAME}"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Publish pre-release
+        if: github.event_name == 'push' && steps.pre.outputs.skip != 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.pre.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: ${{ steps.pre.outputs.title }}
+          prerelease: true
+          make_latest: false
+          generate_release_notes: false
+          fail_on_unmatched_files: true
+          body: |
+            Automated **pre-release** from `${{ github.ref_name }}` (`${{ github.sha }}`).
+
+            Artifact: `${{ steps.pre.outputs.jar_name }}`
+
+            ${{ steps.pre.outputs.blurb }}
+
+            Not a stable release — use a manually published versioned release for production.
+
+            Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          files: ${{ steps.pre.outputs.jar_path }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   deploy-pages:
-    name: Deploy Javadoc to GitHub Pages
-    needs: javadoc
+    name: Deploy Pages
+    needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
@@ -105,118 +145,5 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
+      - id: deployment
         uses: actions/deploy-pages@v4
-
-  pre-release:
-    name: Pre-release
-    needs: package
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Resolve pre-release metadata
-        id: meta
-        run: |
-          set -euo pipefail
-          BRANCH="${GITHUB_REF_NAME}"
-          if [ "${BRANCH}" = "main" ]; then
-            {
-              echo "tag=pre-release"
-              echo "title=Pre-release/development build (main)"
-              echo "blurb=This is a rolling build from main which is overwritten on each green push."
-              echo "skip=false"
-            } >> "${GITHUB_OUTPUT}"
-          else
-            SAFE="$(printf '%s' "${BRANCH}" | tr '/' '-' | tr -cd 'A-Za-z0-9._-' | cut -c1-80)"
-            if [ -z "${SAFE}" ]; then
-              echo "Branch name sanitized to empty; skipping pre-release."
-              echo "skip=true" >> "${GITHUB_OUTPUT}"
-              exit 0
-            fi
-            {
-              echo "tag=pre/${SAFE}"
-              echo "title=Pre-release/development build (${BRANCH})"
-              echo "blurb=This is a branch build which is overwritten on each green push."
-              echo "skip=false"
-            } >> "${GITHUB_OUTPUT}"
-          fi
-
-      - name: Download shadow JAR
-        if: steps.meta.outputs.skip != 'true'
-        uses: actions/download-artifact@v4
-        with:
-          name: mooc-shadow-jar
-          path: dist
-
-      - name: Name pre-release JAR with commit SHA
-        if: steps.meta.outputs.skip != 'true'
-        id: jar
-        run: |
-          set -euo pipefail
-          SHORT_SHA="$(printf '%.7s' "${GITHUB_SHA}")"
-          mapfile -t JARS < <(find dist -maxdepth 1 -type f -name 'MinecraftOfflineOnlineConverter-*.jar' ! -name '*-thin.jar' | sort)
-          if [ "${#JARS[@]}" -ne 1 ]; then
-            echo "Expected exactly one shadow JAR in dist/, found ${#JARS[@]}"
-            ls -la dist || true
-            exit 1
-          fi
-          SRC="${JARS[0]}"
-          DEST="dist/MinecraftOfflineOnlineConverter-${SHORT_SHA}.jar"
-          mv "${SRC}" "${DEST}"
-          {
-            echo "path=${DEST}"
-            echo "name=MinecraftOfflineOnlineConverter-${SHORT_SHA}.jar"
-            echo "short_sha=${SHORT_SHA}"
-          } >> "${GITHUB_OUTPUT}"
-          echo "Pre-release JAR: ${DEST}"
-
-      - name: Remove previous pre-release JAR assets
-        if: steps.meta.outputs.skip != 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          TAG="${{ steps.meta.outputs.tag }}"
-          if ! gh release view "${TAG}" >/dev/null 2>&1; then
-            echo "No existing release ${TAG}; nothing to clean."
-            exit 0
-          fi
-          mapfile -t ASSETS < <(gh release view "${TAG}" --json assets --jq '.assets[].name')
-          for name in "${ASSETS[@]:-}"; do
-            case "${name}" in
-              MinecraftOfflineOnlineConverter*.jar)
-                echo "Deleting old asset: ${name}"
-                gh release delete-asset "${TAG}" "${name}" --yes
-                ;;
-            esac
-          done
-
-      - name: Create or update pre-release
-        if: steps.meta.outputs.skip != 'true'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.meta.outputs.tag }}
-          target_commitish: ${{ github.sha }}
-          name: ${{ steps.meta.outputs.title }}
-          prerelease: true
-          make_latest: false
-          generate_release_notes: false
-          fail_on_unmatched_files: true
-          body: |
-            Automated **pre-release** from `${{ github.ref_name }}` (`${{ github.sha }}`).
-
-            ${{ steps.meta.outputs.blurb }}
-
-            This is **not** a stable release. For production use a full release.
-
-            Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          files: ${{ steps.jar.outputs.path }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
