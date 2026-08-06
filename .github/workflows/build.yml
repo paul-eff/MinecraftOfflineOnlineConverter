@@ -88,15 +88,10 @@ jobs:
           JAR_NAME="MinecraftOfflineOnlineConverter-${SHORT_SHA}.jar"
           mv "${JARS[0]}" "dist/${JAR_NAME}"
 
+          # Recreate the release each run so the tag (and auto-generated source
+          # archives) point at this commit instead of retaining the first tag.
           if gh release view "${TAG}" >/dev/null 2>&1; then
-            mapfile -t ASSETS < <(gh release view "${TAG}" --json assets --jq '.assets[].name')
-            for name in "${ASSETS[@]:-}"; do
-              case "${name}" in
-                MinecraftOfflineOnlineConverter*.jar)
-                  gh release delete-asset "${TAG}" "${name}" --yes
-                  ;;
-              esac
-            done
+            gh release delete "${TAG}" --yes --cleanup-tag
           fi
 
           {
