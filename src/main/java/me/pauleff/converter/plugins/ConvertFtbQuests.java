@@ -22,7 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static me.pauleff.common.handlers.UUIDHandler.*;
+import static me.pauleff.common.handlers.uuid.MinecraftUuids.*;
+import static me.pauleff.common.handlers.uuid.OnlineProfileLookup.onlineUuidToName;
 
 /**
  * Converts FTB Quests progress SNBT files between online and offline player UUIDs.
@@ -120,7 +121,7 @@ public class ConvertFtbQuests implements MultiServerPlugin
                     continue;
                 }
                 String baseName = FileNames.stripExtension(path.getFileName().toString());
-                if (isValidUUID(baseName))
+                if (isValid(baseName))
                 {
                     files.add(path);
                 }
@@ -143,7 +144,7 @@ public class ConvertFtbQuests implements MultiServerPlugin
     {
         String baseName = FileNames.stripExtension(path.getFileName().toString());
         UUID sourceUuid = UUID.fromString(baseName);
-        UUIDType sourceType = getUUIDType(sourceUuid);
+        UUIDType sourceType = typeOf(sourceUuid);
 
         if (!((ctx.conversionTarget() == ConversionTarget.ONLINE && sourceType == UUIDType.OFFLINE)
                 || (ctx.conversionTarget() == ConversionTarget.OFFLINE && sourceType == UUIDType.ONLINE)))
@@ -195,11 +196,9 @@ public class ConvertFtbQuests implements MultiServerPlugin
      */
     private void updateIdentityFields(CompoundTag compound, UUID targetUuid)
     {
-        String dashless = targetUuid.toString().replace("-", "");
-
         if (compound.containsKey("uuid"))
         {
-            compound.putString("uuid", dashless);
+            compound.putString("uuid", dashless(targetUuid));
         }
 
         if (compound.containsKey("name"))
@@ -237,7 +236,7 @@ public class ConvertFtbQuests implements MultiServerPlugin
             String fromHyphen = from.toString();
             String toHyphen = to.toString();
             updated = updated.replace(fromHyphen, toHyphen);
-            updated = updated.replace(fromHyphen.replace("-", ""), toHyphen.replace("-", ""));
+            updated = updated.replace(dashless(from), dashless(to));
         }
         return updated;
     }
@@ -268,13 +267,13 @@ public class ConvertFtbQuests implements MultiServerPlugin
             return null;
         }
 
-        String playerName = onlineUUIDToName(sourceUuid);
+        String playerName = onlineUuidToName(sourceUuid);
         if (playerName == null || playerName.isBlank())
         {
             return null;
         }
 
-        UUID offlineUuid = nameToOfflineUUID(playerName);
+        UUID offlineUuid = offlineFromName(playerName);
         ctx.putUuidMapping(sourceUuid, offlineUuid);
         logger().debug("Added new UUID mapping for {}: {} -> {}", playerName, sourceUuid, offlineUuid);
         return offlineUuid;

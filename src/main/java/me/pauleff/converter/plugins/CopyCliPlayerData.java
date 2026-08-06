@@ -1,7 +1,6 @@
 package me.pauleff.converter.plugins;
 
 import me.pauleff.common.handlers.NBTHandler;
-import me.pauleff.common.handlers.UUIDHandler;
 import me.pauleff.common.handlers.files.FileNames;
 import me.pauleff.converter.api.DefaultPlugin;
 import me.pauleff.converter.api.PluginContext;
@@ -18,6 +17,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
+import static me.pauleff.common.handlers.uuid.MinecraftUuids.isValid;
 
 /**
  * Copies player data from a CLI-specified source world into the current world.
@@ -221,7 +222,7 @@ public class CopyCliPlayerData implements DefaultPlugin
                     } else
                     {
                         String fileName = FileNames.stripExtension(currentPath.getFileName().toString());
-                        if (!UUIDHandler.isValidUUID(fileName))
+                        if (!isValid(fileName))
                         {
                             continue;
                         }

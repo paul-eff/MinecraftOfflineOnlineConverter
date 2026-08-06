@@ -3,7 +3,7 @@ package me.pauleff.converter;
 /**
  * Classifies a Minecraft player UUID as online, offline, or invalid by UUID version.
  *
- * @see me.pauleff.common.handlers.UUIDHandler#getUUIDType(java.util.UUID)
+ * @see me.pauleff.common.handlers.uuid.MinecraftUuids#typeOf(java.util.UUID)
  */
 public enum UUIDType
 {

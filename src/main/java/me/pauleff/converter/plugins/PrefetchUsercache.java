@@ -1,6 +1,5 @@
 package me.pauleff.converter.plugins;
 
-import me.pauleff.common.handlers.UUIDHandler;
 import me.pauleff.common.handlers.files.UsercacheFile;
 import me.pauleff.converter.ConversionTarget;
 import me.pauleff.converter.api.DefaultPlugin;
@@ -14,6 +13,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
+
+import static me.pauleff.common.handlers.uuid.MinecraftUuids.offlineFromName;
+import static me.pauleff.common.handlers.uuid.OnlineProfileLookup.nameToOnlineUuid;
 
 /**
  * Prefills the context UUID map from {@code usercache.json} for an online/offline conversion.
@@ -118,7 +120,7 @@ public class PrefetchUsercache implements DefaultPlugin
 
                 if (ctx.conversionTarget() == ConversionTarget.ONLINE)
                 {
-                    UUID onlineUUID = UUIDHandler.nameToOnlineUUID(playerName);
+                    UUID onlineUUID = nameToOnlineUuid(playerName);
                     if (onlineUUID == null)
                     {
                         logger().warn("Skipping '{}' — no online UUID found (Mojang API).", playerName);
@@ -129,7 +131,7 @@ public class PrefetchUsercache implements DefaultPlugin
                     prefetched++;
                 } else
                 {
-                    UUID offlineUUID = UUIDHandler.nameToOfflineUUID(playerName);
+                    UUID offlineUUID = offlineFromName(playerName);
                     ctx.putUuidMapping(playerUUID, offlineUUID);
                     logger().info("Prefetched {} -> {}", playerName, offlineUUID);
                     prefetched++;

@@ -1,7 +1,8 @@
 package me.pauleff.common.argparse;
 
 import me.pauleff.common.LoggerConfigurator;
-import me.pauleff.common.handlers.UUIDHandler;
+import me.pauleff.common.handlers.uuid.OnlineProfileLookup;
+import me.pauleff.common.handlers.uuid.ProfileApiConfig;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,7 +94,7 @@ public final class ArgumentParser
     /**
      * Builds {@link ParsedArguments} from a successfully parsed {@link CommandLine}.
      * <p>
-     * Also applies any custom UUID API options to {@link UUIDHandler}.
+     * Also applies any custom UUID API options to {@link me.pauleff.common.handlers.uuid.OnlineProfileLookup}.
      *
      * @param cmd the parsed command line
      * @return the structured arguments for conversion and related operations
@@ -135,7 +136,7 @@ public final class ArgumentParser
     }
 
     /**
-     * Applies custom UUID API URL options from the command line to {@link UUIDHandler}.
+     * Applies custom UUID API URL options from the command line to {@link me.pauleff.common.handlers.uuid.OnlineProfileLookup}.
      * <p>
      * Blank values are ignored with a warning; Mojang defaults remain in use when unset.
      *
@@ -143,12 +144,16 @@ public final class ArgumentParser
      */
     private void applyCustomApiOptions(CommandLine cmd)
     {
+        ProfileApiConfig config = ProfileApiConfig.defaults();
+        boolean configured = false;
+
         if (cmd.hasOption("customApiBaseUrl"))
         {
             String customApiBaseUrl = cmd.getOptionValue("customApiBaseUrl");
             if (customApiBaseUrl != null && !customApiBaseUrl.isBlank())
             {
-                UUIDHandler.setCustomApiBaseUrl(customApiBaseUrl);
+                config = config.withCustomApiBaseUrl(customApiBaseUrl);
+                configured = true;
             } else
             {
                 LOGGER.warn("Option -customApiBaseUrl was set without a URL. Using Mojang defaults.");
@@ -160,7 +165,8 @@ public final class ArgumentParser
             String retrieveUUIDUrl = cmd.getOptionValue("retrieveUUIDUrl");
             if (retrieveUUIDUrl != null && !retrieveUUIDUrl.isBlank())
             {
-                UUIDHandler.setRetrieveUUIDUrl(retrieveUUIDUrl);
+                config = config.withRetrieveUuidUrl(retrieveUUIDUrl);
+                configured = true;
             } else
             {
                 LOGGER.warn("Option -retrieveUUIDUrl was set without a URL. Ignoring.");
@@ -172,11 +178,17 @@ public final class ArgumentParser
             String retrieveNameUrl = cmd.getOptionValue("retrieveNameUrl");
             if (retrieveNameUrl != null && !retrieveNameUrl.isBlank())
             {
-                UUIDHandler.setRetrieveNameUrl(retrieveNameUrl);
+                config = config.withRetrieveNameUrl(retrieveNameUrl);
+                configured = true;
             } else
             {
                 LOGGER.warn("Option -retrieveNameUrl was set without a URL. Ignoring.");
             }
+        }
+
+        if (configured)
+        {
+            OnlineProfileLookup.configure(config);
         }
     }
 

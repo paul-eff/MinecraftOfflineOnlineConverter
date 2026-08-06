@@ -17,7 +17,8 @@ import java.util.UUID;
 
 import static java.nio.file.Files.isRegularFile;
 import static java.util.Objects.requireNonNull;
-import static me.pauleff.common.handlers.UUIDHandler.*;
+import static me.pauleff.common.handlers.uuid.MinecraftUuids.*;
+import static me.pauleff.common.handlers.uuid.OnlineProfileLookup.onlineUuidToName;
 
 /**
  * Converts Minecraft world and player files between online and offline UUID modes.
@@ -81,11 +82,11 @@ public final class ConverterV3
             try
             {
                 String fileName = FileNames.stripExtension(currentPath.getFileName().toString());
-                if (isValidUUID(fileName))
+                if (isValid(fileName))
                 {
                     discoveredValidFiles++;
                     UUID sourceUuid = UUID.fromString(fileName);
-                    UUIDType sourceUuidType = getUUIDType(sourceUuid);
+                    UUIDType sourceUuidType = typeOf(sourceUuid);
                     if (validConversionDirection(sourceUuidType))
                     {
                         UUID targetUuid = resolveTargetUuid(sourceUuid);
@@ -166,13 +167,13 @@ public final class ConverterV3
             return null;
         }
 
-        String playerName = onlineUUIDToName(sourceUuid);
+        String playerName = onlineUuidToName(sourceUuid);
         if (playerName == null || playerName.isBlank())
         {
             return null;
         }
 
-        UUID offlineUuid = nameToOfflineUUID(playerName);
+        UUID offlineUuid = offlineFromName(playerName);
         ctx.putUuidMapping(sourceUuid, offlineUuid);
         LOGGER.debug("Added new UUID mapping for {}: {} -> {}", playerName, sourceUuid, offlineUuid);
         return offlineUuid;
