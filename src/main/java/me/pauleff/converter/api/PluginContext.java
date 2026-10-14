@@ -12,17 +12,15 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Holds shared state for a conversion run and is passed to each {@link MOOCPlugin}.
  * <p>
- * Created from {@link ParsedArguments}, it resolves the server and world folders and
- * accumulates detection results (server type, folder structure, save format) plus
- * UUID remappings produced during conversion.
+ * Created from {@link ParsedArguments}, it resolves the server and world folders,
+ * optionally a conversion-only folder from {@code -customFolder} or file from
+ * {@code -customFile}, and accumulates detection results (server type, folder structure,
+ * save format) plus UUID remappings produced during conversion.
  */
 public final class PluginContext
 {
@@ -30,6 +28,8 @@ public final class PluginContext
 
     private final Path serverFolder;
     private final Path worldFolder;
+    private final Optional<Path> conversionFolder;
+    private final Optional<Path> conversionFile;
     private final ConversionTarget conversionTarget;
     private final Map<UUID, UUID> uuidMap;
     private final ParsedArguments parsedArguments;
@@ -42,19 +42,25 @@ public final class PluginContext
      * <p>
      * Detection fields start unset and the UUID map is empty.
      *
-     * @param serverFolder     the absolute, normalized server root folder
-     * @param worldFolder      the world folder resolved from {@code server.properties}
-     * @param conversionTarget whether to convert toward online or offline mode
-     * @param parsedArguments  the CLI arguments for this run
+     * @param serverFolder      the absolute, normalized server root folder
+     * @param worldFolder       the world folder resolved from {@code server.properties}
+     * @param conversionFolder  the folder to limit conversion to, if any
+     * @param conversionFile    the file to limit conversion to, if any
+     * @param conversionTarget  whether to convert toward online or offline mode
+     * @param parsedArguments   the CLI arguments for this run
      */
     private PluginContext(
             Path serverFolder,
             Path worldFolder,
+            Optional<Path> conversionFolder,
+            Optional<Path> conversionFile,
             ConversionTarget conversionTarget,
             ParsedArguments parsedArguments)
     {
         this.serverFolder = Objects.requireNonNull(serverFolder, "Server folder path can't be null.");
         this.worldFolder = Objects.requireNonNull(worldFolder, "World folder path can't be null.");
+        this.conversionFolder = Objects.requireNonNull(conversionFolder, "Conversion folder optional can't be null.");
+        this.conversionFile = Objects.requireNonNull(conversionFile, "Conversion file optional can't be null.");
         this.conversionTarget = Objects.requireNonNull(conversionTarget, "Target to convert to must be set.");
         this.parsedArguments = Objects.requireNonNull(parsedArguments, "Parsed arguments can't be null.");
         this.uuidMap = new HashMap<>();
@@ -65,11 +71,13 @@ public final class PluginContext
      * <p>
      * Resolves the server folder (defaulting to the current directory), requires
      * {@code server.properties}, derives the world folder from {@code level-name},
-     * and sets the conversion target from the online/offline flags (offline when absent).
+     * resolves {@code -customFolder} or {@code -customFile} when present, and sets the
+     * conversion target from the online/offline flags (offline when absent).
      *
      * @param parsedArgs the parsed CLI arguments
      * @return a new context ready for plugin execution
-     * @throws PathNotValidException if the server folder, {@code server.properties}, or world folder is missing
+     * @throws PathNotValidException if the server folder, {@code server.properties}, world folder,
+     *                               conversion folder, or conversion file is missing
      * @throws NullPointerException  if {@code parsedArgs} is {@code null}
      */
     public static PluginContext from(ParsedArguments parsedArgs) throws PathNotValidException
@@ -106,7 +114,78 @@ public final class PluginContext
                 .map(online -> online ? ConversionTarget.ONLINE : ConversionTarget.OFFLINE)
                 .orElse(ConversionTarget.OFFLINE);
 
-        return new PluginContext(serverFolder, worldFolder, conversionTarget, parsedArgs);
+        Optional<Path> conversionFolder = resolveConversionFolder(serverFolder, parsedArgs);
+        Optional<Path> conversionFile = resolveConversionFile(serverFolder, parsedArgs);
+
+        return new PluginContext(serverFolder, worldFolder, conversionFolder, conversionFile, conversionTarget, parsedArgs);
+    }
+
+    /**
+     * Resolves a CLI path against the server root.
+     * <p>
+     * Relative paths are resolved from {@code serverFolder}. Absolute paths are normalized as given.
+     *
+     * @param serverFolder the absolute, normalized server root
+     * @param rawPath      the path supplied on the command line
+     * @return the absolute, normalized path
+     */
+    private static Path resolveAgainstServer(Path serverFolder, Path rawPath)
+    {
+        return rawPath.isAbsolute()
+                ? rawPath.toAbsolutePath().normalize()
+                : serverFolder.resolve(rawPath).toAbsolutePath().normalize();
+    }
+
+    /**
+     * Resolves and validates the optional CLI conversion folder against the server root.
+     *
+     * @param serverFolder the absolute, normalized server root
+     * @param parsedArgs   the parsed CLI arguments that may include {@code -customFolder}
+     * @return the resolved conversion folder, or empty when {@code -customFolder} was not set
+     * @throws PathNotValidException if the folder is missing or is not a directory
+     */
+    private static Optional<Path> resolveConversionFolder(Path serverFolder, ParsedArguments parsedArgs)
+            throws PathNotValidException
+    {
+        if (parsedArgs.conversionFolder().isEmpty())
+        {
+            return Optional.empty();
+        }
+
+        Path resolved = resolveAgainstServer(serverFolder, parsedArgs.conversionFolder().get());
+        if (!Files.isDirectory(resolved))
+        {
+            throw new PathNotValidException("Conversion folder not found", resolved);
+        }
+
+        LOGGER.info("Conversion limited to folder: {}", resolved);
+        return Optional.of(resolved);
+    }
+
+    /**
+     * Resolves and validates the optional CLI conversion file against the server root.
+     *
+     * @param serverFolder the absolute, normalized server root
+     * @param parsedArgs   the parsed CLI arguments that may include {@code -customFile}
+     * @return the resolved conversion file, or empty when {@code -customFile} was not set
+     * @throws PathNotValidException if the file is missing or is not a regular file
+     */
+    private static Optional<Path> resolveConversionFile(Path serverFolder, ParsedArguments parsedArgs)
+            throws PathNotValidException
+    {
+        if (parsedArgs.conversionFile().isEmpty())
+        {
+            return Optional.empty();
+        }
+
+        Path resolved = resolveAgainstServer(serverFolder, parsedArgs.conversionFile().get());
+        if (!Files.isRegularFile(resolved))
+        {
+            throw new PathNotValidException("Conversion file not found", resolved);
+        }
+
+        LOGGER.info("Conversion limited to file: {}", resolved);
+        return Optional.of(resolved);
     }
 
     /**
@@ -153,6 +232,84 @@ public final class PluginContext
     public Path worldFolder()
     {
         return worldFolder;
+    }
+
+    /**
+     * Returns the folder conversion is limited to, if {@code -customFolder} was set.
+     *
+     * @return the absolute conversion folder, or empty when converting the whole server
+     */
+    public Optional<Path> conversionFolder()
+    {
+        return conversionFolder;
+    }
+
+    /**
+     * Returns the file conversion is limited to, if {@code -customFile} was set.
+     *
+     * @return the absolute conversion file, or empty when converting more than one file
+     */
+    public Optional<Path> conversionFile()
+    {
+        return conversionFile;
+    }
+
+    /**
+     * Indicates whether conversion is limited to {@link #conversionFolder()}.
+     *
+     * @return {@code true} if {@code -customFolder} was set; {@code false} otherwise
+     */
+    public boolean isFolderScopedConversion()
+    {
+        return conversionFolder.isPresent();
+    }
+
+    /**
+     * Indicates whether conversion is limited to {@link #conversionFile()}.
+     *
+     * @return {@code true} if {@code -customFile} was set; {@code false} otherwise
+     */
+    public boolean isFileScopedConversion()
+    {
+        return conversionFile.isPresent();
+    }
+
+    /**
+     * Indicates whether conversion is limited to a custom folder or file.
+     *
+     * @return {@code true} if {@code -customFolder} or {@code -customFile} was set
+     */
+    public boolean isScopedConversion()
+    {
+        return isFolderScopedConversion() || isFileScopedConversion();
+    }
+
+    /**
+     * Indicates whether {@code path} may be modified by a conversion plugin.
+     * <p>
+     * When no custom folder or file is set, every path is in scope. For
+     * {@code -customFolder}, the path must be that folder or something inside it.
+     * For {@code -customFile}, the path must be that file or an ancestor directory
+     * of it (so a plugin that targets a parent folder can still filter down to the file).
+     *
+     * @param path the candidate file or directory
+     * @return {@code true} if conversion may touch {@code path}; {@code false} otherwise
+     * @throws NullPointerException if {@code path} is {@code null}
+     */
+    public boolean isInConversionScope(Path path)
+    {
+        Objects.requireNonNull(path, "Path can't be null.");
+        Path candidate = path.toAbsolutePath().normalize();
+        if (conversionFile.isPresent())
+        {
+            Path file = conversionFile.get();
+            return candidate.equals(file) || file.startsWith(candidate);
+        }
+        if (conversionFolder.isPresent())
+        {
+            return candidate.startsWith(conversionFolder.get());
+        }
+        return true;
     }
 
     /**
@@ -268,6 +425,8 @@ public final class PluginContext
         return "PluginContext{" +
                 "serverFolder=" + serverFolder +
                 ", worldFolder=" + worldFolder +
+                ", conversionFolder=" + conversionFolder.map(Path::toString).orElse("all") +
+                ", conversionFile=" + conversionFile.map(Path::toString).orElse("all") +
                 ", conversionTarget=" + conversionTarget.name() +
                 ", serverType=" + serverType.name() +
                 ", worldFolderStructure=" + worldFolderStructure.name() +

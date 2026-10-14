@@ -126,13 +126,62 @@ public final class ArgumentParser
             copyPlayerDataSourceWorld = Optional.of(sourceWorld);
         }
 
+        Optional<Path> conversionFolder = parsePathOption(cmd, "customFolder", "a folder path");
+        Optional<Path> conversionFile = parsePathOption(cmd, "customFile", "a file path");
+
+        if (conversionFolder.isPresent() && conversionFile.isPresent())
+        {
+            throw new ParseException("Options customFolder and customFile cannot be combined");
+        }
+
+        String scopedOption = conversionFolder.isPresent() ? "customFolder" : "customFile";
+        if ((conversionFolder.isPresent() || conversionFile.isPresent()) && toOnlineMode.isEmpty())
+        {
+            throw new ParseException("Option " + scopedOption + " requires -online or -offline");
+        }
+        if ((conversionFolder.isPresent() || conversionFile.isPresent()) && copyPlayerDataSourceWorld.isPresent())
+        {
+            throw new ParseException("Option " + scopedOption + " cannot be combined with -copy; only the target is modified");
+        }
+
+        Map<String, String> propertyChanges = parseServerPropertiesChanges(cmd);
+        if ((conversionFolder.isPresent() || conversionFile.isPresent()) && !propertyChanges.isEmpty())
+        {
+            throw new ParseException("Option " + scopedOption + " cannot be combined with -properties; only the target is modified");
+        }
+
         applyCustomApiOptions(cmd);
 
         return new ParsedArguments(
                 serverPath,
                 toOnlineMode,
                 copyPlayerDataSourceWorld,
-                parseServerPropertiesChanges(cmd));
+                conversionFolder,
+                conversionFile,
+                propertyChanges);
+    }
+
+    /**
+     * Reads an optional path-valued CLI option, rejecting blank values.
+     *
+     * @param cmd           the parsed command line
+     * @param optionName    the option name
+     * @param requiredValue description of the required argument used in the error message
+     * @return the parsed path, or empty when the option is absent
+     * @throws ParseException if the option is present but blank
+     */
+    private Optional<Path> parsePathOption(CommandLine cmd, String optionName, String requiredValue) throws ParseException
+    {
+        if (!cmd.hasOption(optionName))
+        {
+            return Optional.empty();
+        }
+        String value = cmd.getOptionValue(optionName);
+        if (value == null || value.isBlank())
+        {
+            throw new ParseException("Option " + optionName + " requires " + requiredValue);
+        }
+        return Optional.of(Paths.get(value));
     }
 
     /**

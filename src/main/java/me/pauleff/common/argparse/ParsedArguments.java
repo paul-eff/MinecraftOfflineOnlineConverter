@@ -11,12 +11,16 @@ import java.util.Optional;
  * @param toOnlineMode              {@code true} for online conversion, {@code false} for offline,
  *                                  or empty when no conversion was requested
  * @param copyPlayerDataSourceWorld the source world folder name to copy player data from, if requested
+ * @param conversionFolder          a folder to limit conversion to, if specified
+ * @param conversionFile            a single file to limit conversion to, if specified
  * @param serverPropertiesChanges   key/value pairs to apply to {@code server.properties}; may be empty
  */
 public record ParsedArguments(
         Optional<Path> serverPath,
         Optional<Boolean> toOnlineMode,
         Optional<String> copyPlayerDataSourceWorld,
+        Optional<Path> conversionFolder,
+        Optional<Path> conversionFile,
         Map<String, String> serverPropertiesChanges)
 {
     /**
@@ -37,5 +41,35 @@ public record ParsedArguments(
     public boolean shouldCopyPlayerData()
     {
         return copyPlayerDataSourceWorld.isPresent();
+    }
+
+    /**
+     * Indicates whether conversion should be limited to a single folder.
+     *
+     * @return {@code true} if {@code conversionFolder} is present; {@code false} otherwise
+     */
+    public boolean isFolderScopedConversion()
+    {
+        return conversionFolder.isPresent();
+    }
+
+    /**
+     * Indicates whether conversion should be limited to a single file.
+     *
+     * @return {@code true} if {@code conversionFile} is present; {@code false} otherwise
+     */
+    public boolean isFileScopedConversion()
+    {
+        return conversionFile.isPresent();
+    }
+
+    /**
+     * Indicates whether conversion is limited to a custom folder or file.
+     *
+     * @return {@code true} if {@code conversionFolder} or {@code conversionFile} is present
+     */
+    public boolean isScopedConversion()
+    {
+        return isFolderScopedConversion() || isFileScopedConversion();
     }
 }

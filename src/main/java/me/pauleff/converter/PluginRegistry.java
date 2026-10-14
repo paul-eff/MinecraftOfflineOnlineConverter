@@ -44,6 +44,8 @@ public record PluginRegistry(
             new ConvertVanillaServer(),
             new ConvertBukkitServer(),
             new ConvertModdedServer(),
+            new ConvertCliTargetFolder(),
+            new ConvertCliTargetFile(),
             new ConvertFtbQuests()
     );
 

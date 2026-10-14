@@ -41,6 +41,11 @@ java -jar MinecraftOfflineOnlineConverter.jar <arguments>
 - `-offline` to convert your server to offline files
 - `-online` to convert your server to online files
 - If necessary `-p "path/to/server/folder/"` (if the jar is not in the server's main folder)
+- `-customFolder "path/to/folder"` with `-online` or `-offline` to convert only files in that folder. Server type, save
+  format, and world layout are still detected from the server. A relative path is resolved from the server folder. Files
+  outside the folder are left unchanged, including `server.properties`, whitelist, and usercache
+- `-customFile "path/to/file"` with `-online` or `-offline` to convert only that file. Detection still uses the server;
+  no other files are changed. Cannot be combined with `-customFolder`
 - `-copy` to copy player data from one world to another
 - `-properties` to directly edit values in server.properties
 - `-customApiBaseUrl "https://myskinserver.com"` custom API base URL for online UUID/name lookups (Mojang API path

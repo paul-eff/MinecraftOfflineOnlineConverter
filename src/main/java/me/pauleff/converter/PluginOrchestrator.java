@@ -22,8 +22,9 @@ import java.util.Objects;
  * Runs registered {@link MOOCPlugin}s against a {@link PluginContext} in phased order.
  * <p>
  * Discovery plugins always run first. For conversion operations, the user must confirm
- * before misc and conversion plugins execute. Paths declared by each plugin are resolved
- * relative to the server root; only existing targets are passed to {@link MOOCPlugin#run}.
+ * before misc and conversion plugins execute. When {@code -customFolder} or {@code -customFile}
+ * is set, conversion is limited to that target. Paths declared by each plugin are resolved relative to the
+ * server root; only existing targets are passed to {@link MOOCPlugin#run}.
  *
  * @see PluginRegistry
  * @see PluginContext
@@ -73,8 +74,10 @@ public final class PluginOrchestrator
      * <p>
      * Always runs discovery plugins. For conversion operations, aborts when an online
      * conversion has an empty UUID map or when the user declines confirmation. Misc plugins
-     * then run; conversion plugins run only when a conversion was requested. If conversion
-     * discovers additional UUID mappings, {@link UpdateDefaultServerFiles} is reapplied.
+     * then run; conversion plugins run only when a conversion was requested. When
+     * {@code -customFolder} or {@code -customFile} is set, only that target is converted. If conversion
+     * discovers additional UUID mappings, {@link UpdateDefaultServerFiles} is reapplied
+     * for default server files that are still inside the conversion scope.
      *
      * @param ctx the shared conversion context
      * @throws NullPointerException                 if {@code ctx} is {@code null}, or if the
@@ -125,8 +128,12 @@ public final class PluginOrchestrator
          */
         if (ctx.uuidMap().size() > uuidMapSizeBeforeConversion)
         {
-            LOGGER.info("The number of detected profiles has increased during the conversion run. Reapplying to the server's default files.");
-            runPlugin(ctx, new UpdateDefaultServerFiles());
+            UpdateDefaultServerFiles updateDefaultServerFiles = new UpdateDefaultServerFiles();
+            if (updateDefaultServerFiles.isEnabled(ctx))
+            {
+                LOGGER.info("The number of detected profiles has increased during the conversion run. Reapplying to the server's default files.");
+                runPlugin(ctx, updateDefaultServerFiles);
+            }
         }
     }
 
@@ -141,13 +148,36 @@ public final class PluginOrchestrator
      */
     private boolean confirmConversion(PluginContext ctx)
     {
-        LOGGER.warn("""
-                WARNING! Read before proceeding:
-                
-                Please confirm everything above was detected correctly.
-                Make a backup of your server files before continuing.
-                Conversion will modify files in place and cannot be undone without a backup.
-                """);
+        if (ctx.isFileScopedConversion())
+        {
+            LOGGER.warn("""
+                    WARNING! Read before proceeding:
+                    
+                    Please confirm everything above was detected correctly.
+                    Make a backup of your server files before continuing.
+                    Conversion will modify files in place and cannot be undone without a backup.
+                    Only {} will be converted. Other server files will not be changed.
+                    """, ctx.conversionFile().orElseThrow());
+        } else if (ctx.isFolderScopedConversion())
+        {
+            LOGGER.warn("""
+                    WARNING! Read before proceeding:
+                    
+                    Please confirm everything above was detected correctly.
+                    Make a backup of your server files before continuing.
+                    Conversion will modify files in place and cannot be undone without a backup.
+                    Only files in {} will be converted. Other server files will not be changed.
+                    """, ctx.conversionFolder().orElseThrow());
+        } else
+        {
+            LOGGER.warn("""
+                    WARNING! Read before proceeding:
+                    
+                    Please confirm everything above was detected correctly.
+                    Make a backup of your server files before continuing.
+                    Conversion will modify files in place and cannot be undone without a backup.
+                    """);
+        }
 
         try
         {

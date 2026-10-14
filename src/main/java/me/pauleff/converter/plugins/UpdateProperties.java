@@ -31,15 +31,17 @@ public class UpdateProperties implements DefaultPlugin
     }
 
     /**
-     * Returns {@code true} when an online/offline conversion was requested.
+     * Returns {@code true} when an online/offline conversion was requested and
+     * {@code server.properties} is inside the conversion scope.
      *
      * @param ctx the shared conversion context
-     * @return {@code true} if this is a conversion operation; {@code false} otherwise
+     * @return {@code true} if this plugin should run; {@code false} otherwise
      */
     @Override
     public boolean isEnabled(PluginContext ctx)
     {
-        return ctx.isConversionOperation();
+        return ctx.isConversionOperation()
+                && ctx.isInConversionScope(ctx.serverFolder().resolve("server.properties"));
     }
 
     /**

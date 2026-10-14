@@ -63,6 +63,20 @@ public class ConvertFtbQuests implements MultiServerPlugin
     }
 
     /**
+     * Returns {@code true} when a conversion is requested, the server is modded, and the
+     * {@code ftbquests} folder is inside the conversion scope.
+     *
+     * @param ctx the shared conversion context
+     * @return {@code true} if this plugin should run; {@code false} otherwise
+     */
+    @Override
+    public boolean isEnabled(PluginContext ctx)
+    {
+        return MultiServerPlugin.super.isEnabled(ctx)
+                && ctx.isInConversionScope(ctx.worldFolder().resolve("ftbquests"));
+    }
+
+    /**
      * Returns the {@code ftbquests} folder under the world directory.
      *
      * @param ctx the shared conversion context
@@ -142,6 +156,11 @@ public class ConvertFtbQuests implements MultiServerPlugin
      */
     private boolean convertProgressFile(PluginContext ctx, Path path)
     {
+        if (!ctx.isInConversionScope(path))
+        {
+            return false;
+        }
+
         String baseName = FileNames.stripExtension(path.getFileName().toString());
         UUID sourceUuid = UUID.fromString(baseName);
         UUIDType sourceType = typeOf(sourceUuid);

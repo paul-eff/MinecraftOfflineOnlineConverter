@@ -31,7 +31,8 @@ public class ApplyCliServerProperties implements DefaultPlugin
     }
 
     /**
-     * Returns {@code true} when at least one {@code -properties} change was provided.
+     * Returns {@code true} when at least one {@code -properties} change was provided and
+     * {@code server.properties} is inside the conversion scope.
      *
      * @param ctx the shared conversion context
      * @return {@code true} if there are property changes to apply; {@code false} otherwise
@@ -39,7 +40,8 @@ public class ApplyCliServerProperties implements DefaultPlugin
     @Override
     public boolean isEnabled(PluginContext ctx)
     {
-        return !ctx.parsedArguments().serverPropertiesChanges().isEmpty();
+        return !ctx.parsedArguments().serverPropertiesChanges().isEmpty()
+                && ctx.isInConversionScope(ctx.serverFolder().resolve("server.properties"));
     }
 
     /**

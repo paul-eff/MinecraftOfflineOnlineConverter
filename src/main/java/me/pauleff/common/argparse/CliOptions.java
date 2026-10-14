@@ -23,6 +23,21 @@ public final class CliOptions
         options.addOption("h", "help", false, "Display help message");
 
         options.addOption("p", "path", true, "Specify path to the server folder");
+
+        Option customFolder = Option.builder("customFolder")
+                .desc("Convert all files in this folder only, using the detected Minecraft version and server layout. No files outside this folder are modified")
+                .hasArg()
+                .argName("path")
+                .build();
+        options.addOption(customFolder);
+
+        Option customFile = Option.builder("customFile")
+                .desc("Convert this file only, using the detected Minecraft version and server layout. No other files are modified")
+                .hasArg()
+                .argName("path")
+                .build();
+        options.addOption(customFile);
+
         options.addOption("v", false, "Print version");
         options.addOption("verbose", false, "Enable verbose (debug) console output");
         options.addOption("offline", false, "Convert server files to offline mode");

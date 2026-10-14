@@ -17,6 +17,19 @@ import java.util.List;
 abstract class AbstractWorldConversionPlugin implements ServerTypePlugin
 {
     /**
+     * Returns {@code true} when a conversion is requested, the server type matches,
+     * and conversion is not limited to a CLI {@code -customFolder} or {@code -customFile}.
+     *
+     * @param ctx the shared conversion context
+     * @return {@code true} if this plugin should run; {@code false} otherwise
+     */
+    @Override
+    public boolean isEnabled(PluginContext ctx)
+    {
+        return !ctx.isScopedConversion() && ServerTypePlugin.super.isEnabled(ctx);
+    }
+
+    /**
      * Returns every regular file under the dimension root folders for the detected
      * world folder structure.
      *

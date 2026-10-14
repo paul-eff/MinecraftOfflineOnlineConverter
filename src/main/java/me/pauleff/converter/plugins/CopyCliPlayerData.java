@@ -76,7 +76,7 @@ public class CopyCliPlayerData implements DefaultPlugin
     }
 
     /**
-     * Returns {@code true} when the {@code -copy} CLI option was provided.
+     * Returns {@code true} when {@code -copy} was provided and conversion is not limited to a custom folder or file.
      *
      * @param ctx the shared conversion context
      * @return {@code true} if player-data copying was requested; {@code false} otherwise
@@ -84,7 +84,7 @@ public class CopyCliPlayerData implements DefaultPlugin
     @Override
     public boolean isEnabled(PluginContext ctx)
     {
-        return ctx.parsedArguments().shouldCopyPlayerData();
+        return ctx.parsedArguments().shouldCopyPlayerData() && !ctx.isScopedConversion();
     }
 
     /**
