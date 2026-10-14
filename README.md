@@ -1,6 +1,6 @@
-# MinecraftOfflineOnlineConverter v26.1
+# MinecraftOfflineOnlineConverter v26.2
 <p align="center">
-  <img src="https://img.shields.io/badge/version-26.1-blue" alt="App version 26.1">
+  <img src="https://img.shields.io/badge/version-26.2-blue" alt="App version 26.2">
   <img src="https://img.shields.io/badge/minecraft-26.2-green" alt="Minecraft version 26.2">
   <img src="https://img.shields.io/badge/java-26-red" alt="Java version 26">
 </p>
@@ -42,10 +42,12 @@ java -jar MinecraftOfflineOnlineConverter.jar <arguments>
 - `-online` to convert your server to online files
 - If necessary `-p "path/to/server/folder/"` (if the jar is not in the server's main folder)
 - `-customFolder "path/to/folder"` with `-online` or `-offline` to convert only files in that folder. Server type, save
-  format, and world layout are still detected from the server. A relative path is resolved from the server folder. Files
-  outside the folder are left unchanged, including `server.properties`, whitelist, and usercache
+  format, and world layout are still detected from the server. Files outside the folder are left unchanged, including
+  `server.properties`, whitelist, and usercache. A relative path is resolved from the server folder (`-p`, or the current
+  directory if `-p` is omitted). An absolute path is used as given
 - `-customFile "path/to/file"` with `-online` or `-offline` to convert only that file. Detection still uses the server;
-  no other files are changed. Cannot be combined with `-customFolder`
+  no other files are changed. Cannot be combined with `-customFolder`. A relative path is resolved from the server folder
+  (`-p`, or the current directory if `-p` is omitted). An absolute path is used as given
 - `-copy` to copy player data from one world to another
 - `-properties` to directly edit values in server.properties
 - `-customApiBaseUrl "https://myskinserver.com"` custom API base URL for online UUID/name lookups (Mojang API path

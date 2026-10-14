@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "me.pauleff"
-version = "26.1"
+version = "26.2"
 
 repositories {
     mavenCentral()
@@ -18,7 +18,7 @@ dependencies {
     implementation("commons-cli:commons-cli:1.6.0")
     implementation("org.json:json:20251224")
     implementation("org.slf4j:slf4j-api:2.0.9")
-    implementation("ch.qos.logback:logback-classic:1.5.32")
+    implementation("ch.qos.logback:logback-classic:1.6.3")
     implementation("com.github.Querz:NBT:6.1")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")

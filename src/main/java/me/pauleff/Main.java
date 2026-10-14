@@ -19,7 +19,7 @@ public final class Main
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
     private static final String APP_NAME = "MinecraftOfflineOnlineConverter";
-    private static final String VERSION = "26.1";
+    private static final String VERSION = "26.2";
 
     /**
      * Parses command-line arguments and executes the requested conversion operations.
