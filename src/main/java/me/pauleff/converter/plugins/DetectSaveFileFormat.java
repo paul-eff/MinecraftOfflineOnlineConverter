@@ -39,6 +39,18 @@ public class DetectSaveFileFormat implements DefaultPlugin
     }
 
     /**
+     * Skips region-file detection for explicit targets, which may be a skeleton without regions.
+     *
+     * @param ctx the shared conversion context
+     * @return {@code true} unless conversion is limited to a custom folder or file
+     */
+    @Override
+    public boolean isEnabled(PluginContext ctx)
+    {
+        return !ctx.isScopedConversion();
+    }
+
+    /**
      * Returns the world folder as the sole detection target.
      *
      * @param ctx the shared conversion context

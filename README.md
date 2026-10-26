@@ -31,8 +31,8 @@ If you find any bugs or edge cases, please report them to this repo!
 First look at [Disclaimer](#disclaimer) and make sure you understand the "risks" of using this tool.
 
 - Download the [most current jar](https://github.com/paul-eff/MinecraftOfflineOnlineConverter/releases/latest)
-- Place it in your server's main folder (not mandatory, just makes things easier)
-- Execute the jar through your terminal with the following command:
+- Place it in your server's main folder (optional)
+- Open a terminal in your server's main folder, or pass that folder with `-p`, and execute the jar:
 
 ```bash
 java -jar MinecraftOfflineOnlineConverter.jar <arguments>
@@ -40,14 +40,12 @@ java -jar MinecraftOfflineOnlineConverter.jar <arguments>
 
 - `-offline` to convert your server to offline files
 - `-online` to convert your server to online files
-- If necessary `-p "path/to/server/folder/"` (if the jar is not in the server's main folder)
-- `-customFolder "path/to/folder"` with `-online` or `-offline` to convert only files in that folder. Server type, save
-  format, and world layout are still detected from the server. Files outside the folder are left unchanged, including
-  `server.properties`, whitelist, and usercache. A relative path is resolved from the server folder (`-p`, or the current
-  directory if `-p` is omitted). An absolute path is used as given
-- `-customFile "path/to/file"` with `-online` or `-offline` to convert only that file. Detection still uses the server;
-  no other files are changed. Cannot be combined with `-customFolder`. A relative path is resolved from the server folder
-  (`-p`, or the current directory if `-p` is omitted). An absolute path is used as given
+- `-p "path/to/server"` sets the server folder where MOOC reads `usercache.json`. It defaults to the terminal's current
+  directory, not the MOOC JAR's location.
+- `-customFolder "path/to/folder"` convert only this folder with `-online` or `-offline`. It cannot be combined with
+  `-customFile`.
+- `-customFile "path/to/file"` converts only this file with `-online` or `-offline`. It cannot be combined with
+  `-customFolder`.
 - `-copy` to copy player data from one world to another
 - `-properties` to directly edit values in server.properties
 - `-customApiBaseUrl "https://myskinserver.com"` custom API base URL for online UUID/name lookups (Mojang API path
@@ -60,6 +58,12 @@ java -jar MinecraftOfflineOnlineConverter.jar <arguments>
 - `-verbose` for verbose console output (for debugging and error reporting)
 - `-v` print MOOC version
 - `-h` for help
+
+Custom targets accept absolute paths anywhere or paths relative to the server folder. Only the selected target is
+modified. A complete world or `server.properties` is not required.
+
+Online conversion reads the server folder's `usercache.json` and resolves profiles through the configured API when
+needed. If no players could be resolved, no changes are made.
 
 ## Known Issues
 

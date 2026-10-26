@@ -2,10 +2,12 @@ package me.pauleff.converter.plugins;
 
 import me.pauleff.common.handlers.files.UsercacheFile;
 import me.pauleff.converter.ConversionTarget;
+import me.pauleff.converter.UUIDType;
 import me.pauleff.converter.api.DefaultPlugin;
 import me.pauleff.converter.api.PluginContext;
 import me.pauleff.converter.api.PluginMetadata;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -15,13 +17,14 @@ import java.util.List;
 import java.util.UUID;
 
 import static me.pauleff.common.handlers.uuid.MinecraftUuids.offlineFromName;
+import static me.pauleff.common.handlers.uuid.MinecraftUuids.typeOf;
 import static me.pauleff.common.handlers.uuid.OnlineProfileLookup.nameToOnlineUuid;
 
 /**
  * Prefills the context UUID map from {@code usercache.json} for an online/offline conversion.
  * <p>
- * Exits early when {@code usercache.json} is missing, which usually indicates a pre-1.7.6 server
- * that does not need UUID conversion.
+ * Online conversion requires cached player names. Offline cache entries are resolved via
+ * the configured profile API; online cache entries supply the online UUID directly.
  */
 public class PrefetchUsercache implements DefaultPlugin
 {
@@ -53,27 +56,36 @@ public class PrefetchUsercache implements DefaultPlugin
     }
 
     /**
-     * Returns {@code usercache.json} under the server folder, or exits if the file is absent.
+     * Returns {@code usercache.json} under the server folder when available.
+     * A full-server run exits with the legacy-version notice when the file is missing.
+     * Custom targets continue without prefetched profiles.
      *
      * @param ctx the shared conversion context
-     * @return a single-element list containing the usercache path
+     * @return the usercache path, or an empty list if it is missing for a custom target
      */
     @Override
     public List<Path> setTargets(PluginContext ctx)
     {
         Path usercachePath = ctx.serverFolder().resolve("usercache.json");
 
+        if (!Files.isRegularFile(usercachePath))
+        {
         /*
          * During a normal conversion run this is the second point where we can determine if a conversion is even needed.
          * The easiest way to determine this is if the usercache.json file was generated.
          * If not, this almost always hints to the server being pre Minecraft 1.7.6 (2014).
          */
-        if (!Files.exists(usercachePath))
-        {
-            logger().info("""
-                    You are probably trying to convert a Minecraft older then Minecraft 1.7.6 (2014). Switching between online and offline should work without any conversion needed!
-                    If this is a mistake, please report this case to the MOOC repository.""");
-            System.exit(0);
+            if (!ctx.isScopedConversion())
+            {
+                logger().info("""
+                        You are probably trying to convert a Minecraft version older than 1.7.6 (2014). Switching between online and offline mode should work without conversion.
+                        If this is a mistake, please report it to the MOOC repository.""");
+                System.exit(0);
+            }
+
+            logger().warn("No usercache.json found at {}. Online conversion requires a usercache containing the players' names and UUIDs.",
+                    usercachePath);
+            return List.of();
         }
 
         return List.of(usercachePath);
@@ -117,16 +129,25 @@ public class PrefetchUsercache implements DefaultPlugin
             {
                 String playerName = knownPlayer.getString("name");
                 UUID playerUUID = UUID.fromString(knownPlayer.getString("uuid"));
+                UUIDType playerType = typeOf(playerUUID);
+                if (playerName.isBlank() || playerType == UUIDType.INVALID)
+                {
+                    logger().warn("Skipping usercache entry with a blank name or unsupported UUID: {}", knownPlayer);
+                    continue;
+                }
 
                 if (ctx.conversionTarget() == ConversionTarget.ONLINE)
                 {
-                    UUID onlineUUID = nameToOnlineUuid(playerName);
-                    if (onlineUUID == null)
+                    UUID onlineUUID = playerType == UUIDType.ONLINE ? playerUUID : nameToOnlineUuid(playerName);
+                    if (onlineUUID == null || typeOf(onlineUUID) != UUIDType.ONLINE)
                     {
-                        logger().warn("Skipping '{}' — no online UUID found (Mojang API).", playerName);
+                        logger().warn("Skipping '{}' — no valid online UUID found from the configured profile API.", playerName);
                         continue;
                     }
-                    ctx.putUuidMapping(playerUUID, onlineUUID);
+                    // Offline UUIDs depend on the exact spelling of the cached name. A cache
+                    // copied from online mode still provides enough information for this mapping.
+                    UUID offlineUUID = playerType == UUIDType.OFFLINE ? playerUUID : offlineFromName(playerName);
+                    ctx.putUuidMapping(offlineUUID, onlineUUID);
                     logger().info("Prefetched {} -> {}", playerName, onlineUUID);
                     prefetched++;
                 } else
@@ -138,7 +159,10 @@ public class PrefetchUsercache implements DefaultPlugin
                 }
             } catch (IOException e)
             {
-                logger().warn("There was an error whilst fetching information from the Mojang API.", e);
+                logger().warn("Could not resolve usercache entry {} using the configured profile API.", knownPlayer, e);
+            } catch (JSONException | IllegalArgumentException e)
+            {
+                logger().warn("Skipping invalid usercache entry or profile response for {}: {}", knownPlayer, e.getMessage());
             }
         }
 

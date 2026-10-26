@@ -13,8 +13,8 @@ import java.util.List;
  * Converts the single file specified by the CLI {@code -customFile} option.
  * <p>
  * Enabled only when an online/offline conversion is requested and {@code -customFile} is set.
- * Detection still runs against the full server so save format, world layout, and UUID
- * mappings stay accurate; only the target file is rewritten.
+ * UUID mappings are prefetched from the server root's usercache. World layout and region
+ * detection are skipped so a file can be converted without a complete world.
  */
 public class ConvertCliTargetFile implements DefaultPlugin
 {

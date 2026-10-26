@@ -13,8 +13,8 @@ import java.util.List;
  * Converts every regular file under the CLI {@code -customFolder} path.
  * <p>
  * Enabled only when an online/offline conversion is requested and {@code -customFolder} is set.
- * Detection still runs against the full server so save format, world layout, and UUID
- * mappings stay accurate; only files inside the target folder are rewritten.
+ * UUID mappings are prefetched from the server root's usercache. World layout and region
+ * detection are skipped so skeleton folders can be converted without a complete world.
  */
 public class ConvertCliTargetFolder implements DefaultPlugin
 {

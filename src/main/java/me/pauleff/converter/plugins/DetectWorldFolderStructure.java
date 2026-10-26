@@ -39,6 +39,18 @@ public class DetectWorldFolderStructure implements DefaultPlugin
     }
 
     /**
+     * Skips world layout detection when the user supplied the conversion targets explicitly.
+     *
+     * @param ctx the shared conversion context
+     * @return {@code true} unless conversion is limited to a custom folder or file
+     */
+    @Override
+    public boolean isEnabled(PluginContext ctx)
+    {
+        return !ctx.isScopedConversion();
+    }
+
+    /**
      * Returns the server root folder as the sole detection target.
      *
      * @param ctx the shared conversion context

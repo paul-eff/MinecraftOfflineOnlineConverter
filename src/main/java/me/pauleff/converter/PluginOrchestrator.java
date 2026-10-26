@@ -93,7 +93,7 @@ public final class PluginOrchestrator
         {
             if (ctx.conversionTarget() == ConversionTarget.ONLINE && ctx.uuidMap().isEmpty())
             {
-                LOGGER.error("No profiles resolved for online conversion. Aborting...");
+                LOGGER.error("No profiles resolved for online conversion. Offline to online conversion requires a usercache.json. Aborting...", ctx.serverFolder());
                 return;
             }
             if (!confirmConversion(ctx))

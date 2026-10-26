@@ -70,9 +70,11 @@ public final class PluginContext
      * Builds a {@link PluginContext} from successfully parsed CLI arguments.
      * <p>
      * Resolves the server folder (defaulting to the current directory), requires
-     * {@code server.properties}, derives the world folder from {@code level-name},
+     * {@code server.properties} for full-server operations, derives the world folder from {@code level-name},
      * resolves {@code -customFolder} or {@code -customFile} when present, and sets the
      * conversion target from the online/offline flags (offline when absent).
+     * Explicit conversion targets do not require a world folder or {@code server.properties};
+     * without properties, the world path defaults to {@code world} under the server root.
      *
      * @param parsedArgs the parsed CLI arguments
      * @return a new context ready for plugin execution
@@ -96,16 +98,16 @@ public final class PluginContext
         LOGGER.info("Server folder set to: {}", serverFolder);
 
         Path serverProperties = serverFolder.resolve("server.properties");
-        if (!Files.exists(serverProperties))
+        if (!Files.exists(serverProperties) && !parsedArgs.isScopedConversion())
         {
             throw new PathNotValidException(
                     "Could not find server.properties",
                     serverProperties.toAbsolutePath().normalize());
         }
 
-        String worldName = ServerPropertiesFile.worldName(serverProperties);
+        String worldName = Files.exists(serverProperties) ? ServerPropertiesFile.worldName(serverProperties) : "world";
         Path worldFolder = serverFolder.resolve(worldName);
-        if (!Files.exists(worldFolder))
+        if (!Files.exists(worldFolder) && !parsedArgs.isScopedConversion())
         {
             throw new PathNotValidException(worldFolder.toAbsolutePath().normalize());
         }
@@ -428,9 +430,9 @@ public final class PluginContext
                 ", conversionFolder=" + conversionFolder.map(Path::toString).orElse("all") +
                 ", conversionFile=" + conversionFile.map(Path::toString).orElse("all") +
                 ", conversionTarget=" + conversionTarget.name() +
-                ", serverType=" + serverType.name() +
-                ", worldFolderStructure=" + worldFolderStructure.name() +
-                ", saveFileFormat=" + saveFileFormat.name() +
+                ", serverType=" + serverType +
+                ", worldFolderStructure=" + worldFolderStructure +
+                ", saveFileFormat=" + saveFileFormat +
                 ", uuidMap=" + uuidMap +
                 '}';
     }
