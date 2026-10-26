@@ -44,7 +44,7 @@ public final class MinecraftUuids
     /**
      * Returns the hyphenated string form of a UUID without dashes.
      * <p>
-     * Mojang APIs and some mod formats (for example FTB Quests) store UUIDs this way.
+     * Mojang APIs store UUIDs this way.
      *
      * @param uuid the UUID to format
      * @return the 32-character dashless UUID string

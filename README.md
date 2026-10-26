@@ -81,6 +81,12 @@ If no players resolve, nothing is changed.
 - Entity relations tied to players (e.g. pet ownership) is not
   transferred. [Here is a workaround](https://www.reddit.com/r/Minecraft/comments/9bmthx/change_pet_ownership_with_command_using_uuid_in/)
   that works for now
+- Currently, there is no good way to support niche/mod specific use cases
+  (e.g. [ConvertFtbQuests.java](src/main/java/me/pauleff/converter/plugins/ConvertFtbQuests.java)
+  in [Issue #19](https://github.com/paul-eff/MinecraftOfflineOnlineConverter/issues/19)).
+  The plugin system is designed for broader conversions and also keeping these "scripts" up-to-date can turn into a
+  burden very quickly. I will keep thinking about possible solutions
+  but for now I will not further pursue it.
 
 ## Building
 
