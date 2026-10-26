@@ -134,6 +134,12 @@ public final class ArgumentParser
             throw new ParseException("Options customFolder and customFile cannot be combined");
         }
 
+        boolean includeServerFiles = cmd.hasOption("includeServerFiles");
+        if (includeServerFiles && conversionFolder.isEmpty() && conversionFile.isEmpty())
+        {
+            throw new ParseException("Option includeServerFiles requires -customFolder or -customFile");
+        }
+
         String scopedOption = conversionFolder.isPresent() ? "customFolder" : "customFile";
         if ((conversionFolder.isPresent() || conversionFile.isPresent()) && toOnlineMode.isEmpty())
         {
@@ -141,13 +147,13 @@ public final class ArgumentParser
         }
         if ((conversionFolder.isPresent() || conversionFile.isPresent()) && copyPlayerDataSourceWorld.isPresent())
         {
-            throw new ParseException("Option " + scopedOption + " cannot be combined with -copy; only the target is modified");
+            throw new ParseException("Option " + scopedOption + " cannot be combined with -copy");
         }
 
         Map<String, String> propertyChanges = parseServerPropertiesChanges(cmd);
         if ((conversionFolder.isPresent() || conversionFile.isPresent()) && !propertyChanges.isEmpty())
         {
-            throw new ParseException("Option " + scopedOption + " cannot be combined with -properties; only the target is modified");
+            throw new ParseException("Option " + scopedOption + " cannot be combined with -properties");
         }
 
         applyCustomApiOptions(cmd);
@@ -158,7 +164,8 @@ public final class ArgumentParser
                 copyPlayerDataSourceWorld,
                 conversionFolder,
                 conversionFile,
-                propertyChanges);
+                propertyChanges,
+                includeServerFiles);
     }
 
     /**

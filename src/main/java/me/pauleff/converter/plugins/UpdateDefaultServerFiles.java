@@ -41,7 +41,7 @@ public class UpdateDefaultServerFiles implements DefaultPlugin
 
     /**
      * Returns {@code true} when an online/offline conversion was requested and at least
-     * one default server file exists inside the conversion scope.
+     * one default server file is selected and exists.
      *
      * @param ctx the shared conversion context
      * @return {@code true} if this plugin should run; {@code false} otherwise
@@ -57,6 +57,7 @@ public class UpdateDefaultServerFiles implements DefaultPlugin
      * Returns the standard server JSON files under the server root that may contain UUIDs.
      * <p>
      * When {@code -customFolder} or {@code -customFile} is set, only files inside that scope are returned.
+     * {@code -includeServerFiles} includes all default server JSON files regardless of that scope.
      *
      * @param ctx the shared conversion context
      * @return the candidate server file paths; never {@code null}
@@ -66,7 +67,7 @@ public class UpdateDefaultServerFiles implements DefaultPlugin
     {
         return SERVER_FILE_NAMES.stream()
                 .map(name -> ctx.serverFolder().resolve(name))
-                .filter(ctx::isInConversionScope)
+                .filter(path -> ctx.parsedArguments().includeServerFiles() || ctx.isInConversionScope(path))
                 .toList();
     }
 

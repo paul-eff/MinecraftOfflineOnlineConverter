@@ -23,7 +23,8 @@ import java.util.Objects;
  * <p>
  * Discovery plugins always run first. For conversion operations, the user must confirm
  * before misc and conversion plugins execute. When {@code -customFolder} or {@code -customFile}
- * is set, conversion is limited to that target. Paths declared by each plugin are resolved relative to the
+ * is set, conversion is limited to that target unless {@code -includeServerFiles} also selects default
+ * server files. Paths declared by each plugin are resolved relative to the
  * server root; only existing targets are passed to {@link MOOCPlugin#run}.
  *
  * @see PluginRegistry
@@ -75,9 +76,10 @@ public final class PluginOrchestrator
      * Always runs discovery plugins. For conversion operations, aborts when an online
      * conversion has an empty UUID map or when the user declines confirmation. Misc plugins
      * then run; conversion plugins run only when a conversion was requested. When
-     * {@code -customFolder} or {@code -customFile} is set, only that target is converted. If conversion
+     * {@code -customFolder} or {@code -customFile} is set, only that target is converted unless
+     * {@code -includeServerFiles} also selects default server files. If conversion
      * discovers additional UUID mappings, {@link UpdateDefaultServerFiles} is reapplied
-     * for default server files that are still inside the conversion scope.
+     * for the selected default server files.
      *
      * @param ctx the shared conversion context
      * @throws NullPointerException                 if {@code ctx} is {@code null}, or if the
@@ -148,7 +150,18 @@ public final class PluginOrchestrator
      */
     private boolean confirmConversion(PluginContext ctx)
     {
-        if (ctx.isFileScopedConversion())
+        if (ctx.isScopedConversion() && ctx.parsedArguments().includeServerFiles())
+        {
+            LOGGER.warn("""
+                    WARNING! Read before proceeding:
+                    
+                    Please confirm everything above was detected correctly.
+                    Make a backup of your server files before continuing.
+                    Conversion will modify files in place and cannot be undone without a backup.
+                    The custom target {} and default server files in {} will be converted.
+                    This includes server.properties, usercache, usernamecache, whitelist, ops and ban lists.
+                    """, ctx.conversionFile().orElseGet(() -> ctx.conversionFolder().orElseThrow()), ctx.serverFolder());
+        } else if (ctx.isFileScopedConversion())
         {
             LOGGER.warn("""
                     WARNING! Read before proceeding:

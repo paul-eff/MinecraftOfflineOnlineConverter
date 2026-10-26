@@ -32,7 +32,7 @@ public class UpdateProperties implements DefaultPlugin
 
     /**
      * Returns {@code true} when an online/offline conversion was requested and
-     * {@code server.properties} is inside the conversion scope.
+     * {@code server.properties} is inside the conversion scope or {@code -includeServerFiles} is set.
      *
      * @param ctx the shared conversion context
      * @return {@code true} if this plugin should run; {@code false} otherwise
@@ -41,7 +41,8 @@ public class UpdateProperties implements DefaultPlugin
     public boolean isEnabled(PluginContext ctx)
     {
         return ctx.isConversionOperation()
-                && ctx.isInConversionScope(ctx.serverFolder().resolve("server.properties"));
+                && (ctx.parsedArguments().includeServerFiles()
+                || ctx.isInConversionScope(ctx.serverFolder().resolve("server.properties")));
     }
 
     /**

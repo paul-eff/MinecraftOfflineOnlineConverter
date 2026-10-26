@@ -14,6 +14,7 @@ import java.util.Optional;
  * @param conversionFolder          a folder to limit conversion to, if specified
  * @param conversionFile            a single file to limit conversion to, if specified
  * @param serverPropertiesChanges   key/value pairs to apply to {@code server.properties}; may be empty
+ * @param includeServerFiles        whether to also convert default server files with a custom target
  */
 public record ParsedArguments(
         Optional<Path> serverPath,
@@ -21,7 +22,8 @@ public record ParsedArguments(
         Optional<String> copyPlayerDataSourceWorld,
         Optional<Path> conversionFolder,
         Optional<Path> conversionFile,
-        Map<String, String> serverPropertiesChanges)
+        Map<String, String> serverPropertiesChanges,
+        boolean includeServerFiles)
 {
     /**
      * Indicates whether an online/offline conversion was requested.

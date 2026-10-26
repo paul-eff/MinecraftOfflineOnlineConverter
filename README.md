@@ -46,6 +46,9 @@ java -jar MinecraftOfflineOnlineConverter.jar <arguments>
   `-customFile`.
 - `-customFile "path/to/file"` converts only this file with `-online` or `-offline`. It cannot be combined with
   `-customFolder`.
+- `-includeServerFiles` also converts the server folder's properties, usercache, usernamecache, whitelist, ops and ban
+  lists.
+  Requires `-customFolder` or `-customFile`.
 - `-copy` to copy player data from one world to another
 - `-properties` to directly edit values in server.properties
 - `-customApiBaseUrl "https://myskinserver.com"` custom API base URL for online UUID/name lookups (Mojang API path
@@ -60,7 +63,7 @@ java -jar MinecraftOfflineOnlineConverter.jar <arguments>
 - `-h` for help
 
 Custom targets accept absolute paths anywhere or paths relative to the server folder. Only the selected target is
-modified. A complete world or `server.properties` is not required.
+modified unless `-includeServerFiles` is set. A complete world or `server.properties` is not required.
 
 Online conversion reads the server folder's `usercache.json` and resolves profiles through the configured API when
 needed. If no players could be resolved, no changes are made.

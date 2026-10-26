@@ -37,6 +37,8 @@ public final class CliOptions
                 .argName("path")
                 .build();
         options.addOption(customFile);
+        options.addOption("includeServerFiles", false,
+                "Also convert default server files. Requires -customFolder or -customFile");
 
         options.addOption("v", false, "Print version");
         options.addOption("verbose", false, "Enable verbose (debug) console output");
