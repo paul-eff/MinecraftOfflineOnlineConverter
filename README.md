@@ -1,17 +1,22 @@
 # MinecraftOfflineOnlineConverter v26.2
+
 <p align="center">
   <img src="https://img.shields.io/badge/version-26.2-blue" alt="App version 26.2">
   <img src="https://img.shields.io/badge/minecraft-26.2-green" alt="Minecraft version 26.2">
   <img src="https://img.shields.io/badge/java-26-red" alt="Java version 26">
 </p>
 
-Ever started playing on one of your Minecraft servers and a few hours later that one friend that didn't buy the game wants to join?
-Now you have to start a lengthy process of turning your server to offline mode and making sure everyone has their inventory and achievements after the switch... 
+Ever started playing on one of your Minecraft servers and a few hours later that one friend that didn't buy the game
+wants to join?
+Now you have to start a lengthy process of turning your server to offline mode and making sure everyone has their
+inventory and achievements after the switch...
+Convert Minecraft player data between online and offline mode while keeping inventories and progress.
+Requires Java 26.
 
 This happened to me way to often, and now I automated the whole process.
 The Java applicatin will convert all player related files to be offline or online compatible.
 
-# Supporting
+## Supported Servers
 
 | Server Type | Min. MC Version | Max. MC Version |
 |:------------|:----------------|:----------------|
@@ -21,81 +26,77 @@ The Java applicatin will convert all player related files to be offline or onlin
 | Fabric      | 1.14            | 26.2            |
 | Paper       | 1.7.10          | 26.2            |
 | Spigot      | 1.8             | 26.2            |
+| NeoForge    | WIP             | WIP             |
+| Sponge      | WIP             | WIP             |
 
 Mojang introduced UUIDs in Minecraft 1.7.6 (2014). Converting between pre 1.7.6 and post 1.7.6 is currently not being
 pursued and will not be any time soon.  
 If you find any bugs or edge cases, please report them to this repo!
 
-# Usage
+## Usage
 
-First look at [Disclaimer](#disclaimer) and make sure you understand the "risks" of using this tool.
-
-- Download the [most current jar](https://github.com/paul-eff/MinecraftOfflineOnlineConverter/releases/latest)
-- Place it in your server's main folder (optional)
-- Open a terminal in your server's main folder, or pass that folder with `-p`, and execute the jar:
+Stop the server and back up its files. Read the [disclaimer](#disclaimer) before continuing.
+Download the [latest JAR](https://github.com/paul-eff/MinecraftOfflineOnlineConverter/releases/latest),
+then run this command from your server folder:
 
 ```bash
-java -jar MinecraftOfflineOnlineConverter.jar <arguments>
+java -jar MinecraftOfflineOnlineConverter.jar -offline
 ```
 
-- `-offline` to convert your server to offline files
-- `-online` to convert your server to online files
-- `-p "path/to/server"` sets the server folder where MOOC reads `usercache.json`. It defaults to the terminal's current
-  directory, not the MOOC JAR's location.
-- `-customFolder "path/to/folder"` convert only this folder with `-online` or `-offline`. It cannot be combined with
-  `-customFile`.
-- `-customFile "path/to/file"` converts only this file with `-online` or `-offline`. It cannot be combined with
-  `-customFolder`.
-- `-includeServerFiles` also converts the server folder's properties, usercache, usernamecache, whitelist, ops and ban
-  lists.
-  Requires `-customFolder` or `-customFile`.
-- `-copy` to copy player data from one world to another
-- `-properties` to directly edit values in server.properties
-- `-customApiBaseUrl "https://myskinserver.com"` custom API base URL for online UUID/name lookups (Mojang API path
-  schema was to be used [read more here](https://minecraft.wiki/w/Mojang_API)). Useful for custom auth/skin servers
-  like [Blessing Skin](https://github.com/bs-community)
-- `-retrieveUUIDUrl "https://myskinserver.com/api/.../"` full name to UUID endpoint URL (domain + path). Only the player
-  name is appended. Overrides `-customApiBaseUrl` for this lookup
-- `-retrieveNameUrl "https://myskinserver.com/api/.../"` full UUID to name endpoint URL (domain + path). Only the UUID
-  is appended. Overrides `-customApiBaseUrl` for this lookup
-- `-verbose` for verbose console output (for debugging and error reporting)
-- `-v` print MOOC version
-- `-h` for help
+Replace the JAR filename with the one you downloaded. Use `-online` for online mode or
+`-p "/path/to/MyServer"` to select another server folder. Review the settings and confirm when prompted.
 
-Custom targets accept absolute paths anywhere or paths relative to the server folder. Only the selected target is
-modified unless `-includeServerFiles` is set. A complete world or `server.properties` is not required.
+### CLI Arguments
 
-Online conversion reads the server folder's `usercache.json` and resolves profiles through the configured API when
-needed. If no players could be resolved, no changes are made.
+| Argument                      | Description                                                             |
+|:------------------------------|:------------------------------------------------------------------------|
+| `-offline`                    | Convert to offline mode.                                                |
+| `-online`                     | Convert to online mode.                                                 |
+| `-p <path>`, `--path <path>`  | Server folder (default: current terminal directory).                    |
+| `-customFolder <path>`        | Convert only this folder recursively. Use with `-online` or `-offline`. |
+| `-customFile <path>`          | Convert only this file. Use with `-online` or `-offline`.               |
+| `-includeServerFiles`         | Also convert server files. Use with a custom target.                    |
+| `-copy <world-name>`          | Copy player data from this world to the active world.                   |
+| `-properties key=value [...]` | Edit `server.properties` values.                                        |
+| `-customApiBaseUrl <url>`     | Base URL for Mojang-compatible profile lookups.                         |
+| `-retrieveUUIDUrl <url>`      | Override the base URL for name-to-UUID lookups.                         |
+| `-retrieveNameUrl <url>`      | Override the base URL for UUID-to-name lookups.                         |
+| `-verbose`                    | Enable debug console output.                                            |
+| `-v`                          | Print MOOC version.                                                     |
+| `-h`, `--help`                | Show help.                                                              |
+
+See the [CLI guide](documentation/CLI.md) for explanations and real examples for using custom targets, profile APIs,
+player data copying, and property edits.
+
+**Warning:** With `-customFolder` or `-customFile`, use `-includeServerFiles` or manually keep server
+configuration and converted files in sync to avoid errors. See the
+[partial conversion warning](documentation/CLI.md#include-server-files-with-a-partial-conversion).
+
+Online conversion needs the server folder's `usercache.json`. Unresolved players are skipped.
+If no players resolve, nothing is changed.
 
 ## Known Issues
 
-- Paper servers (when converted to offline), sometimes create `<Online UUID>.dat.offline-read`) files
-- No confirmed support for Sponge servers
+- Paper may create `<Online UUID>.dat.offline-read` files after offline conversion.
 - Entity relations tied to players (e.g. pet ownership) is not
   transferred. [Here is a workaround](https://www.reddit.com/r/Minecraft/comments/9bmthx/change_pet_ownership_with_command_using_uuid_in/)
   that works for now
 
 ## Building
 
-Executing the command
+Build a runnable JAR with all dependencies:
+
 ```bash
 ./gradlew clean shadowJar
 ```
 
-builds a runnable JAR with all dependencies.
-
-# Disclaimer
+## Disclaimer
 
 Please always make a backup of your game files before using this tool.
 Whilst it was thoroughly tested on my own servers, there is always the chance that a bug might occur!
 
-If you need this application for a lower Minecraft and/or Java version, please leave me a message or issue :)!
+## License
 
-# License
-
-This project is licensed under the [MIT License](LICENSE).
-
-# Remark
+Licensed under the [MIT License](LICENSE).
 
 Minecraft is a registered trademark of Mojang AB.
