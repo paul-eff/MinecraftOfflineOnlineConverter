@@ -3,7 +3,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/version-26.2-blue" alt="App version 26.2">
   <img src="https://img.shields.io/badge/minecraft-26.2-green" alt="Minecraft version 26.2">
-  <img src="https://img.shields.io/badge/java-26-red" alt="Java version 26">
+  <img src="https://img.shields.io/badge/java-25-red" alt="Java version 25">
 </p>
 
 Ever started playing on one of your Minecraft servers and a few hours later that one friend that didn't buy the game
@@ -11,7 +11,7 @@ wants to join?
 Now you have to start a lengthy process of turning your server to offline mode and making sure everyone has their
 inventory and achievements after the switch...
 Convert Minecraft player data between online and offline mode while keeping inventories and progress.
-Requires Java 26.
+Requires Java 25.
 
 This happened to me way to often, and now I automated the whole process.
 The Java applicatin will convert all player related files to be offline or online compatible.
