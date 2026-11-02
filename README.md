@@ -10,11 +10,9 @@ Ever started playing on one of your Minecraft servers and a few hours later that
 wants to join?
 Now you have to start a lengthy process of turning your server to offline mode and making sure everyone has their
 inventory and achievements after the switch...
-Convert Minecraft player data between online and offline mode while keeping inventories and progress.
-Requires Java 25.
 
 This happened to me way to often, and now I automated the whole process.
-The Java applicatin will convert all player related files to be offline or online compatible.
+This Java applicatin will convert all player related files to be offline or online compatible.
 
 ## Supported Servers
 
@@ -48,24 +46,24 @@ Replace the JAR filename with the one you downloaded. Use `-online` for online m
 
 ### CLI Arguments
 
-| Argument                      | Description                                                             |
-|:------------------------------|:------------------------------------------------------------------------|
-| `-offline`                    | Convert to offline mode.                                                |
-| `-online`                     | Convert to online mode.                                                 |
-| `-p <path>`, `--path <path>`  | Server folder (default: current terminal directory).                    |
-| `-customFolder <path>`        | Convert only this folder recursively. Use with `-online` or `-offline`. |
-| `-customFile <path>`          | Convert only this file. Use with `-online` or `-offline`.               |
-| `-includeServerFiles`         | Also convert server files. Use with a custom target.                    |
-| `-copy <world-name>`          | Copy player data from this world to the active world.                   |
-| `-properties key=value [...]` | Edit `server.properties` values.                                        |
-| `-customApiBaseUrl <url>`     | Base URL for Mojang-compatible profile lookups.                         |
-| `-retrieveUUIDUrl <url>`      | Override the base URL for name-to-UUID lookups.                         |
-| `-retrieveNameUrl <url>`      | Override the base URL for UUID-to-name lookups.                         |
-| `-verbose`                    | Enable debug console output.                                            |
-| `-v`                          | Print MOOC version.                                                     |
-| `-h`, `--help`                | Show help.                                                              |
+| Argument                      | Description                                                                       |
+|:------------------------------|:----------------------------------------------------------------------------------|
+| `-offline`                    | Convert to offline mode.                                                          |
+| `-online`                     | Convert to online mode.                                                           |
+| `-p <path>`, `--path <path>`  | Server folder (default: current terminal directory).                              |
+| `-customFolder <path>`        | Convert only this folder recursively. Use with `-online` or `-offline`.           |
+| `-customFile <path>`          | Convert only this file. Use with `-online` or `-offline`.                         |
+| `-includeServerFiles`         | Also convert default server files (e.g. whitelist, ...). Use with custom targets. |
+| `-copy <world-name>`          | Copy player data from this world to the active world.                             |
+| `-properties key=value [...]` | Edit `server.properties` values.                                                  |
+| `-customApiBaseUrl <url>`     | Base URL for Mojang-compatible profile lookups.                                   |
+| `-retrieveUUIDUrl <url>`      | Override the base URL for name-to-UUID lookups.                                   |
+| `-retrieveNameUrl <url>`      | Override the base URL for UUID-to-name lookups.                                   |
+| `-verbose`                    | Enable debug console output.                                                      |
+| `-v`                          | Print MOOC version.                                                               |
+| `-h`, `--help`                | Show help.                                                                        |
 
-See the [CLI guide](documentation/CLI.md) for explanations and real examples for using custom targets, profile APIs,
+See the [CLI guide](documentation/CLI.md) for more in depth explanations and real examples for using custom targets, profile APIs,
 player data copying, and property edits.
 
 **Warning:** With `-customFolder` or `-customFile`, use `-includeServerFiles` or manually keep server
@@ -98,8 +96,14 @@ Build a runnable JAR with all dependencies:
 
 ## Disclaimer
 
+### General
 Please always make a backup of your game files before using this tool.
 Whilst it was thoroughly tested on my own servers, there is always the chance that a bug might occur!
+
+### Automated pre-releases
+
+Commits to main are automatically built and released as a developer build/pre-release.
+Only use these if instructed by me or you know what you are doing!
 
 ## License
 
